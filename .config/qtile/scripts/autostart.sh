@@ -3,6 +3,6 @@
 # capslock to control
 setxkbmap -option ctrl:nocaps &
 
-picom --experimental-backends -b &
+picom --experimental-backends --backend glx --xrender-sync-fence &
 
 

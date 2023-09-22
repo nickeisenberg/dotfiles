@@ -279,12 +279,6 @@ mybar = bar.Bar(
     # border_color=["ff00ff", "ff00ff", "ff00ff", "ff00ff"],
 )
 
-
-@hook.subscribe.startup
-def _():
-    mybar.window.window.set_property("QTILE_BAR", 1, "CARDINAL", 32)
-
-
 screens = [
     Screen(
         top=mybar,
