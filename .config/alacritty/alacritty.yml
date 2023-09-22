@@ -1,0 +1,13 @@
+shell:
+  program: /bin/bash
+  args:
+    - --login
+
+window: 
+  opacity: 1
+
+font:
+  size: 8
+
+import:
+  - ~/.config/alacritty/rose-pine.yml
