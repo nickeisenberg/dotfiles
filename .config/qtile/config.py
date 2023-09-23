@@ -277,7 +277,7 @@ def make_pill(widget_types: list):
         widget.TextBox(
             text="\uE0B6",
             foreground=colors[8],
-            background=colors[0],
+            background="#00000000",
             padding=0,
             fontsize=45
         ),
@@ -286,12 +286,12 @@ def make_pill(widget_types: list):
         widget.TextBox(
             text="\ue0b4",
             foreground=colors[8],
-            background=colors[0],
+            background="#00000000",
             padding=0,
             fontsize=45
         ),
         widget.Sep(
-            background=colors[0],
+            background="#00000000",
             padding=12,
             linewidth=0,
         )
@@ -352,11 +352,13 @@ mybar += make_pill(
     ]
 )
 
-mybar += [
-    widget.Spacer(),
+mybar += [widget.Spacer()]
+
+mybar += make_pill([
     widget.GroupBox(
-        active=colors[6],
-        inactive=colors[1],
+        background=colors[8],
+        active=colors[5],
+        inactive=colors[7],
         rounded=True,
         highlight_color=colors[0],
         highlight_method="line",
@@ -364,9 +366,10 @@ mybar += [
         block_highlight_text_color=colors[2],
         blockwidth=2,
         margin_y=5,
-    ),
-    widget.Spacer()
-]
+    )
+])
+
+mybar += [widget.Spacer()]
 
 mybar+= make_pill(
     [
@@ -436,6 +439,8 @@ mybar.append(
     )
 )
 
+xx = ["#292d3e", "#292d3e"]
+yy = ["#A8A8A8", "#A8A8A8"]
 
 screens = [
     Screen(
@@ -444,7 +449,8 @@ screens = [
         top=bar.Bar(
             mybar,
             40,
-            background=colors[0],
+            # background=colors[0],
+            background="#00000000",
             margin=[3,3,3,3],
             # opacity=0.8,
         ),
