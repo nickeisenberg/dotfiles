@@ -83,7 +83,7 @@ keys = [
     
     # System
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    # Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
 
     # Applications
@@ -91,6 +91,14 @@ keys = [
         [mod, "control"], "b", 
         lazy.spawn(
             os.path.expanduser("~/.config/rofi/scripts/launcher_t1")
+        ), 
+        desc="Launch the Rofi file explorer"
+    ),
+
+    Key(
+        [mod, "control"], "q", 
+        lazy.spawn(
+            os.path.expanduser("~/.config/rofi/scripts/powermenu_t4")
         ), 
         desc="Launch the Rofi file explorer"
     ),
@@ -413,7 +421,14 @@ mybar += make_pill(
     ]
 )
 
-mybar.append( 
+mybar += make_pill([
+    widget.QuickExit( 
+        background=colors[8],
+        foreground=colors[5],
+    )
+])
+
+mybar.append(
     widget.Sep(
         # background=colors[8],
         padding=20,

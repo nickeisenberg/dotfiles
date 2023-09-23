@@ -17,7 +17,7 @@ theme='style-5'
 uptime="`uptime -p | sed -e 's/up //g'`"
 host=`hostname`
 
-# Options
+# Optionsd
 shutdown=''
 reboot=''
 lock=''
@@ -49,7 +49,8 @@ confirm_exit() {
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
+	# echo -e "$logout\n$reboot\n$shutdown\n$lock\n$suspend" | rofi_cmd
+	echo -e "$logout\n$reboot\n$shutdown" | rofi_cmd
 }
 
 # Execute Command
@@ -71,6 +72,8 @@ run_cmd() {
 				bspc quit
 			elif [[ "$DESKTOP_SESSION" == 'i3' ]]; then
 				i3-msg exit
+			elif [[ "$DESKTOP_SESSION" == 'qtile' ]]; then
+				qtile cmd-obj -o cmd -f shutdown
 			elif [[ "$DESKTOP_SESSION" == 'plasma' ]]; then
 				qdbus org.kde.ksmserver /KSMServer logout 0 0 0
 			fi
@@ -89,13 +92,13 @@ case ${chosen} in
     $reboot)
 		run_cmd --reboot
         ;;
-    $lock)
-		if [[ -x '/usr/bin/betterlockscreen' ]]; then
-			betterlockscreen -l
-		elif [[ -x '/usr/bin/i3lock' ]]; then
-			i3lock
-		fi
-        ;;
+    # $lock)
+    #     	if [[ -x '/usr/bin/betterlockscreen' ]]; then
+    #     		betterlockscreen -l
+    #     	elif [[ -x '/usr/bin/i3lock' ]]; then
+    #     		i3lock
+    #     	fi
+    #     ;;
     $suspend)
 		run_cmd --suspend
         ;;
