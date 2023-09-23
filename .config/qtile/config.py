@@ -1,6 +1,7 @@
+
 import os
 import subprocess
-from libqtile import bar, layout, widget, hook
+from libqtile import bar, layout, widget, hook, qtile
 from libqtile.config import (
     Click, Drag, Group, Key, Match, Screen, ScratchPad, DropDown
 )
@@ -239,263 +240,52 @@ mouse = [
 #--------------------------------------------------
 # Widgets
 #--------------------------------------------------
-widget_defaults = dict(
-    font="sans",
-    fontsize=12,
-    padding=3,
-)
-extension_defaults = widget_defaults.copy()
-
-widget_list = [
-    widget.CurrentLayout(),
-    widget.GroupBox(),
-    widget.Prompt(),
-    widget.WindowName(),
-    widget.Chord(
-        chords_colors={
-            "launch": ("#ff0000", "#ffffff"),
-        },
-        name_transform=lambda name: name.upper(),
-    ),
-    widget.TextBox("default config", name="default"),
-    widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-    # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-    # widget.StatusNotifier(),
-    widget.Systray(),
-    widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-    widget.QuickExit(),
-]
-
-
-#--------------------------------------------------
-# Screens
-#--------------------------------------------------
-
-mybar = bar.Bar(
-    widget_list,
-    40,
-    border_width=[3, 3, 3, 3],
-    margin =[4, 8, 0, 4],
-    # border_color=["ff00ff", "ff00ff", "ff00ff", "ff00ff"],
-)
-
-screens = [
-    Screen(
-        top=mybar,
-        wallpaper="~/Pictures/Wallpaper/red-sun.png",
-        wallpaper_mode="stretch"
-    ),
-]
-
-
-#--------------------------------------------------
-
-
-# colors = [
-#     ["#1b1c26", "#14151C", "#1b1c26"], # color 0
-#     ["#485062", "#485062", "#485062"], # color 1
-#     ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
-#     ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
-#     ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
-#     ["#ffffff", "#ffffff", "#ffffff"], # color 5
-#     ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
-#     ["#9859B3", "#8455A8", "#9859B3"], # color 7
-#     ["#744B94", "#694486", "#744B94"], # color 8
-#     ["#0ee9af", "#0ee9af", "#0ee9af"], # color 9
-# ]
-# 
-# 
 # widget_defaults = dict(
-#     font='novamono for Powerline',
+#     font="sans",
 #     fontsize=12,
 #     padding=3,
 # )
 # extension_defaults = widget_defaults.copy()
 # 
 # widget_list = [
-#     widget.Sep(background=colors[8], padding=15, linewidth=0),
-#     widget.Clock(
-#         fontsize=14,
-#         foreground=colors[5], 
-#         background=colors[8],
-#         format='%d %b | %A'
+#     widget.CurrentLayout(),
+#     widget.GroupBox(),
+#     widget.Prompt(),
+#     widget.WindowName(),
+#     widget.Chord(
+#         chords_colors={
+#             "launch": ("#ff0000", "#ffffff"),
+#         },
+#         name_transform=lambda name: name.upper(),
 #     ),
-#     widget.TextBox(
-#         text="\ue0b4",
-#         foreground=colors[8],
-#         background=colors[7],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.Sep(
-#         background=colors[7], padding=12, linewidth=0),
-#     widget.CurrentLayout(
-#         background=colors[7],
-#         foreground=colors[5],
-#         fontsize=13,
-#     ),
-#     # widget.CurrentLayoutIcon(
-#     #     custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
-#     #     foreground=colors[1],
-#     #     background=colors[7],
-#     #     padding=0,
-#     #     scale=0.5
-#     # ),
-#     widget.TextBox(
-#         text="\ue0b4",
-#         foreground=colors[7],
-#         background=colors[3],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.TextBox(
-#         text=" ",
-#         foreground=colors[5],
-#         background=colors[3],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.Memory(
-#         background=colors[3],
-#         foreground=colors[5],
-#         fontsize=14,
-#         format='{MemUsed: .0f} MB',
-#     ),
-#     widget.TextBox(
-#         text="\ue0b4",
-#         foreground=colors[3],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.Spacer(),
-#     widget.GroupBox(
-#         fontsize=10,
-#         active=colors[6],
-#         inactive=colors[1],
-#         rounded=True,
-#         highlight_color=colors[0],
-#         highlight_method="line",
-#         this_current_screen_border=colors[0],
-#         block_highlight_text_color=colors[2],
-#         blockwidth=2,
-#         margin_y=5,
-#     ),
-#     widget.Spacer(),
-#     widget.TextBox(
-#         text="\uE0B6",
-#         fonts="droid sans mono for powerline",
-#         foreground=colors[3],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.TextBox(
-#         text="",
-#         foreground=colors[5],
-#         background=colors[3],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.CPU(
-#         background=colors[3],
-#         foreground=colors[5],
-#         format=' {load_percent}% |',
-#         font='novamono for powerline bold',
-#         fontsize=14
-#     ),
-#     widget.Sep(
-#         background=colors[3],
-#         padding=6,
-#         linewidth=0,
-#     ),
-#     widget.Systray(
-#         background=colors[3],
-#         icons_size=20,
-#         padding=4,
-#     ),
-#     widget.Sep(
-#         background=colors[3],
-#         padding=10,
-#         linewidth=0,
-#     ),
-#     widget.TextBox(
-#         text="\uE0B6",
-#         fonts="droid sans mono for powerline",
-#         foreground=colors[4],
-#         background=colors[3],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.Volume(
-#         background=colors[4],
-#         foreground=colors[0],
-#         font="novamono for powerline bold",
-#         fontsize=15.25,
-#         mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
-#     ),
-#     widget.Sep(background=colors[4], padding=10, linewidth=0,
-#     ),
-#     widget.TextBox(
-#         text="\uE0B6",
-#         fonts="droid sans mono for powerline",
-#         foreground=colors[7],
-#         background=colors[4],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.Sep(background=colors[7], padding=6, linewidth=0,),
-#     widget.Battery(
-#         foreground=colors[5],
-#         background=colors[7],
-#         fontsize=17,
-#         low_percentage=0.2,
-#         low_foreground=colors[5],
-#         font="fontawesome",
-#         update_interval=1,
-#         format='{char}',
-#         charge_char='',
-#         discharge_char='',
-#     ),
-#     widget.Battery(
-#         background=colors[7],
-#         foreground=colors[5],
-#         charge_char='↑',
-#         discharge_char='↓',
-#         font="novamono for powerline bold",
-#         fontsize=14,
-#         update_interval=1,
-#         format='{percent:2.0%}'
-#     ),
-#     widget.Sep(background=colors[7], padding=6, linewidth=0,),
-#     widget.TextBox(
-#         text="\uE0B6",
-#         fonts="droid sans mono for powerline",
-#         foreground=colors[8],
-#         background=colors[7],
-#         padding=0,
-#         fontsize=33
-#     ),
-#     widget.Sep(background=colors[8], padding=6, linewidth=0,),
-#     widget.Clock(
-#         background=colors[8],
-#         foreground=colors[5],
-#         font="novamono for powerline",
-#         fontsize=15,
-#         format='%I:%M %p',
-#     ),
-#     widget.Sep(background=colors[8], padding=10, linewidth=0,),
+#     widget.TextBox("default config", name="default"),
+#     widget.TextBox(text="\uE0B6", font='JetBrainsMono Nerd Font', fontsize=33),
+#     widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+#     # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
+#     # widget.StatusNotifier(),
+#     widget.Systray(),
+#     widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
+#     widget.QuickExit(),
 # ]
+# 
+# 
+# #--------------------------------------------------
+# # Screens
+# #--------------------------------------------------
+# 
+# mybar = bar.Bar(
+#     widget_list,
+#     40,
+#     border_width=[3, 3, 3, 3],
+#     margin =[4, 8, 0, 4],
+#     # border_color=["ff00ff", "ff00ff", "ff00ff", "ff00ff"],
+# )
 # 
 # screens = [
 #     Screen(
+#         top=mybar,
 #         wallpaper="~/Pictures/Wallpaper/red-sun.png",
-#         wallpaper_mode='stretch',
-#         bottom=bar.Bar(
-#             widget_list,
-#             37,
-#             background=colors[0],
-#             # margin=[0,8,8,8],
-#             # opacity=0.8,
-#         ),
+#         wallpaper_mode="stretch"
 #     ),
 # ]
 
@@ -503,6 +293,227 @@ screens = [
 #--------------------------------------------------
 
 
+
+colors =  [
+        ["#1b1c26", "#14151C", "#1b1c26"], # color 0
+        ["#485062", "#485062", "#485062"], # color 1
+        ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
+        ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
+        ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
+        ["#ffffff", "#ffffff", "#ffffff"], # color 5
+        ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
+        ["#9859B3", "#8455A8", "#9859B3"], # color 7
+        ["#744B94", "#694486", "#744B94"], # color 8
+        ["#0ee9af", "#0ee9af", "#0ee9af"]] # color 9
+
+
+widget_defaults = dict(
+    font='UbuntuMono Nerd Font',
+    fontsize=16,
+    padding=3,
+)
+extension_defaults = widget_defaults.copy()
+
+screens = [
+    Screen(
+        wallpaper="~/Pictures/Wallpaper/red-sun.png",
+        wallpaper_mode="stretch",
+        top=bar.Bar(
+        [
+            widget.Sep(
+                background=colors[8],
+                padding=15,
+                linewidth=0,
+            ),
+            widget.Clock(
+                foreground=colors[5],
+                background=colors[8],
+                format='%d %b | %A'
+            ),
+            widget.TextBox(
+                text="\ue0b4",
+                foreground=colors[8],
+                background=colors[7],
+                padding=0,
+                fontsize=45
+            ),
+            widget.Sep(
+                background=colors[7],
+                padding=12,
+                linewidth=0,
+            ),
+            widget.CurrentLayout(
+                background=colors[7],
+                foreground=colors[5],
+            ),
+            widget.CurrentLayoutIcon(
+                custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+                foreground=colors[1],
+                background=colors[7],
+                padding=0,
+                scale=0.5
+            ),
+            widget.TextBox(
+                text="\ue0b4",
+                foreground=colors[7],
+                background=colors[3],
+                padding=0,
+                fontsize=45
+            ),
+            widget.TextBox(
+                text=" ",
+                foreground=colors[5],
+                background=colors[3],
+                padding=0,
+                fontsize=45
+            ),
+            widget.Memory(
+                background=colors[3],
+                foreground=colors[5],
+                fontsize=14,
+                format='{MemUsed: .0f} MB',
+            ),
+            widget.TextBox(
+                text="\ue0b4",
+                foreground=colors[3],
+                padding=0,
+                fontsize=45
+            ),
+
+            widget.Spacer(),
+
+            widget.GroupBox(
+                active=colors[6],
+                inactive=colors[1],
+                rounded=True,
+                highlight_color=colors[0],
+                highlight_method="line",
+                this_current_screen_border=colors[0],
+                block_highlight_text_color=colors[2],
+                blockwidth=2,
+                margin_y=5,
+            ),
+            
+            widget.Spacer(),
+
+            widget.TextBox(
+                text="\uE0B6",
+                foreground=colors[3],
+                padding=0,
+                fontsize=45
+            ),
+            widget.TextBox(
+                text="",
+                foreground=colors[5],
+                background=colors[3],
+                padding=0,
+                fontsize=33
+            ),
+            widget.CPU(
+                background=colors[3],
+                foreground=colors[5],
+                format=' {load_percent}% |',
+            ),
+            widget.Sep(
+                background=colors[3],
+                padding=6,
+                linewidth=0,
+            ),
+            widget.Systray(
+                background=colors[3],
+                icons_size=20,
+                padding=4,
+            ),
+            widget.Sep(
+                background=colors[3],
+                padding=10,
+                linewidth=0,
+            ),
+            widget.TextBox(
+                text="\uE0B6",
+                foreground=colors[4],
+                background=colors[3],
+                padding=0,
+                fontsize=45
+            ),
+            widget.Volume(
+                background=colors[4],
+                foreground=colors[0],
+                mouse_callbacks={'Button3': lambda: qtile.cmd_spawn("pavucontrol")},
+            ),
+            widget.Sep(
+                background=colors[4],
+                padding=10,
+                linewidth=0,
+            ),
+            widget.TextBox(
+                text="\uE0B6",
+                foreground=colors[7],
+                background=colors[4],
+                padding=0,
+                fontsize=40
+            ),
+            widget.Sep(
+                background=colors[7],
+                padding=6,
+                linewidth=0,
+            ),
+            widget.Battery(
+                foreground=colors[5],
+                background=colors[7],
+                fontsize=17,
+                low_percentage=0.2,
+                low_foreground=colors[5],
+                update_interval=1,
+                format='{char}',
+                charge_char='',
+                discharge_char='',
+            ),
+            widget.Battery(
+                background=colors[7],
+                foreground=colors[5],
+                charge_char='↑',
+                discharge_char='↓',
+                fontsize=14,
+                update_interval=1,
+                format='{percent:2.0%}'
+            ),
+            widget.Sep(
+                background=colors[7],
+                padding=6,
+                linewidth=0,
+            ),
+            widget.TextBox(
+                text="\uE0B6",
+                foreground=colors[8],
+                background=colors[7],
+                padding=0,
+                fontsize=40
+            ),
+            widget.Sep(
+                background=colors[8],
+                padding=6,
+                linewidth=0,
+            ),
+            widget.Clock(
+                background=colors[8],
+                foreground=colors[5],
+                fontsize=15,
+                format='%I:%M %p',
+            ),
+            widget.Sep(
+                background=colors[8],
+                padding=10,
+                linewidth=0,
+            ),
+        ],
+            37,
+            background=colors[0],
+            # margin=[0,8,8,8],
+            # opacity=0.8,
+        ),
+    ),
+]
 
 
 
