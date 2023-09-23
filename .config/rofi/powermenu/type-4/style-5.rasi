@@ -50,7 +50,7 @@ configuration {
     gradient-19:                 linear-gradient(0, #03001e, #7303c0, #ec38bc, #fdeff9);
     gradient-20:                 linear-gradient(0, #780206, #061161);
     
-    background-window:           var(gradient-6);
+    background-window:           var(gradient-16);
     background-normal:           white/10%;
     background-selected:         white/20%;
     foreground-normal:           white;
