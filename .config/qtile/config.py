@@ -281,7 +281,7 @@ def make_pill(widget_types: list):
             # background="#00000000",
             background=colors[0],
             padding=0,
-            fontsize=45
+            fontsize=35,
         ),
         *widget_types
         ,
@@ -317,6 +317,7 @@ mybar += make_pill(
         widget.Clock(
             foreground=colors[5],
             background=colors[8],
+            fontsize=17,
             format='%d %b | %A',
         )
     ]
@@ -329,7 +330,7 @@ mybar += make_pill(
             foreground=colors[5],
             background=colors[8],
             padding=0,
-            scale=0.5
+            scale=.5,
         ),
         widget.CurrentLayout(
             foreground=colors[5],
@@ -346,12 +347,12 @@ mybar += make_pill(
             foreground=colors[5],
             background=colors[8],
             padding=0,
-            fontsize=45
+            fontsize=25
         ),
         widget.Memory(
             foreground=colors[5],
             background=colors[8],
-            fontsize=14,
+            fontsize=17,
             format='{MemUsed: .0f} MB',
         )
     ]
@@ -384,7 +385,7 @@ mybar+= make_pill(
             foreground=colors[5],
             background=colors[8],
             padding=0,
-            fontsize=33
+            fontsize=25
         ),
         widget.CPU(
             foreground=colors[5],
@@ -427,18 +428,11 @@ mybar += make_pill(
         widget.Clock(
             background=colors[8],
             foreground=colors[5],
-            fontsize=15,
+            fontsize=17,
             format='%I:%M %p', 
         )
     ]
 )
-
-mybar += make_pill([
-    widget.QuickExit( 
-        background=colors[8],
-        foreground=colors[5],
-    )
-])
 
 mybar.append(
     widget.Sep(
@@ -454,11 +448,11 @@ screens = [
         wallpaper_mode="stretch",
         top=bar.Bar(
             mybar,
-            40,
+            30,
             background=colors[0],
             # background="#00000000",
-            margin=[3, 3, 3, 3],
-            border_width=[10, 3, 10, 3],
+            margin=[0, 0, 0 ,0],
+            border_width=[0, 0 ,0 ,0],
             border_color=colors[0],
             # opacity=0.8,
         ),
