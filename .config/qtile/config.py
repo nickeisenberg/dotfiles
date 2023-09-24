@@ -98,7 +98,7 @@ keys = [
     Key(
         [mod, "control"], "q", 
         lazy.spawn(
-            os.path.expanduser("~/.config/rofi/scripts/powermenu_t4")
+            os.path.expanduser("~/.config/rofi/scripts/powermenu_t1")
         ), 
         desc="Launch the Rofi file explorer"
     ),
