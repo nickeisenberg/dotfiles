@@ -258,6 +258,15 @@ colors =  [
         ["#9859B3", "#8455A8", "#9859B3"], # color 7
         ["#744B94", "#694486", "#744B94"], # color 8
         ["#0ee9af", "#0ee9af", "#0ee9af"]] # color 9
+   
+# some rose pine colors
+background = "#191724"
+background_alt = "#2E2B46"
+foreground = "#e0def4"
+selected = "#31748f"
+urgent = "#eb6f92"
+active = "#9ccfd8"
+widget_text_color = "#ffffff"
 
 
 widget_defaults = dict(
@@ -271,15 +280,15 @@ extension_defaults = widget_defaults.copy()
 def make_pill(widget_types: list):
     pill = [
         widget.Sep(
-        background=colors[0],
-        padding=12,
+        background=background,
+        padding=5,
         linewidth=0,
         ),
         widget.TextBox(
             text="\uE0B6",
-            foreground=colors[8],
+            foreground=background,
             # background="#00000000",
-            background=colors[0],
+            background=background,
             padding=0,
             fontsize=35,
         ),
@@ -287,16 +296,16 @@ def make_pill(widget_types: list):
         ,
         widget.TextBox(
             text="\ue0b4",
-            foreground=colors[8],
+            foreground=background,
             # background="#00000000",
-            background=colors[0],
+            background=background,
             padding=0,
             fontsize=45
         ),
         widget.Sep(
             # background="#00000000",
             background=colors[0],
-            padding=12,
+            padding=5,
             linewidth=0,
         )
     ]
@@ -312,59 +321,27 @@ mybar.append(
     )
 )
 
+
+
 mybar += make_pill(
     [
         widget.Clock(
-            foreground=colors[5],
-            background=colors[8],
+            foreground=widget_text_color,
+            background=background,
             fontsize=17,
-            format='%d %b | %A',
+            format='%A, %b %d | %I:%M %p',
         )
     ]
 )
 
-mybar += make_pill(
-    [
-        widget.CurrentLayoutIcon(
-            custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
-            foreground=colors[5],
-            background=colors[8],
-            padding=0,
-            scale=.5,
-        ),
-        widget.CurrentLayout(
-            foreground=colors[5],
-            background=colors[8],
-        ),
-    ]
-)
-
-mybar += make_pill(
-    [
-        widget.TextBox(
-            font='FontAwesome',
-            text=" ",
-            foreground=colors[5],
-            background=colors[8],
-            padding=0,
-            fontsize=25
-        ),
-        widget.Memory(
-            foreground=colors[5],
-            background=colors[8],
-            fontsize=17,
-            format='{MemUsed: .0f} MB',
-        )
-    ]
-)
 
 mybar += [widget.Spacer()]
 
 mybar += make_pill([
     widget.GroupBox(
-        background=colors[8],
-        active=colors[5],
-        inactive=colors[7],
+        background=background,
+        active=urgent,
+        inactive=widget_text_color,
         rounded=True,
         highlight_color=colors[0],
         highlight_method="line",
@@ -377,19 +354,55 @@ mybar += make_pill([
 
 mybar += [widget.Spacer()]
 
+mybar += make_pill(
+    [
+        widget.CurrentLayoutIcon(
+            custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+            foreground=widget_text_color,
+            background=background,
+            padding=0,
+            scale=.5,
+        ),
+        widget.CurrentLayout(
+            foreground=widget_text_color,
+            background=background,
+        ),
+    ]
+)
+
+
+mybar += make_pill(
+    [
+        widget.TextBox(
+            font='FontAwesome',
+            text=" ",
+            foreground=widget_text_color,
+            background=background,
+            padding=0,
+            fontsize=25
+        ),
+        widget.Memory(
+            foreground=widget_text_color,
+            background=background,
+            fontsize=17,
+            format='{MemUsed: .0f} MB',
+        )
+    ]
+)
+
 mybar+= make_pill(
     [
         widget.TextBox(
             font='FontAwesome',
             text="",
-            foreground=colors[5],
-            background=colors[8],
+            foreground=widget_text_color,
+            background=background,
             padding=0,
             fontsize=25
         ),
         widget.CPU(
-            foreground=colors[5],
-            background=colors[8],
+            foreground=widget_text_color,
+            background=background,
             format=' {load_percent}% |',
         )
     ]
@@ -400,39 +413,19 @@ mybar += make_pill(
         widget.Battery(
             battery="BAT0",
             font='FontAwesome',
-            foreground=colors[5],
-            background=colors[8],
-            fontsize=17,
+            foreground=widget_text_color,
+            background=background,
+            fontsize=14,
             low_percentage=0.2,
             low_foreground=colors[5],
             update_interval=1,
             format='{char} {percent:2.0%}',
             charge_char="",
             discharge_char='',
-        ),
-        # widget.Battery(
-        #     font='FontAwesome',
-        #     foreground=colors[5],
-        #     background=colors[8],
-        #     charge_char='↑',
-        #     discharge_char='↓',
-        #     fontsize=14,
-        #     update_interval=1,
-        #     format='{percent:2.0%}'
-        # )
-    ]
+        )
+   ]
 )
 
-mybar += make_pill(
-    [
-        widget.Clock(
-            background=colors[8],
-            foreground=colors[5],
-            fontsize=17,
-            format='%I:%M %p', 
-        )
-    ]
-)
 
 mybar.append(
     widget.Sep(
@@ -442,6 +435,8 @@ mybar.append(
     )
 )
 
+
+
 screens = [
     Screen(
         wallpaper="~/Pictures/Wallpaper/red-sun.png",
@@ -449,9 +444,10 @@ screens = [
         top=bar.Bar(
             mybar,
             30,
-            background=colors[0],
+            background=background,
+            # background=colors[0],
             # background="#00000000",
-            margin=[0, 0, 0 ,0],
+            margin=[5, 8, 0, 8],
             border_width=[0, 0 ,0 ,0],
             border_color=colors[0],
             # opacity=0.8,
