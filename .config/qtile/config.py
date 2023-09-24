@@ -265,19 +265,21 @@ widget_defaults = dict(
     fontsize=16,
     padding=3,
 )
+
 extension_defaults = widget_defaults.copy()
 
 def make_pill(widget_types: list):
     pill = [
         widget.Sep(
-        # background=colors[8],
+        background=colors[0],
         padding=12,
         linewidth=0,
         ),
         widget.TextBox(
             text="\uE0B6",
             foreground=colors[8],
-            background="#00000000",
+            # background="#00000000",
+            background=colors[0],
             padding=0,
             fontsize=45
         ),
@@ -286,12 +288,14 @@ def make_pill(widget_types: list):
         widget.TextBox(
             text="\ue0b4",
             foreground=colors[8],
-            background="#00000000",
+            # background="#00000000",
+            background=colors[0],
             padding=0,
             fontsize=45
         ),
         widget.Sep(
-            background="#00000000",
+            # background="#00000000",
+            background=colors[0],
             padding=12,
             linewidth=0,
         )
@@ -337,6 +341,7 @@ mybar += make_pill(
 mybar += make_pill(
     [
         widget.TextBox(
+            font='FontAwesome',
             text=" ",
             foreground=colors[5],
             background=colors[8],
@@ -374,6 +379,7 @@ mybar += [widget.Spacer()]
 mybar+= make_pill(
     [
         widget.TextBox(
+            font='FontAwesome',
             text="",
             foreground=colors[5],
             background=colors[8],
@@ -391,25 +397,27 @@ mybar+= make_pill(
 mybar += make_pill(
     [
         widget.Battery(
+            font='FontAwesome',
             foreground=colors[5],
             background=colors[8],
             fontsize=17,
             low_percentage=0.2,
             low_foreground=colors[5],
             update_interval=1,
-            format='{char}',
+            format='{percent:2.0%}',
             # charge_char="",
             # discharge_char='',
         ),
-        widget.Battery(
-            foreground=colors[5],
-            background=colors[8],
-            # charge_char='↑',
-            # discharge_char='↓',
-            fontsize=14,
-            update_interval=1,
-            format='{percent:2.0%}'
-        )
+        # widget.Battery(
+        #     font='FontAwesome',
+        #     foreground=colors[5],
+        #     background=colors[8],
+        #     charge_char='↑',
+        #     discharge_char='↓',
+        #     fontsize=14,
+        #     update_interval=1,
+        #     format='{percent:2.0%}'
+        # )
     ]
 )
 
@@ -439,9 +447,6 @@ mybar.append(
     )
 )
 
-xx = ["#292d3e", "#292d3e"]
-yy = ["#A8A8A8", "#A8A8A8"]
-
 screens = [
     Screen(
         wallpaper="~/Pictures/Wallpaper/red-sun.png",
@@ -449,14 +454,64 @@ screens = [
         top=bar.Bar(
             mybar,
             40,
-            # background=colors[0],
-            background="#00000000",
-            margin=[3,3,3,3],
+            background=colors[0],
+            # background="#00000000",
+            margin=[3, 3, 3, 3],
+            border_width=[10, 3, 10, 3],
+            border_color=colors[0],
             # opacity=0.8,
         ),
     ),
 ]
 
+# from qtile_extras import widget
+# from qtile_extras.widget.decorations import RectDecoration
+# 
+# 
+# decor = {
+#     "decorations": [
+#         RectDecoration(colour="#600060", radius=10, filled=True, padding_y=5)
+#     ],
+#     "padding": 18,
+# }
+# 
+# 
+# screens = [
+#     Screen(
+#         top=bar.Bar(
+#             [
+#                 widget.Sep(
+#                     # background=colors[8],
+#                     padding=20,
+#                     linewidth=0,
+#                 ),
+#                 widget.Clock(
+#                     foreground=colors[5],
+#                     background=colors[8],
+#                     format='%d %b | %A',
+#                     **decor
+#                 ),
+#                 widget.CurrentLayoutIcon(
+#                     custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+#                     foreground=colors[5],
+#                     background=colors[8],
+#                     padding=0,
+#                     scale=0.5,
+#                 ),
+#                 widget.CurrentLayout(
+#                     foreground=colors[5],
+#                     background=colors[8],
+#                     **decor
+#                 ),
+#                 widget.GroupBox(**decor),
+#                 widget.Clock(**decor),
+#                 widget.QuickExit(**decor),
+#             ],
+#             30,
+#             background="#00000000",
+#         )
+#     )
+# ]
 
 
 
