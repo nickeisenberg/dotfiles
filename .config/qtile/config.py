@@ -405,7 +405,7 @@ mybar += make_pill(
             low_percentage=0.2,
             low_foreground=colors[5],
             update_interval=1,
-            format='{percent:2.0%}',
+            format='{char} {percent:2.0%}',
             charge_char="",
             discharge_char='',
         ),
