@@ -397,6 +397,7 @@ mybar+= make_pill(
 mybar += make_pill(
     [
         widget.Battery(
+            battery="BAT0",
             font='FontAwesome',
             foreground=colors[5],
             background=colors[8],
@@ -405,8 +406,8 @@ mybar += make_pill(
             low_foreground=colors[5],
             update_interval=1,
             format='{percent:2.0%}',
-            # charge_char="",
-            # discharge_char='',
+            charge_char="",
+            discharge_char='',
         ),
         # widget.Battery(
         #     font='FontAwesome',
