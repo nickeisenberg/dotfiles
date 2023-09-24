@@ -68,7 +68,7 @@ window {
     padding:                     0px;
     border:                      2px solid;
     border-radius:               10px;
-    border-color:                #f6c177; /* Rose pine yellow */
+    border-color:                @border-colour; /*#f6c177;  Rose pine yellow */
     cursor:                      "default";
     /* Backgroud Colors */
     background-color:            @background-colour;
