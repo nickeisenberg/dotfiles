@@ -41,3 +41,44 @@ def grow_up_floating_window(window, height: int=0):
     window.cmd_resize_floating(0, height)
     x_loc, y_loc = window.cmd_get_position()
     window.cmd_set_position_floating(x_loc, y_loc - height)
+
+def make_pill(
+    widget_types: list,
+    background: str,
+):
+    """
+    Will wrap a widget in a pill shaped icon. Does not work the best at the
+    moment
+    """
+    pill = [
+        widget.Sep(
+        background=background,
+        padding=5,
+        linewidth=0,
+        ),
+        widget.TextBox(
+            text="\uE0B6",
+            foreground=background,
+            # background="#00000000",
+            background=background,
+            padding=0,
+            fontsize=35,
+        ),
+        *widget_types
+        ,
+        widget.TextBox(
+            text="\ue0b4",
+            foreground=background,
+            # background="#00000000",
+            background=background,
+            padding=0,
+            fontsize=45
+        ),
+        widget.Sep(
+            # background="#00000000",
+            background=colors[0],
+            padding=5,
+            linewidth=0,
+        )
+    ]
+    return pill

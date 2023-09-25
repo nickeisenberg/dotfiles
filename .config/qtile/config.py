@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 from libqtile import bar, layout, widget, hook, qtile
@@ -9,7 +8,7 @@ from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from libqtile.command import lazy as clazy
 
-from resize_windows import *
+from my_utils import *
 
 
 mod = "mod1"
@@ -125,6 +124,18 @@ keys = [
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/active_win_screenshot.sh")
         )
+    ),
+    Key([], "XF86AudioLowerVolume", 
+        lazy.spawn("amixer -D pulse sset Master 5%-"), 
+        desc="Lower Volume by 5%"
+    ),
+    Key([], "XF86AudioRaiseVolume", 
+        lazy.spawn("amixer -D pulse sset Master 5%+"), 
+        desc="Lower Volume by 5%"
+    ),
+    Key([], "XF86AudioMute", 
+        lazy.spawn("amixer -q -D pulse sset Master toggle"), 
+        desc="Lower Volume by 5%"
     ),
 ]
 
@@ -277,67 +288,23 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
-def make_pill(widget_types: list):
-    pill = [
-        widget.Sep(
-        background=background,
-        padding=5,
-        linewidth=0,
-        ),
-        widget.TextBox(
-            text="\uE0B6",
-            foreground=background,
-            # background="#00000000",
-            background=background,
-            padding=0,
-            fontsize=35,
-        ),
-        *widget_types
-        ,
-        widget.TextBox(
-            text="\ue0b4",
-            foreground=background,
-            # background="#00000000",
-            background=background,
-            padding=0,
-            fontsize=45
-        ),
-        widget.Sep(
-            # background="#00000000",
-            background=colors[0],
-            padding=5,
-            linewidth=0,
-        )
-    ]
-    return pill
-
 mybar = []
 
-mybar.append( 
-    widget.Sep(
-        # background=colors[8],
-        padding=20,
-        linewidth=0,
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(
+    widget.Clock(
+        foreground=widget_text_color,
+        background=background,
+        fontsize=17,
+        format='%A, %b %d | %I:%M %p',
     )
 )
 
 
+mybar.append(widget.Spacer()) 
 
-mybar += make_pill(
-    [
-        widget.Clock(
-            foreground=widget_text_color,
-            background=background,
-            fontsize=17,
-            format='%A, %b %d | %I:%M %p',
-        )
-    ]
-)
-
-
-mybar += [widget.Spacer()]
-
-mybar += make_pill([
+mybar.append(
     widget.GroupBox(
         background=background,
         active=urgent,
@@ -350,86 +317,90 @@ mybar += make_pill([
         blockwidth=2,
         margin_y=5,
     )
-])
-
-mybar += [widget.Spacer()]
-
-mybar += make_pill(
-    [
-        widget.CurrentLayoutIcon(
-            custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
-            foreground=widget_text_color,
-            background=background,
-            padding=0,
-            scale=.5,
-        ),
-        widget.CurrentLayout(
-            foreground=widget_text_color,
-            background=background,
-        ),
-    ]
 )
 
+mybar.append(widget.Spacer())
 
-mybar += make_pill(
-    [
-        widget.TextBox(
-            font='FontAwesome',
-            text=" ",
-            foreground=widget_text_color,
-            background=background,
-            padding=0,
-            fontsize=25
-        ),
-        widget.Memory(
-            foreground=widget_text_color,
-            background=background,
-            fontsize=17,
-            format='{MemUsed: .0f} MB',
-        )
-    ]
+mybar += [
+    widget.CurrentLayoutIcon(
+        # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+        foreground=widget_text_color,
+        background=background,
+        padding=0,
+        scale=.5,
+    ),
+    widget.CurrentLayout(
+        foreground=widget_text_color,
+        background=background,
+    )
+]
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+
+mybar += [
+    widget.TextBox(
+        font='FontAwesome',
+        text=" ",
+        foreground=widget_text_color,
+        background=background,
+        padding=0,
+        fontsize=25
+    ),
+    widget.Memory(
+        foreground=widget_text_color,
+        background=background,
+        fontsize=17,
+        format='{MemUsed: .0f} MB',
+    )
+]
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar += [
+    widget.TextBox(
+        font='FontAwesome',
+        text="",
+        foreground=widget_text_color,
+        background=background,
+        padding=0,
+        fontsize=25
+    ),
+    widget.CPU(
+        foreground=widget_text_color,
+        background=background,
+        format=' {load_percent}% |',
+    )
+]
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(
+    widget.Battery(
+        battery="BAT0",
+        font='FontAwesome',
+        foreground=widget_text_color,
+        background=background,
+        fontsize=14,
+        low_percentage=0.2,
+        low_foreground=colors[5],
+        update_interval=1,
+        format='{char} {percent:2.0%}',
+        charge_char="",
+        discharge_char='',
+    )
 )
 
-mybar+= make_pill(
-    [
-        widget.TextBox(
-            font='FontAwesome',
-            text="",
-            foreground=widget_text_color,
-            background=background,
-            padding=0,
-            fontsize=25
-        ),
-        widget.CPU(
-            foreground=widget_text_color,
-            background=background,
-            format=' {load_percent}% |',
-        )
-    ]
-)
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar += make_pill(
-    [
-        widget.Battery(
-            battery="BAT0",
-            font='FontAwesome',
-            foreground=widget_text_color,
-            background=background,
-            fontsize=14,
-            low_percentage=0.2,
-            low_foreground=colors[5],
-            update_interval=1,
-            format='{char} {percent:2.0%}',
-            charge_char="",
-            discharge_char='',
-        )
-   ]
+get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
+mybar.append(
+    widget.Volume(get_volume_command=get_volume_cmd)
 )
-
 
 mybar.append(
     widget.Sep(
-        # background=colors[8],
+        background=background,
         padding=20,
         linewidth=0,
     )
