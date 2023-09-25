@@ -8,7 +8,9 @@ from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from libqtile.command import lazy as clazy
 
-from my_utils import *
+from my_utils.utils import *
+
+from my_utils.nvidia_widget import NvidiaSensors2
 
 
 mod = "mod1"
@@ -337,21 +339,18 @@ mybar += [
 
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-
 mybar += [
     widget.TextBox(
         font='FontAwesome',
-        text=" ",
+        text="GPU ",
         foreground=widget_text_color,
         background=background,
         padding=0,
-        fontsize=25
+        fontsize=16
     ),
-    widget.Memory(
-        foreground=widget_text_color,
-        background=background,
-        fontsize=17,
-        format='{MemUsed: .0f} MB',
+    NvidiaSensors2(
+        sensors=["utilization.gpu"],
+        format="{utilization_gpu}%"
     )
 ]
 
@@ -360,16 +359,56 @@ mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 mybar += [
     widget.TextBox(
         font='FontAwesome',
-        text="",
+         #text="",
+        text="CPU",
         foreground=widget_text_color,
         background=background,
         padding=0,
-        fontsize=25
+        fontsize=16
     ),
     widget.CPU(
         foreground=widget_text_color,
         background=background,
-        format=' {load_percent}% |',
+        format=' {load_percent}%',
+    )
+]
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar += [
+    widget.TextBox(
+        font='FontAwesome',
+        # text="",
+        text="RAM",
+        foreground=widget_text_color,
+        background=background,
+        padding=0,
+        fontsize=16
+    ),
+    widget.Memory(
+        foreground=widget_text_color,
+        background=background,
+        fontsize=16,
+        format='{MemUsed: .0f} MB',
+    )
+]
+
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
+mybar += [
+    widget.TextBox(
+        font='FontAwesome',
+        text="\uf028",
+        foreground=widget_text_color,
+        background=background,
+        padding=0,
+        fontsize=20
+    ),
+    widget.Volume(
+        background=background,
+        get_volume_command=get_volume_cmd
     )
 ]
 
@@ -392,21 +431,6 @@ mybar.append(
 )
 
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
-
-get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
-mybar.append(
-    widget.Volume(get_volume_command=get_volume_cmd)
-)
-
-mybar.append(
-    widget.Sep(
-        background=background,
-        padding=20,
-        linewidth=0,
-    )
-)
-
-
 
 screens = [
     Screen(
