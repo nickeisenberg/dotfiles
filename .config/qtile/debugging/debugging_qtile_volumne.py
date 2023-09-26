@@ -25,5 +25,6 @@ v = vol.Volume(
 check_mute = subprocess.getoutput(v.check_mute_command)
 check_mute in v.check_mute_string
 
+v.get_volume()
 
 
