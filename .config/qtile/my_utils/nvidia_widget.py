@@ -1,3 +1,12 @@
+"""
+Found on reddit.
+
+* I made a small change that adds a space between memory usage and MiB in 
+NvidiaSensors2().poll below. The change is a "cheap fix" but it is good enough
+for now.
+"""
+
+
 import csv
 import re
 from subprocess import CalledProcessError
@@ -94,28 +103,45 @@ class NvidiaSensors2(base.ThreadPoolText):
 
     def poll(self):
         # Command to retrieve GPU info
-        bus_id = f"-i {self.gpu_bus_id}" if self.gpu_bus_id else ""
-        command = "nvidia-smi {} --query-gpu={} --format=csv,noheader".format(
-            bus_id,
+        self.bus_id = f"-i {self.gpu_bus_id}" if self.gpu_bus_id else ""
+        self.command = "nvidia-smi {} --query-gpu={} --format=csv,noheader".format(
+            self.bus_id,
             ",".join(self.sensors)
         )
 
         try:
-            result = self._get_sensors_data(command)
+            result = self._get_sensors_data(self.command)
 
             # Replace dots with underscores to avoid conflict with str.format
-            sensors_alt_names = [ name.replace(".", "_") for name in self.sensors ]
-            sensors_data = [ dict(zip(sensors_alt_names, [val.replace("%", "").strip() for val in gpu])) for gpu in result ]   # List items represent individual GPUs. Dict items represent sensor name/value pairs.
+            sensors_alt_names = [name.replace(".", "_") for name in self.sensors]
+            # List items represent individual GPUs. 
+            # Dict items represent sensor name/value pairs.
+            self.sensors_data = []
+            for gpu in result:
+                for val in gpu:
+                    if "MiB" in val:
+                        print(val)
+                        val = f"{val[:-3]} {val[-3:]}"
+                    self.sensors_data.append(dict(
+                        zip(
+                            sensors_alt_names, 
+                            [val.replace("%", "").strip()]
+                        )
+                    ))   
 
             # If any GPU's core temp is above the threshold, set alert
-            if self._temperature_alert_check(sensors_data):
-                formatted_per_gpu = [self.format_alert.format(**gpu) for gpu in sensors_data]
+            if self._temperature_alert_check(self.sensors_data):
+                formatted_per_gpu = [
+                    self.format_alert.format(**gpu) for gpu in self.sensors_data
+                ]
                 return self.format_all_alert.format(*formatted_per_gpu)
             else:
-                formatted_per_gpu = [self.format.format(**gpu) for gpu in sensors_data]
-                return self.format_all.format(*formatted_per_gpu)
+                self.formatted_per_gpu = [
+                    self.format.format(**gpu) for gpu in self.sensors_data
+                ]
+                return self.format_all.format(*self.formatted_per_gpu)
 
         except CalledProcessError as ex:    # Invalid sensor name
             return ex.stdout
         except Exception as ex:
-            return str(ex)
+            return str(ex) 

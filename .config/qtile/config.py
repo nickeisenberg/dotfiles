@@ -339,22 +339,6 @@ mybar += [
 
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar += [
-    widget.TextBox(
-        font='FontAwesome',
-        text="GPU ",
-        foreground=widget_text_color,
-        background=background,
-        padding=0,
-        fontsize=16
-    ),
-    NvidiaSensors2(
-        sensors=["utilization.gpu"],
-        format="{utilization_gpu}%"
-    )
-]
-
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
 mybar += [
     widget.TextBox(
@@ -369,7 +353,26 @@ mybar += [
     widget.CPU(
         foreground=widget_text_color,
         background=background,
-        format=' {load_percent}%',
+        format='{load_percent}%',
+    )
+]
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar += [
+    widget.TextBox(
+        font='FontAwesome',
+        text="GPU",
+        foreground=widget_text_color,
+        background=background,
+        padding=0,
+        fontsize=16
+    ),
+    NvidiaSensors2(
+        # sensors=["utilization.gpu"],
+        # format="{utilization_gpu}%"
+        sensors=["memory.used"],
+        format="{memory_used}"
     )
 ]
 
@@ -389,7 +392,7 @@ mybar += [
         foreground=widget_text_color,
         background=background,
         fontsize=16,
-        format='{MemUsed: .0f} MB',
+        format='{MemUsed:.0f} MiB',
     )
 ]
 
