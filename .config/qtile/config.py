@@ -416,13 +416,6 @@ mybar += [
         get_volume_command=get_volume_cmd,
         check_mute_sting=check_mute_string,
         check_mute_command=check_mute_command,
-        theme_path="~/Dotfiles/.config/qtile/icons/",
-    ),
-    widget.Volume(
-        background=background,
-        get_volume_command=get_volume_cmd,
-        check_mute_sting=check_mute_string,
-        check_mute_command=check_mute_command,
         # theme_path="~/Dotfiles/.config/qtile/icons/",
     )
 ]
