@@ -206,12 +206,25 @@ keys.extend([
 
 
 #--------------------------------------------------
+# Some colors
+#--------------------------------------------------
+# some rose pine colors
+background = "#191724"
+background_alt = "#2E2B46"
+foreground = "#e0def4"
+selected = "#31748f"
+urgent = "#eb6f92"
+active = "#9ccfd8"
+widget_text_color = "#ffffff"
+
+
+#--------------------------------------------------
 # Layouts
 #--------------------------------------------------
 floating_layout_theme = { 
     "border_width": 2,
-    "border_focus": "#f6c177",
-    "border_normal": "#FFFFFF",
+    "border_focus": selected,
+    "border_normal": background_alt,
     "float_rules": [
         *layout.Floating.default_float_rules,
         Match(wm_class="confirmreset"),  # gitk
@@ -227,7 +240,8 @@ floating_layout = layout.Floating(**floating_layout_theme)
 
 layout_theme = { 
     "border_width": 2,
-    "border_focus": "#f6c177",
+    "border_focus": selected,
+    "border_normal": background_alt,
     "single_border_width": 3,
     "margin": 5
 }
@@ -272,14 +286,6 @@ colors =  [
         ["#744B94", "#694486", "#744B94"], # color 8
         ["#0ee9af", "#0ee9af", "#0ee9af"]] # color 9
    
-# some rose pine colors
-background = "#191724"
-background_alt = "#2E2B46"
-foreground = "#e0def4"
-selected = "#31748f"
-urgent = "#eb6f92"
-active = "#9ccfd8"
-widget_text_color = "#ffffff"
 
 
 widget_defaults = dict(
@@ -294,21 +300,28 @@ mybar = []
 
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+
 mybar.append(
     widget.Clock(
         foreground=widget_text_color,
-        background=background,
-        fontsize=17,
+        # background=background,
+        background=background_alt,
+        fontsize=20,
         format='%A, %b %d | %I:%M %p',
     )
 )
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
 mybar.append(widget.Spacer()) 
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+
 mybar.append(
     widget.GroupBox(
-        background=background,
+        fontsize=20,
+        background=background_alt,
         active=urgent,
         inactive=widget_text_color,
         rounded=True,
@@ -321,50 +334,63 @@ mybar.append(
     )
 )
 
-mybar.append(widget.Spacer())
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+
+mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 mybar += [
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
         padding=0,
-        scale=.5,
+        scale=.5
     ),
     widget.CurrentLayout(
+        fontsize=20,
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
     )
 ]
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
+mybar.append(widget.Spacer())
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 mybar += [
     widget.TextBox(
         font='FontAwesome',
          #text="",
-        text="CPU",
+        text="CPU ",
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
         padding=0,
         fontsize=16
     ),
     widget.CPU(
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
         format='{load_percent}%',
+        fontsize=20
     )
 ]
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 mybar += [
     widget.TextBox(
         font='FontAwesome',
-        text="GPU",
+        text="GPU ",
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
         padding=0,
         fontsize=16
     ),
@@ -372,32 +398,41 @@ mybar += [
         # sensors=["utilization.gpu"],
         # format="{utilization_gpu}%"
         sensors=["memory.used"],
-        format="{memory_used}"
+        format="{memory_used}",
+        fontsize=20,
+        background=background_alt
     )
 ]
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 mybar += [
     widget.TextBox(
         font='FontAwesome',
         # text="",
-        text="RAM",
+        text="RAM ",
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
         padding=0,
         fontsize=16
     ),
     widget.Memory(
         foreground=widget_text_color,
-        background=background,
-        fontsize=16,
+        background=background_alt,
+        fontsize=20,
         format='{MemUsed:.0f} MiB',
     )
 ]
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
 check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
@@ -407,12 +442,13 @@ mybar += [
         font='FontAwesome',
         text="\uf028",
         foreground=widget_text_color,
-        background=background,
+        background=background_alt,
         padding=0,
         fontsize=20
     ),
     widget.Volume(
-        background=background,
+        fontsize=18,
+        background=background_alt,
         get_volume_command=get_volume_cmd,
         check_mute_sting=check_mute_string,
         check_mute_command=check_mute_command,
@@ -420,23 +456,30 @@ mybar += [
     )
 ]
 
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 mybar.append(
     widget.Battery(
         battery="BAT0",
         font='FontAwesome',
         foreground=widget_text_color,
-        background=background,
-        fontsize=14,
+        background=background_alt,
+        fontsize=16,
         low_percentage=0.2,
         low_foreground=colors[5],
         update_interval=1,
         format='{char} {percent:2.0%}',
         charge_char="",
-        discharge_char='',
+        # discharge_char='',
+        discharge_char="\uf0e7",
     )
 )
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
 mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
@@ -448,64 +491,13 @@ screens = [
             mybar,
             30,
             background=background,
-            # background=colors[0],
-            # background="#00000000",
             margin=[5, 8, 0, 8],
-            border_width=[0, 0 ,0 ,0],
-            border_color=colors[0],
+            border_width=[5, 0, 5, 0],
+            border_color=background,
             # opacity=0.8,
         ),
     ),
 ]
-
-# from qtile_extras import widget
-# from qtile_extras.widget.decorations import RectDecoration
-# 
-# 
-# decor = {
-#     "decorations": [
-#         RectDecoration(colour="#600060", radius=10, filled=True, padding_y=5)
-#     ],
-#     "padding": 18,
-# }
-# 
-# 
-# screens = [
-#     Screen(
-#         top=bar.Bar(
-#             [
-#                 widget.Sep(
-#                     # background=colors[8],
-#                     padding=20,
-#                     linewidth=0,
-#                 ),
-#                 widget.Clock(
-#                     foreground=colors[5],
-#                     background=colors[8],
-#                     format='%d %b | %A',
-#                     **decor
-#                 ),
-#                 widget.CurrentLayoutIcon(
-#                     custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
-#                     foreground=colors[5],
-#                     background=colors[8],
-#                     padding=0,
-#                     scale=0.5,
-#                 ),
-#                 widget.CurrentLayout(
-#                     foreground=colors[5],
-#                     background=colors[8],
-#                     **decor
-#                 ),
-#                 widget.GroupBox(**decor),
-#                 widget.Clock(**decor),
-#                 widget.QuickExit(**decor),
-#             ],
-#             30,
-#             background="#00000000",
-#         )
-#     )
-# ]
 
 
 
