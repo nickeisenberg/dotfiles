@@ -139,6 +139,18 @@ keys = [
         lazy.spawn("amixer -q -D pulse sset Master toggle"), 
         desc="Lower Volume by 5%"
     ),
+    Key([], "XF86MonBrightnessUp", 
+        lazy.spawn(
+            os.path.expanduser("~/.config/qtile/scripts/inc_brightness.sh")
+        ), 
+        desc="Lower Volume by 5%"
+    ),
+    Key([], "XF86MonBrightnessDown", 
+        lazy.spawn(
+            os.path.expanduser("~/.config/qtile/scripts/dec_brightness.sh")
+        ), 
+        desc="Lower Volume by 5"
+    ),
 ]
 
 
