@@ -63,3 +63,16 @@ function ide() {
 			echo 'SESSION ALREADY EXISTS'
 		fi
 }
+
+
+# set the key light
+function kli() {
+	if [ $1 -lt 0 ] || [ $1 -gt 2 ] 
+		then
+			echo "Brightness must be 0, 1 or 2"
+		else
+			echo $1 | sudo tee /sys/class/leds/tpacpi::kbd_backlight/brightness
+	fi
+}
+
+
