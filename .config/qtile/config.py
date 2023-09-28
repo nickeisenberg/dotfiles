@@ -110,7 +110,6 @@ keys = [
         ["mod4", "shift"], "3", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/full_screenshot.sh")
-            # "maim -u /home/nicholas/Pictures/Screenshot/screen_$(date +%Y-%m-%d-%T).png"
         )
     ),
     # Select area
@@ -143,13 +142,13 @@ keys = [
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/inc_brightness.sh")
         ), 
-        desc="Lower Volume by 5%"
+        desc="Raise Bright by 5%"
     ),
     Key([], "XF86MonBrightnessDown", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/dec_brightness.sh")
         ), 
-        desc="Lower Volume by 5"
+        desc="Lower Bright by 5"
     ),
 ]
 
