@@ -21,7 +21,6 @@ export SUDO_EDITOR="nvim"
 # some aliases
 alias ipython='python3 -m IPython'
 alias python='python3'
-alias kts='tmux kill-session'
 
 # some functions
 
@@ -45,21 +44,30 @@ function nvimc() (
 # Leaving it black will default to the standard shell
 function ide() {
 	session=$1
+	file_to_open=$2
 	tmux has-session -t $session
 	if [ $? != 0 ]
 		then
-			tmux new-session -s $session -n editor -d  # <dif_editor_name>
+			tmux new-session -s $session -n editor -d #  <dif_editor_name>
 			tmux split-window -t "$session:0.0" -h -p 40
-			tmux split-window -t "$session:0.1" -v -p 5
+			tmux split-window -t "$session:0.1" -v -p 10
+			tmux send-keys -t "$session:0.1" "python" C-m
+			tmux select-pane -t "$session:0.0" 
+			if [ $file_to_open ]
+				then
+					tmux send-keys -t "$session:0.0" "sleep .2 && clear && nvim $file_to_open" C-m
+			fi
 			tmux attach -t $session
+
+
 		else
 			tmux attach -t $session
-			tmux kill-session
-			tmux new-session -s $session -n editor -d 
-			tmux split-window -t "$session:0.0" -h
-			tmux split-window -t "$session:0.1" -v -p 5
-			tmux attach -t $session
-			echo 'SESSION ALREADY EXISTS'
+			# tmux kill-session
+			# tmux new-session -s $session -n editor -d 
+			# tmux split-window -t "$session:0.0" -h
+			# tmux split-window -t "$session:0.1" -v -p 5
+			# tmux attach -t $session
+			# echo 'SESSION ALREADY EXISTS'
 		fi
 }
 
