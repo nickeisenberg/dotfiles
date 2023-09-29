@@ -1,8 +1,7 @@
 source ~/.bashrc
 
-# for file in ~/.config/helper_funcs/*.sh; do
-#     source "$file"
-# done
+# key press delay time 
+xset r rate 200 30
 
 # cuda paths
 export PATH="/usr/local/cuda/bin:$PATH"
