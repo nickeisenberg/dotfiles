@@ -496,7 +496,7 @@ mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
 screens = [
     Screen(
-        wallpaper="~/Pictures/Wallpaper/red-sun.png",
+        wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
         wallpaper_mode="stretch",
         top=bar.Bar(
             mybar,
