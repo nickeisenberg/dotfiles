@@ -6,6 +6,9 @@ vim.o.hlsearch = false
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
+vim.opt.cursorline = true
+vim.opt.cursorcolumn = true
+
 -- line numbers
 vim.wo.nu = true
 
