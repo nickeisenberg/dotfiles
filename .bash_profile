@@ -82,4 +82,19 @@ function kli() {
 	fi
 }
 
+function venv() {
+	source /home/nicholas/Software/venv/$1/bin/activate
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
