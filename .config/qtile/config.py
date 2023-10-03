@@ -497,8 +497,8 @@ mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 # peakpx.com for the wallpapers
 screens = [
     Screen(
+        # wallpaper="~/Pictures/Wallpaper/desk.jpg",
         wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
-        # wallpaper="~/Pictures/Wallpaper/min-white-moon.jpg",
         wallpaper_mode="stretch",
         top=bar.Bar(
             mybar,
