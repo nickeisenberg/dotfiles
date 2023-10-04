@@ -91,7 +91,7 @@ keys = [
     Key(
         [mod, "control"], "b", 
         lazy.spawn(
-            os.path.expanduser("~/.config/rofi/scripts/launcher_t1")
+            os.path.expanduser("~/.config/rofi/scripts/launcher_t2")
         ), 
         desc="Launch the Rofi file explorer"
     ),
