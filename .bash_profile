@@ -1,7 +1,7 @@
 source ~/.bashrc
 
 # key press delay time 
-xset r rate 200 30
+xset r rate 400 30
 
 # cuda paths
 export PATH="/usr/local/cuda/bin:$PATH"

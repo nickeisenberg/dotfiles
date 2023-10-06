@@ -18,7 +18,7 @@ mod = "mod1"
 terminal = 'alacritty'
 browser = "firefox"
 
-
+from libqtile.widget import battery
 
 #--------------------------------------------------qtile window cmd_set_size_floating
 # Ketbindings 
