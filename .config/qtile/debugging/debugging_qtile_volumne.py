@@ -9,6 +9,8 @@ subprocess.getoutput(cmd)
 
 v = vol.Volume(get_volume_command=cmd)
 
+v = vol.Volume()
+
 v.get_volume()
 
 # figure out the check mute command
