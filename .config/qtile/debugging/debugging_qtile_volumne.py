@@ -5,13 +5,30 @@ import subprocess
 
 # Get the volume percent
 cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
+
 subprocess.getoutput(cmd)
+
+cmd = [
+    'amixer',
+    '-D',
+    'pulse',
+    'get',
+    'Master',
+]
+
+subprocess.check_output(
+    cmd, encoding="utf-8"
+)
 
 v = vol.Volume(get_volume_command=cmd)
 
-v = vol.Volume()
+subprocess.check_output(
+    v.create_amixer_command(), encoding="utf-8"
+)
 
 v.get_volume()
+
+
 
 # figure out the check mute command
 

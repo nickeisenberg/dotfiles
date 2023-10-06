@@ -445,7 +445,17 @@ mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
 
 mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
+# This command was from a previous qtile version
+# get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
+
+# Check mute is no longer needed
+get_volume_cmd = [
+    'amixer',
+    '-D',
+    'pulse',
+    'get',
+    'Master',
+]
 check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
 check_mute_string = "0"
 mybar += [
@@ -461,8 +471,8 @@ mybar += [
         fontsize=18,
         background=background_alt,
         get_volume_command=get_volume_cmd,
-        check_mute_sting=check_mute_string,
-        check_mute_command=check_mute_command,
+        # check_mute_sting=check_mute_string,
+        # check_mute_command=check_mute_command,
         # theme_path="~/Dotfiles/.config/qtile/icons/",
     )
 ]
