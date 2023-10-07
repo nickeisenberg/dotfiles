@@ -12,7 +12,7 @@ l = bat._LinuxBattery()
 
 l._load_file('energy')
 
-l._get_param('status_file')
+l._get_param('status_file')[0]
 
 l.update_status()
 
@@ -22,13 +22,14 @@ bat.load_battery()
 # test the Battery class
 b = bat.Battery()
 
-b._battery
 
 b.poll()
+
 
 status = b._battery.update_status()
 
 status.state
+
 status.time
 status.percent
 

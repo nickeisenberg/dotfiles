@@ -4,5 +4,3 @@
 setxkbmap -option ctrl:nocaps &
 
 picom --experimental-backends --backend glx --xrender-sync-fence &
-
-
