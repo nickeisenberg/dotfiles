@@ -578,8 +578,8 @@ screens = [
         ),
     ),
     Screen(
-        # wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
-        wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
+        wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
+        # wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
         wallpaper_mode="stretch",
         top=bar.Bar(
             mybardual,
