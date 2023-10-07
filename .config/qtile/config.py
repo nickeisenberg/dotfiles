@@ -12,13 +12,35 @@ from my_utils.utils import *
 
 from my_utils.nvidia_widget import NvidiaSensors2
 
+from libqtile.widget import battery
+
 
 mod = "mod1"
 # terminal = guess_terminal()
 terminal = 'alacritty'
 browser = "firefox"
 
-from libqtile.widget import battery
+
+colors = [
+    ["#1b1c26", "#14151C", "#1b1c26"], # color 0
+    ["#485062", "#485062", "#485062"], # color 1
+    ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
+    ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
+    ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
+    ["#ffffff", "#ffffff", "#ffffff"], # color 5
+    ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
+    ["#9859B3", "#8455A8", "#9859B3"], # color 7
+    ["#744B94", "#694486", "#744B94"], # color 8
+    ["#0ee9af", "#0ee9af", "#0ee9af"] # color 9
+]
+
+background = "#191724"
+background_alt = "#2E2B46"
+foreground = "#e0def4"
+selected = "#31748f"
+urgent = "#eb6f92"
+active = "#9ccfd8"
+widget_text_color = "#ffffff"
 
 #--------------------------------------------------qtile window cmd_set_size_floating
 # Ketbindings 
@@ -158,75 +180,124 @@ keys = [
 #--------------------------------------------------
 # Groups
 #--------------------------------------------------
-groups = [Group(i) for i in "12345"]
+# groups = [Group(i) for i in "12345"]
+# 
+# for i in groups:
+#     keys.append(
+#         Key(
+#             [mod],
+#             i.name,
+#             lazy.group[i.name].toscreen(),
+#             desc="Switch to group {}".format(i.name),
+#         )
+#     )
+#     keys.append(
+#         Key(
+#             [mod, "control"],
+#             i.name,
+#             lazy.window.togroup(i.name, switch_group=True),
+#             desc="Switch to & move focused window to group {}".format(i.name),
+#         )
+#     )
 
-for i in groups:
-    keys.extend(
-        [
-            # mod1 + letter of group = switch to group
-            Key(
-                [mod],
-                i.name,
-                lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
-            ),
-            # mod1 + shift + letter of group = switch to & move focused window to group
-            Key(
-                [mod, "control"],
-                i.name,
-                lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(i.name),
-            ),
-        ]
-    )
+groups = [
+    Group(name="1", screen_affinity=0),
+    Group(name="2", screen_affinity=0),
+    Group(name="3", screen_affinity=0),
+    Group(name="4", screen_affinity=1),
+    Group(name="5", screen_affinity=1),
+]
 
-#--------------------------------------------------
-# Scratch pad and keybindings
-#--------------------------------------------------
-groups.append(
-    ScratchPad(
-        "6",
-        [
-            DropDown(
-                "chatgpt", 
-                f"{browser} --app=https://chat.openai.com", 
-                x=0.3, y=0.1, 
-                width=0.40, height=0.4, 
-                on_focus_lost_hide=False
-            ),
-            DropDown(
-               "mousepad", "mousepad", 
-               x=0.3, y=0.1, 
-               width=0.40, height=0.4, 
-               on_focus_lost_hide=False),
-            DropDown(
-                "terminal", f"{terminal}", 
-                x=0.3, y=0.1, 
-                width=0.40, height=0.4, 
-                on_focus_lost_hide=False
-            ),
-        ]
-    )
+
+mainbar = widget.GroupBox(
+    fontsize=20,
+    visible_groups=['1', '2', '3'],
+    background=background_alt,
+    active=urgent,
+    inactive=widget_text_color,
+    rounded=True,
+    highlight_color=colors[0],
+    highlight_method="line",
+    this_current_screen_border=colors[0],
+    block_highlight_text_color=colors[2],
+    blockwidth=2,
+    margin_y=5,
 )
 
-keys.extend([
-    Key([mod], 'F10', lazy.group["6"].dropdown_toggle("chatgpt")),
-    Key([mod], 'F11', lazy.group["6"].dropdown_toggle("mousepad")),
-    Key([mod], 'F12', lazy.group["6"].dropdown_toggle("terminal")),
-])
+dualmonbar = widget.GroupBox(
+    fontsize=20,
+    visible_groups=['4', '5'],
+    background=background_alt,
+    active=urgent,
+    inactive=widget_text_color,
+    rounded=True,
+    highlight_color=colors[0],
+    highlight_method="line",
+    this_current_screen_border=colors[0],
+    block_highlight_text_color=colors[2],
+    blockwidth=2,
+    margin_y=5,
+)
+
+# @hook.subscribe.screens_reconfigured
+# async def _():
+#     if len(qtile.screens) > 1:
+#         mainbar.visible_groups = ['1', '2', '3']
+#     else:
+#         mainbar.visible_groups = ['1', '2', '3', '4', '5']
+#     if hasattr(mainbar, 'bar'):
+#         mainbar.bar.draw()
+
+def go_to_group(name: str):
+    def _inner(qtile):
+        if len(qtile.screens) == 1:
+            qtile.groups_map[name].cmd_toscreen()
+            return
+
+        if name in '123':
+            qtile.focus_screen(0)
+            qtile.groups_map[name].cmd_toscreen()
+        else:
+            qtile.focus_screen(1)
+            qtile.groups_map[name].cmd_toscreen()
+
+    return _inner
+
+def go_to_group_and_move_window(name: str):
+    def _inner(qtile):
+        if len(qtile.screens) == 1:
+            qtile.current_window.togroup(name, switch_group=True)
+            return
+
+        if name in "123":
+            qtile.current_window.togroup(name, switch_group=False)
+            qtile.focus_screen(0)
+            qtile.groups_map[name].cmd_toscreen()
+        else:
+            qtile.current_window.togroup(name, switch_group=False)
+            qtile.focus_screen(1)
+            qtile.groups_map[name].cmd_toscreen()
+
+    return _inner
 
 
-#--------------------------------------------------
-# Some colors
-#--------------------------------------------------
-# some rose pine colors
-background = "#191724"
-background_alt = "#2E2B46"
-foreground = "#e0def4"
-selected = "#31748f"
-urgent = "#eb6f92"
-active = "#9ccfd8"
-widget_text_color = "#ffffff"
+for i in groups:
+    keys.append(
+        Key(
+            [mod],
+            i.name,
+            lazy.function(go_to_group(i.name)),
+            desc="Switch to group {}".format(i.name),
+        )
+    )
+    keys.append(
+        Key(
+            [mod, "control"],
+            i.name,
+            lazy.function(go_to_group_and_move_window(i.name)),
+            desc="Switch to & move focused window to group {}".format(i.name),
+        )
+    )
 
 
 #--------------------------------------------------
@@ -285,19 +356,6 @@ mouse = [
 
 #--------------------------------------------------
 
-colors =  [
-        ["#1b1c26", "#14151C", "#1b1c26"], # color 0
-        ["#485062", "#485062", "#485062"], # color 1
-        ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
-        ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
-        ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
-        ["#ffffff", "#ffffff", "#ffffff"], # color 5
-        ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
-        ["#9859B3", "#8455A8", "#9859B3"], # color 7
-        ["#744B94", "#694486", "#744B94"], # color 8
-        ["#0ee9af", "#0ee9af", "#0ee9af"]] # color 9
-   
-
 
 widget_defaults = dict(
     font='UbuntuMono Nerd Font',
@@ -307,13 +365,20 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
+# The dual monitor bars are essentially the same except for the groupbox.
+# sharebar_l and sharedbar_r are the shared left and right parts. The groupbox
+# in the middle is the only change 
+
 mybar = []
+mybardual = []
+sharedbar_l = []
+sharedbar_r = []
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_l.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_l.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-mybar.append(
+sharedbar_l.append(
     widget.Clock(
         foreground=widget_text_color,
         # background=background,
@@ -323,35 +388,24 @@ mybar.append(
     )
 )
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_l.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Spacer()) 
-
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
-
-mybar.append(
-    widget.GroupBox(
-        fontsize=20,
-        background=background_alt,
-        active=urgent,
-        inactive=widget_text_color,
-        rounded=True,
-        highlight_color=colors[0],
-        highlight_method="line",
-        this_current_screen_border=colors[0],
-        block_highlight_text_color=colors[2],
-        blockwidth=2,
-        margin_y=5,
-    )
-)
-
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
-
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_l.append(widget.Spacer()) 
 
 mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+mybardual.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-mybar += [
+mybar.append(mainbar)
+mybardual.append(dualmonbar)
+
+mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+mybardual.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+
+sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+
+sharedbar_r += [
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
         foreground=widget_text_color,
@@ -366,13 +420,13 @@ mybar += [
     )
 ]
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Spacer())
+sharedbar_r.append(widget.Spacer())
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-mybar += [
+sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
          #text="",
@@ -390,13 +444,13 @@ mybar += [
     )
 ]
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-mybar += [
+sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
         text="GPU ",
@@ -415,13 +469,13 @@ mybar += [
     )
 ]
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-mybar += [
+sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
         # text="",
@@ -439,11 +493,11 @@ mybar += [
     )
 ]
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
 # This command was from a previous qtile version
 # get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
@@ -458,7 +512,7 @@ get_volume_cmd = [
 ]
 check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
 check_mute_string = "0"
-mybar += [
+sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
         text="\uf028",
@@ -477,13 +531,13 @@ mybar += [
     )
 ]
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
-mybar.append(
+sharedbar_r.append(
     widget.Battery(
         battery="BAT0",
         font='FontAwesome',
@@ -500,9 +554,12 @@ mybar.append(
     )
 )
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-mybar.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+
+mybar = sharedbar_l + mybar + sharedbar_r
+mybardual = sharedbar_l + mybardual + sharedbar_r
 
 # peakpx.com for the wallpapers
 screens = [
@@ -520,8 +577,21 @@ screens = [
             # opacity=0.8,
         ),
     ),
+    Screen(
+        # wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
+        wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
+        wallpaper_mode="stretch",
+        top=bar.Bar(
+            mybardual,
+            30,
+            background=background,
+            margin=[5, 8, 0, 8],
+            border_width=[5, 0, 5, 0],
+            border_color=background,
+            # opacity=0.8,
+        ),
+    ),
 ]
-
 
 
 #--------------------------------------------------
