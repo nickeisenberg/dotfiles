@@ -33,7 +33,6 @@ else
  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
 fi
 
-
 # some functions
 
 # quickly add commit and push to a branch

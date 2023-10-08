@@ -628,3 +628,15 @@ wmname = "LG3D"
 def autostart():
     home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
     subprocess.Popen([home])
+
+
+
+
+
+
+
+
+
+
+
+
