@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import subprocess
 from libqtile import bar, layout, widget, hook, qtile
 from libqtile.config import (
@@ -175,30 +176,9 @@ keys = [
 ]
 
 
-
-
 #--------------------------------------------------
 # Groups
 #--------------------------------------------------
-# groups = [Group(i) for i in "12345"]
-# 
-# for i in groups:
-#     keys.append(
-#         Key(
-#             [mod],
-#             i.name,
-#             lazy.group[i.name].toscreen(),
-#             desc="Switch to group {}".format(i.name),
-#         )
-#     )
-#     keys.append(
-#         Key(
-#             [mod, "control"],
-#             i.name,
-#             lazy.window.togroup(i.name, switch_group=True),
-#             desc="Switch to & move focused window to group {}".format(i.name),
-#         )
-#     )
 
 maingroups = [
     Group(name="1", screen_affinity=0),
@@ -242,14 +222,6 @@ dualmonbar = widget.GroupBox(
     margin_y=5,
 )
 
-# @hook.subscribe.screens_reconfigured
-# async def _():
-#     if len(qtile.screens) > 1:
-#         mainbar.visible_groups = ['1', '2', '3']
-#     else:
-#         mainbar.visible_groups = ['1', '2', '3', '4', '5']
-#     if hasattr(mainbar, 'bar'):
-#         mainbar.bar.draw()
 
 def go_to_group(name: str):
     def _inner(qtile):
@@ -257,7 +229,7 @@ def go_to_group(name: str):
             qtile.groups_map[name].cmd_toscreen()
             return
 
-        if name in '123':
+        if name in np.arange(1, len(maingroups) + 1).astype(str):
             qtile.focus_screen(0)
             qtile.groups_map[name].cmd_toscreen()
         else:
@@ -272,7 +244,7 @@ def go_to_group_and_move_window(name: str):
             qtile.current_window.togroup(name, switch_group=True)
             return
 
-        if name in "123":
+        if name in np.arange(1, len(maingroups) + 1).astype(str):
             qtile.current_window.togroup(name, switch_group=False)
             qtile.focus_screen(0)
             qtile.groups_map[name].cmd_toscreen()
