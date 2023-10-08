@@ -116,3 +116,6 @@ function venv() {
 
 
 
+
+export PATH=$PATH:/home/nicholas/.spicetify
+. "$HOME/.cargo/env"

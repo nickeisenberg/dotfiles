@@ -101,6 +101,13 @@ keys = [
     # Launch Apps
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
+    Key(
+        [mod], "s", 
+        lazy.spawn(
+            os.path.expanduser("/usr/share/spotify/spotify")
+        ), 
+        desc="Launch spotify"
+    ),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
