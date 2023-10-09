@@ -1,11 +1,15 @@
 source ~/.bashrc
 
 # key press delay time 
-xset r rate 400 30
+xset r rate 250 30
 
 # cuda paths
 export PATH="/usr/local/cuda/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+
+# spicetify stuff
+export PATH=$PATH:/home/nicholas/.spicetify
+. "$HOME/.cargo/env"
 
 # nvm paths
 export NVM_DIR="$HOME/.nvm"
@@ -100,22 +104,21 @@ function kli() {
 	fi
 }
 
+# External screen brightness
+# The second arg is the monitor name. It can be left blank and defaults
+# to HDMI-1-0 which I believe will always be the monitor form the hdmi port
+function dmb(){
+	if [$2] 
+		then
+			xrandr --output $2 --brightness $1
+		else
+			xrandr --output HDMI-1-0 --brightness $1
+	fi
+}
+
+
 function venv() {
 	source /home/nicholas/Software/venv/$1/bin/activate
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-export PATH=$PATH:/home/nicholas/.spicetify
-. "$HOME/.cargo/env"
