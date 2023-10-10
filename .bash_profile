@@ -121,4 +121,8 @@ function venv() {
 	source /home/nicholas/Software/venv/$1/bin/activate
 }
 
-
+function dm() {
+	xrandr --output HDMI-1-0 --off
+	xrandr --output HDMI-1-0 --auto
+	xrandr --output HDMI-1-0 --noprimary --above eDP-1
+}
