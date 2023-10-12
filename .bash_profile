@@ -100,7 +100,8 @@ function kli() {
 		then
 			echo "Brightness must be 0, 1 or 2"
 		else
-			echo $1 | sudo tee /sys/class/leds/tpacpi::kbd_backlight/brightness
+			# echo $1 | sudo tee /sys/class/leds/tpacpi::kbd_backlight/brightness
+			echo $1 | tee /sys/class/leds/tpacpi::kbd_backlight/brightness
 	fi
 }
 
