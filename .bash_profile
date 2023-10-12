@@ -94,17 +94,6 @@ function ide() {
 }
 
 
-# set the key light
-function kli() {
-	if [ $1 -lt 0 ] || [ $1 -gt 2 ] 
-		then
-			echo "Brightness must be 0, 1 or 2"
-		else
-			# echo $1 | sudo tee /sys/class/leds/tpacpi::kbd_backlight/brightness
-			echo $1 | tee /sys/class/leds/tpacpi::kbd_backlight/brightness
-	fi
-}
-
 # External screen brightness
 # The second arg is the monitor name. It can be left blank and defaults
 # to HDMI-1-0 which I believe will always be the monitor form the hdmi port
