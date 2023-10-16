@@ -64,23 +64,32 @@ function ide() {
 	tmux has-session -t $session
 	if [ $? != 0 ]
 		then
-			tmux new-session -s $session -n editor -d  # Create a tmux pane named 'editor' and close it
-			tmux split-window -t "$session:0.0" -h -p 40  # Split the pane into two horizontal panes
-			tmux split-window -t "$session:0.1" -v -p 10  # Split the right pane verically
-			if [ $_venv ]  # if a filename is entered on creation of tmux session, open the file with nvim
+
+			# Create a tmux pane named 'editor' and close it
+			tmux new-session -s $session -n editor -d  
+			# Split the pane into two horizontal panes
+			tmux split-window -t "$session:0.0" -h -p 40 
+			# Split the right pane verically
+			tmux split-window -t "$session:0.1" -v -p 10  
+
+			# if a filename is entered on creation of tmux session, open the file with nvim
+			if [ $_venv ]  
 				then
 					tmux send-keys -t "$session:0.1" "venv $_venv && python" C-m
 					tmux send-keys -t "$session:0.0" "venv $_venv" C-m
 				else
-					tmux send-keys -t "$session:0.1" "python" C-m  # open python in the top right pane
+					# open python in the top right pane
+					tmux send-keys -t "$session:0.1" "python" C-m  
 			fi
-			tmux select-pane -t "$session:0.0"  # return the focus to the main left pane
-			# if [ $file_to_open ]  # if a filename is entered on creation of tmux session, open the file with nvim
+
+			# return the focus to the main left pane
+			tmux select-pane -t "$session:0.0"  
+			# if a filename is entered on creation of tmux session, open the file with nvim
+			# if [ $file_to_open ]  
 			# 	then
 			# 		tmux send-keys -t "$session:0.0" "sleep .2 && clear && nvim $file_to_open" C-m
 			# fi
 			tmux attach -t $session  # open the tmux session
-
 
 		else
 			tmux attach -t $session
