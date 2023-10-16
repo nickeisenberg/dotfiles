@@ -228,10 +228,9 @@ dualgroups = [
 
 groups = maingroups + dualgroups
 
-"""
-The pair (x, y) in Drop down below is the percentage of change from the 
-top left corner of the scratch pad with the top left corner of the screen.
-"""
+
+# The pair (x, y) in Drop down below is the percentage of change from the 
+# top left corner of the scratch pad with the top left corner of the screen.
 groups.append(
     ScratchPad(
         "scratchpad",
