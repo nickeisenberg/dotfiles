@@ -231,30 +231,30 @@ groups = maingroups + dualgroups
 
 # The pair (x, y) in Drop down below is the percentage of change from the 
 # top left corner of the scratch pad with the top left corner of the screen.
-groups.append(
-    ScratchPad(
-        "scratchpad",
-        [
-            # define a drop down terminal.
-            # it is placed in the upper third of screen by default.
-            DropDown(
-                "term", 
-                "alacritty", 
-                opacity=0.8,
-                x=0.1, 
-                y=0.1, 
-                width=.8, 
-                height=.8, 
-                on_focus_lost_hide=True
-            ),
-        ]
-    ),
-)
-
-keys += [
-  # toggle visibiliy of above defined DropDown named "term"
-  Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('term')),
-]
+# groups.append(
+#     ScratchPad(
+#         "scratchpad",
+#         [
+#             # define a drop down terminal.
+#             # it is placed in the upper third of screen by default.
+#             DropDown(
+#                 "term", 
+#                 "alacritty", 
+#                 opacity=0.8,
+#                 x=0.1, 
+#                 y=0.1, 
+#                 width=.8, 
+#                 height=.8, 
+#                 # on_focus_lost_hide=True
+#             ),
+#         ]
+#     ),
+# )
+# 
+# keys += [
+#   # toggle visibiliy of above defined DropDown named "term"
+#   Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('term')),
+# ]
 
 mainbar = widget.GroupBox(
     fontsize=20,
