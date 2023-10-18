@@ -601,6 +601,7 @@ mybar = sharedbar_l + mybar + sharedbar_r
 mybardual = sharedbar_l + mybardual + sharedbar_r
 
 # peakpx.com for the wallpapers
+# Use `xrandr --listmonitors` to see the correct order
 screens = [
     Screen(
         wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",

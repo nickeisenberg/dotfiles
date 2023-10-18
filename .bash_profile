@@ -125,3 +125,12 @@ function dm() {
 	xrandr --output HDMI-1-0 --auto
 	xrandr --output HDMI-1-0 --noprimary --above eDP-1
 }
+
+function sshaws() {
+	ssh -i /home/nicholas/.credentials/keypairs/$1 $2
+}
+
+function sp() {
+	dir=$(pip show pip | awk '/Location/ {print $2}')
+	cd $dir
+}

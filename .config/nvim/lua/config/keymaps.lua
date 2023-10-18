@@ -1,5 +1,14 @@
 -- vim built in file explorer
-vim.keymap.set("n", "<leader>ve", vim.cmd.Ex)
+-- vim.keymap.set("n", "<leader>ve", vim.cmd.Ex)
+vim.keymap.set(
+  "n",
+  "<leader>ve",
+  function()
+    vim.cmd.tabnew()
+    vim.cmd.Ex()
+  end
+)
+
 
 -- Move the the previous or next buffer
 vim.keymap.set("n", "<S-h>", vim.cmd.BufferLineCyclePrev)
