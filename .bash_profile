@@ -75,8 +75,8 @@ function ide() {
 			# if a filename is entered on creation of tmux session, open the file with nvim
 			if [ $_venv ]  
 				then
-					tmux send-keys -t "$session:0.1" "venv $_venv && python" C-m
-					tmux send-keys -t "$session:0.0" "venv $_venv" C-m
+					tmux send-keys -t "$session:0.1" "avenv $_venv && python" C-m
+					tmux send-keys -t "$session:0.0" "avenv $_venv" C-m
 				else
 					# open python in the top right pane
 					tmux send-keys -t "$session:0.1" "python" C-m  
@@ -115,8 +115,14 @@ function dmb(){
 	fi
 }
 
+function venv() (
+	cd ~/Software/venv 
+	python -m venv $1
+	dir=$(pwd)
+	echo "venv has been created to $dir/$1"
+)
 
-function venv() {
+function avenv() {
 	source /home/nicholas/Software/venv/$1/bin/activate
 }
 
@@ -134,3 +140,6 @@ function sp() {
 	dir=$(pip show pip | awk '/Location/ {print $2}')
 	cd $dir
 }
+
+
+
