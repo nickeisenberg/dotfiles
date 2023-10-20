@@ -219,11 +219,12 @@ maingroups = [
     Group(name="3", screen_affinity=0),
     Group(name="4", screen_affinity=0),
     Group(name="5", screen_affinity=0),
+    Group(name="6", screen_affinity=0),
 ]
 
 dualgroups = [
-    Group(name="9", label="6", screen_affinity=1),
-    Group(name="0", label="7", screen_affinity=1),
+    Group(name="9", label="7", screen_affinity=1),
+    Group(name="0", label="8", screen_affinity=1),
 ]
 
 groups = maingroups + dualgroups
@@ -258,7 +259,7 @@ groups = maingroups + dualgroups
 
 mainbar = widget.GroupBox(
     fontsize=20,
-    visible_groups=['1', '2', '3', '4', '5'],
+    visible_groups=['1', '2', '3', '4', '5', '6'],
     background=background_alt,
     active=urgent,
     inactive=widget_text_color,
