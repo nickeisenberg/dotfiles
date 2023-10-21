@@ -41,16 +41,16 @@ fi
 
 # quickly add commit and push to a branch
 function acp {
-	git add -A
-	git commit -m "$1"
-	git push -u origin $2
+    git add -A
+    git commit -m "$1"
+    git push -u origin $2
 }
 
 # open neovim in config from any location. When cloing neovim
 # you will return to the same location
 function nvimc() (
-	cd -- ~/.config/nvim
-	nvim
+    cd -- ~/.config/nvim
+    nvim
 )
 
 # Create a tmux ide
@@ -58,48 +58,39 @@ function nvimc() (
 #	https://tmuxcheatsheet.com
 #	https://stackoverflow.com/questions/38325737/tmux-split-window-and-activate-a-python-virtualenv
 function ide() {
-	session=$1
-	# file_to_open=$2
-	_venv=$2
-	tmux has-session -t $session
-	if [ $? != 0 ]
-		then
+    session=$1
+    # file_to_open=$2
+    _venv=$2
+    tmux has-session -t $session
+    if [ $? != 0 ]; then
 
-			# Create a tmux pane named 'editor' and close it
-			tmux new-session -s $session -n editor -d  
-			# Split the pane into two horizontal panes
-			tmux split-window -t "$session:0.0" -h -p 40 
-			# Split the right pane verically
-			tmux split-window -t "$session:0.1" -v -p 10  
+        # Create a tmux pane named 'editor' and close it
+        tmux new-session -s $session -n editor -d  
+        # Split the pane into two horizontal panes
+        tmux split-window -t "$session:0.0" -h -p 40 
+        # Split the right pane verically
+        tmux split-window -t "$session:0.1" -v -p 10  
 
-			# if a filename is entered on creation of tmux session, open the file with nvim
-			if [ $_venv ]  
-				then
-					tmux send-keys -t "$session:0.1" "avenv $_venv && python" C-m
-					tmux send-keys -t "$session:0.0" "avenv $_venv" C-m
-				else
-					# open python in the top right pane
-					tmux send-keys -t "$session:0.1" "python" C-m  
-			fi
+        # if a filename is entered on creation of tmux session, open the file with nvim
+        if [ $_venv ]; then
+            tmux send-keys -t "$session:0.1" "venv -a $_venv && python" C-m
+            tmux send-keys -t "$session:0.0" "venv -a $_venv" C-m
+        else
+            # open python in the top right pane
+            tmux send-keys -t "$session:0.1" "python" C-m  
+        fi
 
-			# return the focus to the main left pane
-			tmux select-pane -t "$session:0.0"  
-			# if a filename is entered on creation of tmux session, open the file with nvim
-			# if [ $file_to_open ]  
-			# 	then
-			# 		tmux send-keys -t "$session:0.0" "sleep .2 && clear && nvim $file_to_open" C-m
-			# fi
-			tmux attach -t $session  # open the tmux session
+        # return the focus to the main left pane
+        tmux select-pane -t "$session:0.0"  
+        # if a filename is entered on creation of tmux session, open the file with nvim
+        # if [ $file_to_open ]; then
+        #     tmux send-keys -t "$session:0.0" "sleep .2 && clear && nvim $file_to_open" C-m
+        # fi
+        tmux attach -t $session  # open the tmux session
 
-		else
-			tmux attach -t $session
-			# tmux kill-session
-			# tmux new-session -s $session -n editor -d 
-			# tmux split-window -t "$session:0.0" -h
-			# tmux split-window -t "$session:0.1" -v -p 5
-			# tmux attach -t $session
-			# echo 'SESSION ALREADY EXISTS'
-		fi
+    else
+        tmux attach -t $session
+    fi
 }
 
 
@@ -107,42 +98,23 @@ function ide() {
 # The second arg is the monitor name. It can be left blank and defaults
 # to HDMI-1-0 which I believe will always be the monitor form the hdmi port
 function dmb(){
-	if [$2] 
-		then
-			xrandr --output $2 --brightness $1
-		else
-			xrandr --output HDMI-1-0 --brightness $1
-	fi
+    if [$2] 
+    	then
+    	    xrandr --output $2 --brightness $1
+    	else
+    	    xrandr --output HDMI-1-0 --brightness $1
+    fi
 }
 
-# function venv() (
-# 	cd ~/Software/venv 
-# 	python -m venv $1
-# 	dir=$(pwd)
-# 	echo "venv has been created to $dir/$1"
-# )
-# 
-# function avenv() {
-# 	source /home/nicholas/Software/venv/$1/bin/activate
-# }
-# 
-# function lsvenv() {
-# 	ls /home/nicholas/Software/venv/
-# }
-# 
-# function sp() {
-# 	dir=$(pip show pip | awk '/Location/ {print $2}')
-# 	cd $dir
-# }
 
 function dm() {
-	xrandr --output HDMI-1-0 --off
-	xrandr --output HDMI-1-0 --auto
-	xrandr --output HDMI-1-0 --noprimary --above eDP-1
+    xrandr --output HDMI-1-0 --off
+    xrandr --output HDMI-1-0 --auto
+    xrandr --output HDMI-1-0 --noprimary --above eDP-1
 }
 
 function sshaws() {
-	ssh -i /home/nicholas/.credentials/keypairs/$1 $2
+    ssh -i /home/nicholas/.credentials/keypairs/$1 $2
 }
 
 function venv() {
