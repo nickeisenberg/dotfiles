@@ -36,7 +36,7 @@ rofi_cmd() {
 
 # Confirmation CMD
 confirm_cmd() {
-	rofi -theme-str 'window {location: center; anchor: center; fullscreen: false; width: 250px;}' \
+	rofi -theme-str 'window {location: center; anchor: center; fullscreen: false; width: 250px}' \
 		-theme-str 'mainbox {children: [ "message", "listview" ];}' \
 		-theme-str 'listview {columns: 2; lines: 1;}' \
 		-theme-str 'element-text {horizontal-align: 0.5;}' \
@@ -54,7 +54,8 @@ confirm_exit() {
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$logout\n$reboot\n$shutdown\n$lock\n$suspend" | rofi_cmd
+	# echo -e "$logout\n$reboot\n$shutdown\n$lock\n$suspend" | rofi_cmd
+	echo -e "$logout\n$reboot\n$shutdown\n$suspend" | rofi_cmd
 }
 
 # Execute Command
@@ -96,13 +97,13 @@ case ${chosen} in
     $reboot)
 		run_cmd --reboot
         ;;
-    $lock)
-		if [[ -x '/usr/bin/betterlockscreen' ]]; then
-			betterlockscreen -l
-		elif [[ -x '/usr/bin/i3lock' ]]; then
-			i3lock
-		fi
-        ;;
+    # $lock)
+    #     	if [[ -x '/usr/bin/betterlockscreen' ]]; then
+    #     		betterlockscreen -l
+    #     	elif [[ -x '/usr/bin/i3lock' ]]; then
+    #     		i3lock
+    #     	fi
+    #     ;;
     $suspend)
 		run_cmd --suspend
         ;;
