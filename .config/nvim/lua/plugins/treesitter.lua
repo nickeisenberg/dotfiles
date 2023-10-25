@@ -24,7 +24,7 @@ return {
       highlight = { enable = true },
       indent = {
         enable = true,
-        disable = { "python" },
+        disable = { "" },
       },
       incremental_selection = {
         enable = true,
