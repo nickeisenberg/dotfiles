@@ -1,6 +1,6 @@
 # quickly add commit and push all to a git repo's branch
 
-function acpp {
+function acp {
     local message=""
     local branch_name=""
 
