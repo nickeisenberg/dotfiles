@@ -17,6 +17,7 @@ localpip() {
         echo "-rt, --revert-to <commit>       Revert the specified package to a given commit."
         echo "-pl, --package-location         Display the directory location of the specified package."
         echo "-i, --install <repo_url>        Clone a repository directly into site-packages."
+        echo "-un, --uninstall                Remove the specified package from site-packages."
         echo "-spl, --site-package-location   Display the site-packages directory location."
         echo "-h, --help                      Display this help and exit."
     }
@@ -27,35 +28,38 @@ localpip() {
             -p|--package)
                 package_name="$2"
                 package_dir="$site_packages_dir/$package_name"
-                
-                # Check if the package directory exists
-                if [[ ! -d "$package_dir" ]]; then
-                    echo "Package directory $package_dir does not exist."
-                    return 1
-                fi
-                
-                # Check if there's a .git directory inside
-                if [[ ! -d "$package_dir/.git" ]]; then
-                    echo "Directory $package_dir is not a git repository."
-                    return 1
-                fi
-                
                 shift 2
                 ;;
             -u|--update)
+                if [[ -z "$package_name" ]]; then
+                    echo "Please specify a package using -p or --package for this option."
+                    return 1
+                fi
                 (cd "$package_dir" && git fetch --all && git reset --hard origin/master)
                 shift
                 ;;
             -gcc|--get-current-commit)
+                if [[ -z "$package_name" ]]; then
+                    echo "Please specify a package using -p or --package for this option."
+                    return 1
+                fi
                 (cd "$package_dir" && git rev-parse HEAD)
                 shift
                 ;;
             -rt|--revert-to)
+                if [[ -z "$package_name" ]]; then
+                    echo "Please specify a package using -p or --package for this option."
+                    return 1
+                fi
                 commit_hash="$2"
                 (cd "$package_dir" && git reset --hard "$commit_hash")
                 shift 2
                 ;;
             -pl|--package-location)
+                if [[ -z "$package_name" ]]; then
+                    echo "Please specify a package using -p or --package for this option."
+                    return 1
+                fi
                 echo "$package_dir"
                 shift
                 ;;
@@ -63,6 +67,15 @@ localpip() {
                 repo_url="$2"
                 (cd "$site_packages_dir" && git clone "$repo_url")
                 shift 2
+                ;;
+            -un|--uninstall)
+                if [[ -z "$package_name" ]]; then
+                    echo "Please specify a package using -p or --package for this option."
+                    return 1
+                fi
+                rm -rf "$package_dir"
+                echo "Uninstalled $package_name from site-packages."
+                shift
                 ;;
             -spl|--site-package-location)
                 echo "$site_packages_dir"
@@ -79,10 +92,5 @@ localpip() {
                 ;;
         esac
     done
-
-    # Check if any action was specified without a package
-    if [[ -z "$package_name" && $1 != "-h" && $1 != "--help" && $1 != "-i" && $1 != "--install" && $1 != "-spl" && $1 != "--site-package-location" ]]; then
-        echo "Please specify a package using -p or --package."
-        return 1
-    fi
 }
+
