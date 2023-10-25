@@ -3,7 +3,7 @@
 # This is a localpip python package maneger. If you add gitrepos to your site
 # then localpip gives a way to update the repo quickly without needed to go to
 # the site-package directory itself.
-
+#
 localpip() {
     # Get the site-packages directory
     site_packages_dir=$(pip show pip | grep Location | cut -d' ' -f2)
@@ -11,14 +11,14 @@ localpip() {
     # Helper function to display usage
     display_help() {
         echo "Usage: localpip [OPTIONS]"
-        echo "-p, --package <foldername>      Specify the package folder inside site-packages."
+        echo "-pn, --package-name <name>      Specify the package folder inside site-packages."
         echo "-u, --update                    Update the specified package."
         echo "-gcc, --get-current-commit      Get the current commit of the specified package."
         echo "-rt, --revert-to <commit>       Revert the specified package to a given commit."
         echo "-pl, --package-location         Display the directory location of the specified package."
-        echo "-i, --install <repo_url>        Clone a repository directly into site-packages with the given package name."
+        echo "-i, --install <repo_url>        Clone a repository directly into site-packages with an optional specified name."
         echo "-un, --uninstall                Remove the specified package from site-packages."
-        echo "-l, --list                      List all packages potentially installed with localpip."
+        echo "-ls, --list                      List all packages potentially installed with localpip."
         echo "-spl, --site-package-location   Display the site-packages directory location."
         echo "-h, --help                      Display this help and exit."
     }
@@ -35,7 +35,7 @@ localpip() {
     # Parse arguments
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            -p|--package)
+            -pn|--package-name)
                 package_name="$2"
                 package_dir="$site_packages_dir/$package_name"
                 shift 2
@@ -60,7 +60,12 @@ localpip() {
             -i|--install)
                 repo_url="$2"
                 temp_dir=$(mktemp -d)
-                (cd "$temp_dir" && git clone "$repo_url" && mv * "$site_packages_dir/$package_name")
+                (cd "$temp_dir" && git clone "$repo_url")
+                
+                # If package_name is set, rename the cloned directory. Else use repo's name.
+                repo_name=$(basename "$temp_dir"/* .git)
+                mv "$temp_dir/$repo_name" "$site_packages_dir/${package_name:-$repo_name}"
+                
                 rm -rf "$temp_dir"
                 shift 2
                 ;;
@@ -69,7 +74,7 @@ localpip() {
                 echo "Uninstalled $package_name from site-packages."
                 shift
                 ;;
-            -l|--list)
+            -ls|--list)
                 list_localpip_packages
                 shift
                 ;;
