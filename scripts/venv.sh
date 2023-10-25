@@ -13,7 +13,7 @@ function venv() {
 
     # Check the number of arguments passed
     if [[ $# -lt 1 ]]; then
-        echo "Usage: venv <-m/-a/-sp/-da/-ls/-h> [venv_name/package_name]"
+        echo "Usage: venv <-m/-a/-sp/-da/-ls/-del/-h> [venv_name/package_name]"
         return 1
     fi
 
@@ -107,6 +107,7 @@ function venv() {
             echo "  -sp [package_name]  : Navigate to the site-packages directory or specified package directory."
             echo "  -da                 : Deactivate the currently active virtual environment."
             echo "  -ls                 : List all available virtual environments in $VENV_DIR."
+            echo "  -del                : Delete the specified venv."
             echo "  -h                  : Display this help message."
             ;;
         
