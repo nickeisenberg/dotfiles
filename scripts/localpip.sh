@@ -15,7 +15,9 @@ localpip() {
         echo "-u, --update                    Update the specified package."
         echo "-gcc, --get-current-commit      Get the current commit of the specified package."
         echo "-rt, --revert-to <commit>       Revert the specified package to a given commit."
-        echo "-pdl, --package-dir-location    Display the directory location of the specified package."
+        echo "-pl, --package-location         Display the directory location of the specified package."
+        echo "-i, --install <repo_url>        Clone a repository directly into site-packages."
+        echo "-spl, --site-package-location   Display the site-packages directory location."
         echo "-h, --help                      Display this help and exit."
     }
 
@@ -53,8 +55,17 @@ localpip() {
                 (cd "$package_dir" && git reset --hard "$commit_hash")
                 shift 2
                 ;;
-            -pdl|--package-dir-location)
+            -pl|--package-location)
                 echo "$package_dir"
+                shift
+                ;;
+            -i|--install)
+                repo_url="$2"
+                (cd "$site_packages_dir" && git clone "$repo_url")
+                shift 2
+                ;;
+            -spl|--site-package-location)
+                echo "$site_packages_dir"
                 shift
                 ;;
             -h|--help)
@@ -70,7 +81,7 @@ localpip() {
     done
 
     # Check if any action was specified without a package
-    if [[ -z "$package_name" && $1 != "-h" && $1 != "--help" ]]; then
+    if [[ -z "$package_name" && $1 != "-h" && $1 != "--help" && $1 != "-i" && $1 != "--install" && $1 != "-spl" && $1 != "--site-package-location" ]]; then
         echo "Please specify a package using -p or --package."
         return 1
     fi
