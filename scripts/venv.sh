@@ -91,7 +91,7 @@ function venv() {
             fi
             read -p "Are you sure you want to delete virtual environment '$2'? [y/N]: " response
             if [[ "$response" =~ ^[Yy]$ ]]; then
-                rm -r "$VENV_DIR/$2"
+                rm -rf "$VENV_DIR/$2"
                 echo "Virtual environment '$2' has been deleted."
             else
                 echo "Deletion cancelled."
