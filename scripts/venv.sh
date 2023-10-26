@@ -13,24 +13,25 @@ function venv() {
 
     # Check the number of arguments passed
     if [[ $# -lt 1 ]]; then
-        echo "Usage: venv <-m/-a/-sp/-da/-ls/-del/-h> [venv_name/package_name]"
+        echo "Usage: venv <option> [argument]"
+        echo "Use 'venv -h' or 'venv --help' for a list of available options."
         return 1
     fi
 
     # Check the first argument to determine the action
     case $1 in
-        -m)
+        -m|--make)
             if [[ $# -ne 2 ]]; then
-                echo "Usage: venv -m <venv_name>"
+                echo "Usage: venv -m/--make <venv_name>"
                 return 1
             fi
             python3 -m venv "$VENV_DIR/$2"
-	    echo "Virtual environment '$2' successfully created in $VENV_DIR/$2"
+	        echo "Virtual environment '$2' successfully created in $VENV_DIR/$2"
             ;;
-        
-        -a)
+
+        -a|--activate)
             if [[ $# -ne 2 ]]; then
-                echo "Usage: venv -a <venv_name>"
+                echo "Usage: venv -a/--activate <venv_name>"
                 return 1
             fi
             if [[ -d "$VENV_DIR/$2" ]]; then
@@ -39,8 +40,8 @@ function venv() {
                 echo "Error: Virtual environment '$2' does not exist in $VENV_DIR"
             fi
             ;;
-        
-        -sp)
+
+        -sp|--site-package-location)
             SITE_PACKAGES_DIR=$(pip show pip | grep Location | awk '{print $2}')
 
             if [[ ! $SITE_PACKAGES_DIR ]]; then
@@ -58,20 +59,20 @@ function venv() {
                     return 1
                 fi
             else
-                echo "Usage: venv -sp [package_name]"
+                echo "Usage: venv -sp/--site-package-location [package_name]"
                 return 1
             fi
             ;;
-        
-        -da)
+
+        -da|--deactivate)
             if [[ -z "$VIRTUAL_ENV" ]]; then
                 echo "No virtual environment is currently activated."
                 return 1
             fi
             deactivate
             ;;
-        
-        -ls)
+
+        -ls|--list-all-environments)
             echo "Available virtual environments:"
             if [[ -d "$VENV_DIR" ]]; then
                 ls "$VENV_DIR"
@@ -80,9 +81,9 @@ function venv() {
             fi
             ;;
 
-        -del)
+        -del|--delete-venv)
             if [[ $# -ne 2 ]]; then
-                echo "Usage: venv -del <venv_name>"
+                echo "Usage: venv -del/--delete-venv <venv_name>"
                 return 1
             fi
             if [[ ! -d "$VENV_DIR/$2" ]]; then
@@ -98,22 +99,22 @@ function venv() {
             fi
             ;;
 
-        
-        -h)
+        -h|--help)
             echo "Usage: venv <option> [argument]"
             echo "Options:"
-            echo "  -m <venv_name>      : Create a new virtual environment."
-            echo "  -a <venv_name>      : Activate the specified virtual environment."
-            echo "  -sp [package_name]  : Navigate to the site-packages directory or specified package directory."
-            echo "  -da                 : Deactivate the currently active virtual environment."
-            echo "  -ls                 : List all available virtual environments in $VENV_DIR."
-            echo "  -del                : Delete the specified venv."
-            echo "  -h                  : Display this help message."
+            echo "  -m, --make <venv_name>                : Create a new virtual environment."
+            echo "  -a, --activate <venv_name>            : Activate the specified virtual environment."
+            echo "  -sp, --site-package-location [package]: Navigate to the site-packages directory or specified package directory."
+            echo "  -da, --deactivate                     : Deactivate the currently active virtual environment."
+            echo "  -ls, --list-all-environments          : List all available virtual environments in $VENV_DIR."
+            echo "  -del, --delete-venv                   : Delete the specified venv."
+            echo "  -h, --help                            : Display this help message."
             ;;
-        
+
         *)
-            echo "Invalid option. Use 'venv -h' for a list of available options."
+            echo "Invalid option. Use 'venv -h' or 'venv --help' for a list of available options."
             return 1
             ;;
     esac
 }
+

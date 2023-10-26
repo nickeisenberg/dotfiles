@@ -1,4 +1,6 @@
 # A function that opens up a tmux pane in an IDE like enviornment.
+#
+#
 #  __________________________
 # |            |            |
 # |            |            |
