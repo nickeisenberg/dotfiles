@@ -23,7 +23,7 @@ gpip() {
         echo "-h, --help                      Display this help and exit."
     }
 
-    list_localpip_packages() {
+    list_gpip_packages() {
         echo "Packages potentially installed with gpip:"
         for dir in "$site_packages_dir"/*; do
             if [[ -d "$dir/.git" ]]; then
@@ -75,7 +75,7 @@ gpip() {
                 shift
                 ;;
             -ls|--list)
-                list_localpip_packages
+                list_gpip_packages
                 shift
                 ;;
             -spl|--site-package-location)
