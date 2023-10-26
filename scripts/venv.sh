@@ -20,13 +20,19 @@ function venv() {
 
     # Check the first argument to determine the action
     case $1 in
+
         -m|--make)
             if [[ $# -ne 2 ]]; then
                 echo "Usage: venv -m/--make <venv_name>"
                 return 1
             fi
             python3 -m venv "$VENV_DIR/$2"
-	        echo "Virtual environment '$2' successfully created in $VENV_DIR/$2"
+            # Check the return status of the last command
+            if [[ $? -ne 0 ]]; then
+                echo "Error: Failed to create virtual environment. Ensure the venv module is installed for Python3."
+                return 1
+            fi
+            echo "Virtual environment '$2' successfully created in $VENV_DIR/$2"
             ;;
 
         -a|--activate)
