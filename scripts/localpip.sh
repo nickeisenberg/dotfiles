@@ -1,16 +1,16 @@
 #! /bin/bash
 
-# This is a localpip python package maneger. If you add gitrepos to your site
-# then localpip gives a way to update the repo quickly without needed to go to
+# This is a gpip python package maneger. If you add gitrepos to your site
+# then gpip gives a way to update the repo quickly without needed to go to
 # the site-package directory itself.
 #
-localpip() {
+gpip() {
     # Get the site-packages directory
     site_packages_dir=$(pip show pip | grep Location | cut -d' ' -f2)
 
     # Helper function to display usage
     display_help() {
-        echo "Usage: localpip [OPTIONS]"
+        echo "Usage: gpip [OPTIONS]"
         echo "-pn, --package-name <name>      Specify the package folder inside site-packages."
         echo "-u, --update                    Update the specified package."
         echo "-gcc, --get-current-commit      Get the current commit of the specified package."
@@ -18,13 +18,13 @@ localpip() {
         echo "-pl, --package-location         Display the directory location of the specified package."
         echo "-i, --install <repo_url>        Clone a repository directly into site-packages with an optional specified name."
         echo "-un, --uninstall                Remove the specified package from site-packages."
-        echo "-ls, --list                      List all packages potentially installed with localpip."
+        echo "-ls, --list                      List all packages potentially installed with gpip."
         echo "-spl, --site-package-location   Display the site-packages directory location."
         echo "-h, --help                      Display this help and exit."
     }
 
     list_localpip_packages() {
-        echo "Packages potentially installed with localpip:"
+        echo "Packages potentially installed with gpip:"
         for dir in "$site_packages_dir"/*; do
             if [[ -d "$dir/.git" ]]; then
                 basename "$dir"

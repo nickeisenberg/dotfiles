@@ -6,7 +6,7 @@ function acp {
 
     while [[ "$#" -gt 0 ]]; do
         case $1 in
-            --message|-mes) 
+            --message|-m) 
                 message="$2"
                 shift
                 ;;
