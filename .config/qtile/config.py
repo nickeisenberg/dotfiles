@@ -22,20 +22,6 @@ terminal = 'alacritty'
 browser = "firefox"
 
 
-# colors = [
-#     ["#1b1c26", "#14151C", "#1b1c26"], # color 0
-#     ["#485062", "#485062", "#485062"], # color 1
-#     ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
-#     ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
-#     ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
-#     ["#ffffff", "#ffffff", "#ffffff"], # color 5
-#     ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
-#     ["#9859B3", "#8455A8", "#9859B3"], # color 7
-#     ["#744B94", "#694486", "#744B94"], # color 8
-#     ["#0ee9af", "#0ee9af", "#0ee9af"] # color 9
-# ]
-
-
 color = {
     "background": '#1a1b26',
     "background_alt": "#2E2B46",
@@ -52,16 +38,11 @@ color = {
     "brightwhite": "#c0caf5"
 }
 
-
-# tokyo-night-night
-# background = "#1a1b26"
-# # color["background_alt"] = "#2E2B46"
-# foreground = "#e0def4"
-# selected = "#7aa2f7"
-# urgent = "#eb6f92"
-# active = "#9ccfd8"
-# widget_text_color = "#ffffff"
-
+barcolor = color["background"]
+widget_background = color["background_alt"]
+widget_text_color = color["brightwhite"]
+urgent = color["red"]
+selected = color["blue"]
 
 
 #--------------------------------------------------qtile window cmd_set_size_floating
@@ -281,11 +262,6 @@ groups = maingroups + dualgroups
 
 # Colors for the main bar
 
-barcolor = color["background"]
-widget_background = color["background_alt"]
-widget_text_color = color["brightwhite"]
-urgent = color["red"]
-selected = color["blue"]
 
 mainbar = widget.GroupBox(
     fontsize=20,
@@ -703,15 +679,3 @@ wmname = "LG3D"
 def autostart():
     home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
     subprocess.Popen([home])
-
-
-
-
-
-
-
-
-
-
-
-
