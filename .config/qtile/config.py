@@ -35,10 +35,20 @@ colors = [
     ["#0ee9af", "#0ee9af", "#0ee9af"] # color 9
 ]
 
-background = "#191724"
+# # rose-pine
+# background = "#191724"
+# background_alt = "#2E2B46"
+# foreground = "#e0def4"
+# selected = "#31748f"
+# urgent = "#eb6f92"
+# active = "#9ccfd8"
+# widget_text_color = "#ffffff"
+
+# tokyo-night-night
+background = "#1a1b26"
 background_alt = "#2E2B46"
 foreground = "#e0def4"
-selected = "#31748f"
+selected = "#7aa2f7"
 urgent = "#eb6f92"
 active = "#9ccfd8"
 widget_text_color = "#ffffff"
