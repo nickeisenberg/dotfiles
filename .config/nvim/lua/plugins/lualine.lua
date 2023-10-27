@@ -43,5 +43,6 @@ return {
       inactive_winbar = {},
       extensions = {}
     }
-  end
+  end,
+  enabled = false
 }

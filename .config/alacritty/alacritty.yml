@@ -4,7 +4,7 @@ shell:
     - --login
 
 env:
-  TERM: xterm-256color
+  TERM: alacritty
 
 window: 
   opacity: 1
@@ -13,4 +13,4 @@ font:
   size: 8
 
 import:
-  - ~/.config/alacritty/rose-pine.yml
+  - ~/.config/alacritty/tokyo-night-night.yml
