@@ -2,11 +2,12 @@ return {
   "nvim-lualine/lualine.nvim",
   dependencies = { 'nvim-tree/nvim-web-devicons'},
   config = function()
-    local rosepine = require('lualine.themes.rose-pine')
+    -- local theme = require('lualine.themes.<pick theme>')
+    local theme = require('config.colors.lualine.tokyonight')
     require('lualine').setup {
       options = {
         icons_enabled = true,
-        theme = rosepine,
+        theme = theme,
         component_separators = { left = '|', right = '|'},
         section_separators = { left = '', right = ''},
         disabled_filetypes = {
@@ -44,5 +45,5 @@ return {
       extensions = {}
     }
   end,
-  enabled = false
+  enabled = true
 }
