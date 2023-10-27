@@ -22,36 +22,47 @@ terminal = 'alacritty'
 browser = "firefox"
 
 
-colors = [
-    ["#1b1c26", "#14151C", "#1b1c26"], # color 0
-    ["#485062", "#485062", "#485062"], # color 1
-    ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
-    ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
-    ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
-    ["#ffffff", "#ffffff", "#ffffff"], # color 5
-    ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
-    ["#9859B3", "#8455A8", "#9859B3"], # color 7
-    ["#744B94", "#694486", "#744B94"], # color 8
-    ["#0ee9af", "#0ee9af", "#0ee9af"] # color 9
-]
+# colors = [
+#     ["#1b1c26", "#14151C", "#1b1c26"], # color 0
+#     ["#485062", "#485062", "#485062"], # color 1
+#     ["#65bdd8", "#65bdd8", "#65bdd8"], # color 2
+#     ["#bc7cf7", "#a269cf", "#bc7cf7"], # color 3
+#     ["#aed1dc", "#98B7C0", "#aed1dc"], # color 4
+#     ["#ffffff", "#ffffff", "#ffffff"], # color 5
+#     ["#bb94cc", "#AB87BB", "#bb94cc"], # color 6
+#     ["#9859B3", "#8455A8", "#9859B3"], # color 7
+#     ["#744B94", "#694486", "#744B94"], # color 8
+#     ["#0ee9af", "#0ee9af", "#0ee9af"] # color 9
+# ]
 
-# # rose-pine
-# background = "#191724"
-# background_alt = "#2E2B46"
+
+color = {
+    "background": '#1a1b26',
+    "background_alt": "#2E2B46",
+    "foreground": '#c0caf5',
+    "black": '#1d202f',
+    "red": '#f7768e',
+    "green": '#9ece6a',
+    "yellow": '#e0af68',
+    "dark3": '#545c7e',
+    "blue": '#7aa2f7',
+    "magenta": '#bb9af7',
+    "cyan": '#7dcfff',
+    "white": '#a9b1d6',
+    "brightwhite": "#c0caf5"
+}
+
+
+# tokyo-night-night
+# background = "#1a1b26"
+# # color["background_alt"] = "#2E2B46"
 # foreground = "#e0def4"
-# selected = "#31748f"
+# selected = "#7aa2f7"
 # urgent = "#eb6f92"
 # active = "#9ccfd8"
 # widget_text_color = "#ffffff"
 
-# tokyo-night-night
-background = "#1a1b26"
-background_alt = "#2E2B46"
-foreground = "#e0def4"
-selected = "#7aa2f7"
-urgent = "#eb6f92"
-active = "#9ccfd8"
-widget_text_color = "#ffffff"
+
 
 #--------------------------------------------------qtile window cmd_set_size_floating
 # Ketbindings 
@@ -267,17 +278,26 @@ groups = maingroups + dualgroups
 #   Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('term')),
 # ]
 
+
+# Colors for the main bar
+
+barcolor = color["background"]
+widget_background = color["background_alt"]
+widget_text_color = color["brightwhite"]
+urgent = color["red"]
+selected = color["blue"]
+
 mainbar = widget.GroupBox(
     fontsize=20,
     visible_groups=['1', '2', '3', '4', '5', '6'],
-    background=background_alt,
+    background=widget_background,
     active=urgent,
     inactive=widget_text_color,
     rounded=True,
-    highlight_color=colors[0],
+    highlight_color=color["dark3"],
     highlight_method="line",
-    this_current_screen_border=colors[0],
-    block_highlight_text_color=colors[2],
+    this_current_screen_border=color["dark3"],
+    block_highlight_text_color=color["brightwhite"],
     blockwidth=2,
     margin_y=5,
 )
@@ -285,14 +305,14 @@ mainbar = widget.GroupBox(
 dualmonbar = widget.GroupBox(
     fontsize=20,
     visible_groups=['9', '0'],
-    background=background_alt,
+    background=widget_background,
     active=urgent,
     inactive=widget_text_color,
     rounded=True,
-    highlight_color=colors[0],
+    highlight_color=color["dark3"],
     highlight_method="line",
-    this_current_screen_border=colors[0],
-    block_highlight_text_color=colors[2],
+    this_current_screen_border=color["dark3"],
+    block_highlight_text_color=color["brightwhite"],
     blockwidth=2,
     margin_y=5,
 )
@@ -356,7 +376,7 @@ for i in groups:
 floating_layout_theme = { 
     "border_width": 2,
     "border_focus": selected,
-    "border_normal": background_alt,
+    "border_normal": widget_background,
     "float_rules": [
         *layout.Floating.default_float_rules,
         Match(wm_class="confirmreset"),  # gitk
@@ -373,7 +393,7 @@ floating_layout = layout.Floating(**floating_layout_theme)
 layout_theme = { 
     "border_width": 2,
     "border_focus": selected,
-    "border_normal": background_alt,
+    "border_normal": widget_background,
     "single_border_width": 3,
     "margin": 5
 }
@@ -424,7 +444,9 @@ mybardual = []
 sharedbar_l = []
 sharedbar_r = []
 
-sharedbar_l.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_l.append(
+    widget.Sep(background=barcolor, padding=20, linewidth=0)
+)
 
 sharedbar_l.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
@@ -432,7 +454,7 @@ sharedbar_l.append(
     widget.Clock(
         foreground=widget_text_color,
         # background=background,
-        background=background_alt,
+        background=widget_background,
         fontsize=20,
         format='%A, %b %d | %I:%M %p',
     )
@@ -451,7 +473,7 @@ mybardual.append(dualmonbar)
 mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 mybardual.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
@@ -459,14 +481,14 @@ sharedbar_r += [
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         padding=0,
         scale=.5
     ),
     widget.CurrentLayout(
         fontsize=20,
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
     )
 ]
 
@@ -482,13 +504,13 @@ sharedbar_r += [
          #text="",
         text="CPU ",
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         padding=0,
         fontsize=16
     ),
     widget.CPU(
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         format='{load_percent}%',
         fontsize=20
     )
@@ -496,7 +518,7 @@ sharedbar_r += [
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
@@ -505,7 +527,7 @@ sharedbar_r += [
         font='FontAwesome',
         text="GPU ",
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         padding=0,
         fontsize=16
     ),
@@ -515,13 +537,14 @@ sharedbar_r += [
         sensors=["memory.used"],
         format="{memory_used}",
         fontsize=20,
-        background=background_alt
+        background=widget_background,
+        foreground=widget_text_color
     )
 ]
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
@@ -531,13 +554,13 @@ sharedbar_r += [
         # text="",
         text="RAM ",
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         padding=0,
         fontsize=16
     ),
     widget.Memory(
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         fontsize=20,
         format='{MemUsed:.0f} MiB',
     )
@@ -545,7 +568,7 @@ sharedbar_r += [
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
@@ -567,13 +590,14 @@ sharedbar_r += [
         font='FontAwesome',
         text="\uf028",
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         padding=0,
         fontsize=20
     ),
     widget.Volume(
         fontsize=18,
-        background=background_alt,
+        background=widget_background,
+        foreground=widget_text_color,
         get_volume_command=get_volume_cmd,
         # check_mute_sting=check_mute_string,
         # check_mute_command=check_mute_command,
@@ -583,7 +607,7 @@ sharedbar_r += [
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
 
@@ -592,10 +616,10 @@ sharedbar_r.append(
         battery="BAT0",
         font='FontAwesome',
         foreground=widget_text_color,
-        background=background_alt,
+        background=widget_background,
         fontsize=16,
         low_percentage=0.2,
-        low_foreground=colors[5],
+        low_foreground=widget_text_color,
         update_interval=1,
         format='{char} {percent:2.0%}',
         charge_char="",
@@ -606,7 +630,7 @@ sharedbar_r.append(
 
 sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
 
-sharedbar_r.append(widget.Sep(background=background, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
 mybar = sharedbar_l + mybar + sharedbar_r
 mybardual = sharedbar_l + mybardual + sharedbar_r
@@ -621,10 +645,10 @@ screens = [
         top=bar.Bar(
             mybar,
             30,
-            background=background,
+            background=barcolor,
             margin=[5, 8, 0, 8],
             border_width=[5, 0, 5, 0],
-            border_color=background,
+            border_color=barcolor,
             # opacity=0.8,
         ),
     ),
@@ -635,10 +659,10 @@ screens = [
         top=bar.Bar(
             mybardual,
             30,
-            background=background,
+            background=barcolor,
             margin=[5, 8, 0, 8],
             border_width=[5, 0, 5, 0],
-            border_color=background,
+            border_color=barcolor,
             # opacity=0.8,
         ),
     ),

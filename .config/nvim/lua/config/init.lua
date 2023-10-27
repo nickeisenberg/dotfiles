@@ -1,3 +1,2 @@
 require("config.keymaps")
 require("config.editor_options")
-require("config.colors.lualine.tokyonight")

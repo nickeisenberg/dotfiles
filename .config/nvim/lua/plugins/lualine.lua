@@ -2,8 +2,7 @@ return {
   "nvim-lualine/lualine.nvim",
   dependencies = { 'nvim-tree/nvim-web-devicons'},
   config = function()
-    -- local theme = require('lualine.themes.<pick theme>')
-    local theme = require('config.colors.lualine.tokyonight')
+    local theme = require('lualine.themes.tokyonight')
     require('lualine').setup {
       options = {
         icons_enabled = true,
