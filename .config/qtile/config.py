@@ -333,7 +333,7 @@ groups.append(
         [
             DropDown(
                 "sp1", 
-                "firefox", 
+                "firefox --new-window chat.openai.com", 
                 opacity=0.8,
                 x=0.1, 
                 y=0.1, 
