@@ -10,7 +10,6 @@ from libqtile.utils import guess_terminal
 from libqtile.command import lazy as clazy
 
 from my_utils.utils import *
-
 from my_utils.nvidia_widget import NvidiaSensors2
 
 from libqtile.widget import battery
@@ -248,7 +247,7 @@ groups = maingroups + dualgroups
 #                 y=0.1, 
 #                 width=.8, 
 #                 height=.8, 
-#                 # on_focus_lost_hide=True
+#                 on_focus_lost_hide=True
 #             ),
 #         ]
 #     ),
@@ -273,7 +272,7 @@ mainbar = widget.GroupBox(
     highlight_color=color["dark3"],
     highlight_method="line",
     this_current_screen_border=color["dark3"],
-    block_highlight_text_color=color["brightwhite"],
+    block_highlight_text_color=widget_text_color,
     blockwidth=2,
     margin_y=5,
 )
@@ -288,7 +287,7 @@ dualmonbar = widget.GroupBox(
     highlight_color=color["dark3"],
     highlight_method="line",
     this_current_screen_border=color["dark3"],
-    block_highlight_text_color=color["brightwhite"],
+    block_highlight_text_color=widget_text_color,
     blockwidth=2,
     margin_y=5,
 )
