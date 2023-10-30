@@ -230,38 +230,6 @@ dualgroups = [
 
 groups = maingroups + dualgroups
 
-
-# The pair (x, y) in Drop down below is the percentage of change from the 
-# top left corner of the scratch pad with the top left corner of the screen.
-# groups.append(
-#     ScratchPad(
-#         "scratchpad",
-#         [
-#             # define a drop down terminal.
-#             # it is placed in the upper third of screen by default.
-#             DropDown(
-#                 "term", 
-#                 "alacritty", 
-#                 opacity=0.8,
-#                 x=0.1, 
-#                 y=0.1, 
-#                 width=.8, 
-#                 height=.8, 
-#                 on_focus_lost_hide=True
-#             ),
-#         ]
-#     ),
-# )
-# 
-# keys += [
-#   # toggle visibiliy of above defined DropDown named "term"
-#   Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('term')),
-# ]
-
-
-# Colors for the main bar
-
-
 mainbar = widget.GroupBox(
     fontsize=20,
     visible_groups=['1', '2', '3', '4', '5', '6'],
@@ -293,6 +261,12 @@ dualmonbar = widget.GroupBox(
 )
 
 
+#--------------------------------------------------
+# These are some functions that will help with moving screens
+# in a dual monitor set up.
+# see "How can I get my groups to stick to screens?" on the following link
+# https://docs.qtile.org/en/latest/manual/faq.html
+#--------------------------------------------------
 def go_to_group(name: str):
     def _inner(qtile):
         if len(qtile.screens) == 1:
@@ -307,6 +281,7 @@ def go_to_group(name: str):
             qtile.groups_map[name].cmd_toscreen()
 
     return _inner
+
 
 def go_to_group_and_move_window(name: str):
     def _inner(qtile):
@@ -324,6 +299,8 @@ def go_to_group_and_move_window(name: str):
             qtile.groups_map[name].cmd_toscreen()
 
     return _inner
+
+#--------------------------------------------------
 
 
 for i in groups:
@@ -344,6 +321,50 @@ for i in groups:
         )
     )
 
+
+#--------------------------------------------------
+# Scratchpad has to be defined after the groups above to avoid issue with the 
+# name "scratchpad" being in the group during the for loop above where I am 
+# defining the hot keys to move screens to a new monitor.
+
+# The pair (x, y) in Drop down below is the percentage of change from the 
+# top left corner of the scratch pad with the top left corner of the screen.
+#--------------------------------------------------
+groups.append(
+    ScratchPad(
+        "scratchpad",
+        [
+            DropDown(
+                "term1", 
+                "alacritty", 
+                opacity=0.8,
+                x=0.1, 
+                y=0.1, 
+                width=.8, 
+                height=.8, 
+                on_focus_lost_hide=True
+            ),
+            DropDown(
+                "term2", 
+                "alacritty", 
+                opacity=0.8,
+                x=0.1, 
+                y=0.1, 
+                width=.8, 
+                height=.8, 
+                on_focus_lost_hide=True
+            ),
+        ]
+    ),
+)
+
+keys += [
+  # toggle visibiliy of above defined DropDown named "term"
+  Key([], 'F11', lazy.group['scratchpad'].dropdown_toggle('term1')),
+  Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('term2')),
+]
+
+#--------------------------------------------------
 
 #--------------------------------------------------
 # Layouts
@@ -664,17 +685,9 @@ auto_minimize = True
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = None
 
-# XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
-# string besides java UI toolkits; you can see several discussions on the
-# mailing lists, GitHub issues, and other WM documentation that suggest setting
-# this string if your java app doesn't work correctly. We may as well just lie
-# and say that we're a working one by default.
-#
-# We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
-# java that happens to be on java's whitelist.
-wmname = "LG3D"
+wmname = "qtile"
 
-@hook.subscribe.startup
+@hook.subscribe.startup_once
 def autostart():
     home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
     subprocess.Popen([home])
