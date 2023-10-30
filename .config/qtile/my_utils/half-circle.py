@@ -1,16 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-#-Rose Pine Colors---------------------------------
-background = "#191724"
-background_alt = "#2E2B46"
-foreground = "#e0def4"
-foreground = "#808080"
-selected = "#31748f"
-urgent = "#eb6f92"
-active = "#9ccfd8"
-widget_text_color = "#ffffff"
-#--------------------------------------------------
 
 class PillIcon:
 
@@ -80,8 +70,23 @@ class PillIcon:
         else:
             return fig
 
+
+background = '#1a1b26'
+background_alt = "#2E2B46"
+
 pill = PillIcon(background=background, foreground=background_alt)
 
 pill.left_pill(show=True, figsize=(5, 5))
 
 pill.right_pill(show=True, figsize=(5, 5))
+
+
+
+
+
+
+
+
+
+
+
