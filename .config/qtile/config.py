@@ -327,16 +327,13 @@ for i in groups:
 # name "scratchpad" being in the group during the for loop above where I am 
 # defining the hot keys to move screens to a new monitor.
 
-# The pair (x, y) in Drop down below is the percentage of change from the 
-# top left corner of the scratch pad with the top left corner of the screen.
-#--------------------------------------------------
 groups.append(
     ScratchPad(
         "scratchpad",
         [
             DropDown(
-                "term1", 
-                "alacritty", 
+                "sp1", 
+                "firefox", 
                 opacity=0.8,
                 x=0.1, 
                 y=0.1, 
@@ -345,7 +342,7 @@ groups.append(
                 on_focus_lost_hide=True
             ),
             DropDown(
-                "term2", 
+                "sp2", 
                 "alacritty", 
                 opacity=0.8,
                 x=0.1, 
@@ -360,8 +357,8 @@ groups.append(
 
 keys += [
   # toggle visibiliy of above defined DropDown named "term"
-  Key([], 'F11', lazy.group['scratchpad'].dropdown_toggle('term1')),
-  Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('term2')),
+  Key([], 'F11', lazy.group['scratchpad'].dropdown_toggle('sp1')),
+  Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('sp2')),
 ]
 
 #--------------------------------------------------
@@ -380,7 +377,7 @@ floating_layout_theme = {
         Match(wm_class="maketag"),  # gitk
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
-        Match(title="pinentry"),  # GPG key password entry
+        Match(title="pinentry"),
     ]
 }
 
