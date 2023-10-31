@@ -355,8 +355,8 @@ groups.append(
     ),
 )
 
+# toggle visibiliy of above defined DropDown named "term"
 keys += [
-  # toggle visibiliy of above defined DropDown named "term"
   # Key([], 'F11', lazy.group['scratchpad'].dropdown_toggle('sp1')),
   Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('sp2')),
 ]

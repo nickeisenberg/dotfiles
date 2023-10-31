@@ -19,6 +19,9 @@ return {
         'sql',
         'css'
       },
+      modules = {},
+      sync_install = false,
+      ignore_install = {},
       -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
       auto_install = false,
       highlight = { enable = true },
