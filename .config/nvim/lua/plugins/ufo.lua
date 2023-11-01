@@ -24,5 +24,6 @@ return {
         })
     end
     require('ufo').setup()
-  end
+  end,
+  enable = false
 }

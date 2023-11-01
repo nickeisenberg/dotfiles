@@ -11,3 +11,5 @@ vim.opt.cursorcolumn = true
 
 -- line numbers
 vim.wo.nu = true
+
+vim.o.foldmethod = "indent"
