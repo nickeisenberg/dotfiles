@@ -10,7 +10,19 @@ window:
   opacity: 1
 
 font:
-  size: 8
+  normal:
+    family: 'UbuntuMono Nerd Font'
+    style: Regular
+
+  bold:
+    family: 'UbuntuMono Nerd Font'
+    style: Bold
+
+  italic:
+    family: 'UbuntuMono Nerd Font'
+    style: Italic
+
+  size: 10
 
 import:
   - ~/.config/alacritty/tokyo-night-night.yml
