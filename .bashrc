@@ -2,8 +2,6 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-export OPENAI_API_KEY="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"
-
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;

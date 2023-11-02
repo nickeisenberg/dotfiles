@@ -21,6 +21,9 @@ return {
     require('luasnip.loaders.from_vscode').lazy_load()
     return {
       luasnip.config.setup {},
+
+      luasnip.filetype_extend("htmldjango", {"html"}),
+
       cmp.setup {
         snippet = {
           expand = function(args)

@@ -331,18 +331,28 @@ groups.append(
     ScratchPad(
         "scratchpad",
         [
-            # DropDown(
-            #     "sp1", 
-            #     "firefox --new-window chat.openai.com", 
-            #     opacity=0.8,
-            #     x=0.1, 
-            #     y=0.1, 
-            #     width=.8, 
-            #     height=.8, 
-            #     on_focus_lost_hide=True
-            # ),
+            DropDown(
+                "sp1", 
+                "alacritty", 
+                opacity=0.8,
+                x=0.1, 
+                y=0.1, 
+                width=.8, 
+                height=.8, 
+                on_focus_lost_hide=True
+            ),
             DropDown(
                 "sp2", 
+                "alacritty", 
+                opacity=0.8,
+                x=0.1, 
+                y=0.1, 
+                width=.8, 
+                height=.8, 
+                on_focus_lost_hide=True
+            ),
+            DropDown(
+                "sp3", 
                 "alacritty", 
                 opacity=0.8,
                 x=0.1, 
@@ -358,7 +368,9 @@ groups.append(
 # toggle visibiliy of above defined DropDown named "term"
 keys += [
   # Key([], 'F11', lazy.group['scratchpad'].dropdown_toggle('sp1')),
-  Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('sp2')),
+  Key([], 'F10', lazy.group['scratchpad'].dropdown_toggle('sp1')),
+  Key([], 'F11', lazy.group['scratchpad'].dropdown_toggle('sp2')),
+  Key([], 'F12', lazy.group['scratchpad'].dropdown_toggle('sp3')),
 ]
 
 #--------------------------------------------------
