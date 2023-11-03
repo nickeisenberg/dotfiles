@@ -9,7 +9,6 @@ vim.keymap.set(
   end
 )
 
-
 -- Move the the previous or next buffer
 vim.keymap.set("n", "<S-h>", vim.cmd.BufferLineCyclePrev)
 vim.keymap.set("n", "<S-l>", vim.cmd.BufferLineCycleNext)
