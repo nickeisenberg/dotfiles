@@ -9,6 +9,9 @@ np.linspace(
 )
 
 class foo:
+    """
+    A sample class
+    """
     def __init__(self):
         self.x = 2
     # text text
