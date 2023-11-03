@@ -1,5 +1,6 @@
 return {
   "jpalardy/vim-slime",
+  enabled = true,
   config = function()
     vim.cmd(
       [[

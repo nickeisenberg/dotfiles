@@ -1,5 +1,6 @@
 return {
   "nvim-lualine/lualine.nvim",
+  enabled = true,
   dependencies = { 'nvim-tree/nvim-web-devicons'},
   config = function()
     local theme = require('lualine.themes.tokyonight')
@@ -44,5 +45,4 @@ return {
       extensions = {}
     }
   end,
-  enabled = true
 }

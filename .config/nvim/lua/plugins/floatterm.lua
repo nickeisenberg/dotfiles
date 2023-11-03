@@ -1,5 +1,6 @@
 return {
   "voldikss/vim-floaterm",
+  enabled = true,
   config = function ()
     vim.cmd([[nnoremap <leader>tt :FloatermToggle<CR>]])
     vim.cmd([[tnoremap <leader>tt <C-\><C-n>:FloatermToggle<CR>]])

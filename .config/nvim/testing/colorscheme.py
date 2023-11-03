@@ -3,6 +3,7 @@ Text to see how the color scheme looks
 '''
 import numpy as np
 
+
 np.linspace(
     0, 1, 100
 )

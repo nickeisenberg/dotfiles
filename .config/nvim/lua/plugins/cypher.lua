@@ -1,3 +1,4 @@
 return {
-  "memgraph/cypher.vim"
+  "memgraph/cypher.vim",
+  enabled = true
 }
