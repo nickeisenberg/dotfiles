@@ -1,7 +1,6 @@
 return {
   "echasnovski/mini.starter",
   enabled = true,
-  version = false, -- wait till new 0.7.0 release to put it back on semver
   event = "VimEnter",
   config = function ()
     -- local status, starter = pcall(require, "mini.starter")
