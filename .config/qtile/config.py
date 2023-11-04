@@ -24,6 +24,7 @@ browser = "firefox"
 color = {
     "background": '#1a1b26',
     "background_alt": "#2E2B46",
+    "fg_gutter": "#3b4261",
     "foreground": '#c0caf5',
     "black": '#1d202f',
     "red": '#f7768e',
@@ -31,6 +32,11 @@ color = {
     "yellow": '#e0af68',
     "dark3": '#545c7e',
     "blue": '#7aa2f7',
+    "blue1": "#2ac3de",
+    "blue2": "#0db9d7",
+    "blue5": "#89ddff",
+    "blue6": "#b4f9f8",
+    "blue7": "#394b70",
     "magenta": '#bb9af7',
     "cyan": '#7dcfff',
     "white": '#a9b1d6',
@@ -38,10 +44,18 @@ color = {
 }
 
 barcolor = color["background"]
-widget_background = color["background_alt"]
-widget_text_color = color["brightwhite"]
+
+# widget_background = color["background_alt"]
+# widget_text_color = color["brightwhite"]
+
+widget_background = color["fg_gutter"]
+widget_text_color = color["white"]
+
 urgent = color["red"]
 selected = color["blue"]
+
+lp_path = "~/Dotfiles/.config/qtile/icons/lp_gutter.png"
+rp_path = "~/Dotfiles/.config/qtile/icons/rp_gutter.png"
 
 
 #--------------------------------------------------qtile window cmd_set_size_floating
@@ -378,6 +392,8 @@ keys += [
 #--------------------------------------------------
 # Layouts
 #--------------------------------------------------
+
+# To get wm_class, etc info, run xprop in a terminal and click on the window
 floating_layout_theme = { 
     "border_width": 2,
     "border_focus": selected,
@@ -388,7 +404,7 @@ floating_layout_theme = {
         # Match(wm_class="makebranch"),  # gitk
         # Match(wm_class="maketag"),  # gitk
         # Match(wm_class="ssh-askpass"),  # ssh-askpass
-        Match(wm_class="matplotlib"),  # ssh-askpass
+        Match(func=lambda w: w.name and w.name.startswith('Figure')),  #matplotlib
         # Match(title="branchdialog"),  # gitk
         # Match(title="pinentry"),
     ]
@@ -454,7 +470,7 @@ sharedbar_l.append(
     widget.Sep(background=barcolor, padding=20, linewidth=0)
 )
 
-sharedbar_l.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_l.append(widget.Image(filename=lp_path))
 
 sharedbar_l.append(
     widget.Clock(
@@ -466,22 +482,22 @@ sharedbar_l.append(
     )
 )
 
-sharedbar_l.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_l.append(widget.Image(filename=rp_path))
 
 sharedbar_l.append(widget.Spacer()) 
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
-mybardual.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+mybar.append(widget.Image(filename=lp_path))
+mybardual.append(widget.Image(filename=lp_path))
 
 mybar.append(mainbar)
 mybardual.append(dualmonbar)
 
-mybar.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
-mybardual.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+mybar.append(widget.Image(filename=rp_path))
+mybardual.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename=lp_path))
 
 sharedbar_r += [
     widget.CurrentLayoutIcon(
@@ -498,11 +514,11 @@ sharedbar_r += [
     )
 ]
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Spacer())
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename=lp_path))
 
 sharedbar_r += [
     widget.TextBox(
@@ -522,11 +538,11 @@ sharedbar_r += [
     )
 ]
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename=lp_path))
 
 sharedbar_r += [
     widget.TextBox(
@@ -548,11 +564,11 @@ sharedbar_r += [
     )
 ]
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename=lp_path))
 
 sharedbar_r += [
     widget.TextBox(
@@ -572,11 +588,11 @@ sharedbar_r += [
     )
 ]
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename=lp_path))
 
 # This command was from a previous qtile version
 # get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
@@ -611,11 +627,11 @@ sharedbar_r += [
     )
 ]
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/lp.png"))
+sharedbar_r.append(widget.Image(filename=lp_path))
 
 sharedbar_r.append(
     widget.Battery(
@@ -634,7 +650,7 @@ sharedbar_r.append(
     )
 )
 
-sharedbar_r.append(widget.Image(filename="~/Dotfiles/.config/qtile/icons/rp.png"))
+sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
