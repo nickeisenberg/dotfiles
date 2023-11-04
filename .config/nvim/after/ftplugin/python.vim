@@ -6,4 +6,4 @@
 ")
 "
 set colorcolumn=80
-hi ColorColumn ctermbg=lightred guibg=red
+" hi ColorColumn guibg=#7aa2f7

@@ -21,7 +21,7 @@ vim.cmd([[nnoremap <leader>md `>]])
 vim.cmd([[nnoremap <leader>mu `<]])
 
 -- line and column highlight
--- vim.cmd([[map <leader>lc :set cursorcolumn!<Bar>set cursorline!<CR>]])
+vim.cmd([[map <leader>lc :set cursorcolumn!<Bar>set cursorline!<CR>]])
 
 -- Copy to clipboard
 vim.cmd([[vnoremap  <leader>y  "+y]])
