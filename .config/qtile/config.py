@@ -657,36 +657,51 @@ sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 mybar = sharedbar_l + mybar + sharedbar_r
 mybardual = sharedbar_l + mybardual + sharedbar_r
 
+mybar = bar.Bar(
+    mybar,
+    35,
+    background=barcolor,
+    # margin=[5, 8, 0, 8],
+    margin=[0, 0, 0, 0],
+    border_width=[8, 0, 8, 0],
+    border_color=barcolor,
+    # opacity=0.8,
+) 
+
+mybardual = bar.Bar(
+    mybardual,
+    35,
+    background=barcolor,
+    # margin=[5, 8, 0, 8],
+    margin=[0, 0, 0, 0],
+    border_width=[8, 0, 8, 0],
+    border_color=barcolor,
+    # opacity=0.8,
+)
+
+@hook.subscribe.startup
+def _():
+    """
+    Name the bars so that Picom can ignore then for rounded edges.
+    See corner radius in picom.conf
+    """
+    mybar.window.window.set_property("QTILE_BAR", 1, "CARDINAL", 32)
+    mybardual.window.window.set_property("QTILE_BAR", 2, "CARDINAL", 32)
+
 # peakpx.com for the wallpapers
 # Use `xrandr --listmonitors` to see the correct order
 screens = [
     Screen(
-        wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
-        # wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
+        # wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
+        wallpaper="~/Pictures/Wallpaper/fuji.jpg",
         wallpaper_mode="stretch",
-        top=bar.Bar(
-            mybar,
-            30,
-            background=barcolor,
-            margin=[5, 8, 0, 8],
-            border_width=[5, 0, 5, 0],
-            border_color=barcolor,
-            # opacity=0.8,
-        ),
+        top=mybar
     ),
     Screen(
-        wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
-        # wallpaper="~/Pictures/Wallpaper/min-grey-mountain.jpg",
+        # wallpaper="~/Pictures/Wallpaper/snow-mountain.jpg",
+        wallpaper="~/Pictures/Wallpaper/fuji.jpg",
         wallpaper_mode="stretch",
-        top=bar.Bar(
-            mybardual,
-            30,
-            background=barcolor,
-            margin=[5, 8, 0, 8],
-            border_width=[5, 0, 5, 0],
-            border_color=barcolor,
-            # opacity=0.8,
-        ),
+        top=mybardual
     ),
 ]
 
