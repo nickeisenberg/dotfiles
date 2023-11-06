@@ -21,7 +21,7 @@ elif status.state == BatteryState.NOTCHARGING:
 inside of `libqtile.widgets.battery.Battery`.
 
 ### Text color on focued and unfocued screens
-Inside of `libqtile.widget.groupbox.py` I added
+Inside of `libqtile.widget.groupbox.py` under the `draw` method, I added
 ```
 #----------
 if self.bar.screen.group.name == g.name:
