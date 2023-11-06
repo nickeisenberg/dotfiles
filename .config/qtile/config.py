@@ -227,14 +227,14 @@ keys = [
 #--------------------------------------------------
 # Groups
 #--------------------------------------------------
-
+# label="•"
 maingroups = [
-    Group(name="1", screen_affinity=0),
-    Group(name="2", screen_affinity=0),
-    Group(name="3", screen_affinity=0),
-    Group(name="4", screen_affinity=0),
-    Group(name="5", screen_affinity=0),
-    Group(name="6", screen_affinity=0),
+    Group(name="1", label="1", screen_affinity=0),
+    Group(name="2", label="2", screen_affinity=0),
+    Group(name="3", label="3", screen_affinity=0),
+    Group(name="4", label="4", screen_affinity=0),
+    Group(name="5", label="5", screen_affinity=0),
+    Group(name="6", label="6", screen_affinity=0),
 ]
 
 dualgroups = [
@@ -244,31 +244,35 @@ dualgroups = [
 
 groups = maingroups + dualgroups
 
+
 mainbar = widget.GroupBox(
-    fontsize=20,
+    fontsize=24,
     visible_groups=['1', '2', '3', '4', '5', '6'],
     background=widget_background,
-    active=urgent,
+    # active=urgent,
+    active=color['red'],
     inactive=widget_text_color,
     rounded=True,
-    highlight_color=color["dark3"],
-    highlight_method="line",
-    this_current_screen_border=color["dark3"],
+    # highlight_color=[color["blue"], color["blue"]],  # for line method
+    highlight_method="default",
+    this_current_screen_border=color["blue1"],
+    this_screen_border=color["blue"],
     block_highlight_text_color=widget_text_color,
     blockwidth=2,
     margin_y=5,
 )
 
 dualmonbar = widget.GroupBox(
-    fontsize=20,
+    fontsize=24,
     visible_groups=['9', '0'],
     background=widget_background,
-    active=urgent,
+    active=color['red'],
     inactive=widget_text_color,
     rounded=True,
-    highlight_color=color["dark3"],
-    highlight_method="line",
-    this_current_screen_border=color["dark3"],
+    # highlight_color=color["blue"],
+    highlight_method="default",
+    this_current_screen_border=color["blue1"],
+    this_screen_border=color["blue"],
     block_highlight_text_color=widget_text_color,
     blockwidth=2,
     margin_y=5,
