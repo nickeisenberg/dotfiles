@@ -19,3 +19,16 @@ elif status.state == BatteryState.NOTCHARGING:
             char = self.discharge_char
 ```
 inside of `libqtile.widgets.battery.Battery`.
+
+### Text color on focued and unfocued screens
+Inside of `libqtile.widget.groupbox.py` I added
+```
+#----------
+if self.bar.screen.group.name == g.name:
+    if self.qtile.current_screen == self.bar.screen:
+        text_color = self.this_current_screen_border
+    else:
+        text_color = self.this_screen_border
+#----------
+```
+for `highlight_method="text"`.

@@ -28,6 +28,7 @@ color = {
     "foreground": '#c0caf5',
     "black": '#1d202f',
     "red": '#f7768e',
+    "red1": "#db4b4b",
     "green": '#9ece6a',
     "yellow": '#e0af68',
     "dark3": '#545c7e',
@@ -49,7 +50,7 @@ barcolor = color["background"]
 # widget_text_color = color["brightwhite"]
 
 widget_background = color["fg_gutter"]
-widget_text_color = color["white"]
+widget_text_color = color["brightwhite"]
 
 urgent = color["red"]
 selected = color["blue"]
@@ -229,50 +230,45 @@ keys = [
 #--------------------------------------------------
 # label="•"
 maingroups = [
-    Group(name="1", label="1", screen_affinity=0),
-    Group(name="2", label="2", screen_affinity=0),
-    Group(name="3", label="3", screen_affinity=0),
-    Group(name="4", label="4", screen_affinity=0),
-    Group(name="5", label="5", screen_affinity=0),
-    Group(name="6", label="6", screen_affinity=0),
+    Group(name="1", label="•", screen_affinity=0),
+    Group(name="2", label="•", screen_affinity=0),
+    Group(name="3", label="•", screen_affinity=0),
+    Group(name="4", label="•", screen_affinity=0),
+    Group(name="5", label="•", screen_affinity=0),
+    Group(name="6", label="•", screen_affinity=0),
 ]
 
 dualgroups = [
-    Group(name="9", label="7", screen_affinity=1),
-    Group(name="0", label="8", screen_affinity=1),
+    Group(name="9", label="•", screen_affinity=1),
+    Group(name="0", label="•", screen_affinity=1),
 ]
 
 groups = maingroups + dualgroups
 
-
 mainbar = widget.GroupBox(
-    fontsize=24,
+    fontsize=80,
+    highlight_method="text",
     visible_groups=['1', '2', '3', '4', '5', '6'],
     background=widget_background,
-    # active=urgent,
-    active=color['red'],
+    active=color['blue'],
     inactive=widget_text_color,
     rounded=True,
-    # highlight_color=[color["blue"], color["blue"]],  # for line method
-    highlight_method="default",
-    this_current_screen_border=color["blue1"],
-    this_screen_border=color["blue"],
-    block_highlight_text_color=widget_text_color,
+    this_current_screen_border=color["red1"],
+    this_screen_border=color["red"],
     blockwidth=2,
     margin_y=5,
 )
 
 dualmonbar = widget.GroupBox(
-    fontsize=24,
+    fontsize=80,
+    highlight_method="text",
     visible_groups=['9', '0'],
     background=widget_background,
-    active=color['red'],
+    active=color['blue'],
     inactive=widget_text_color,
     rounded=True,
-    # highlight_color=color["blue"],
-    highlight_method="default",
-    this_current_screen_border=color["blue1"],
-    this_screen_border=color["blue"],
+    this_current_screen_border=color["red1"],
+    this_screen_border=color["red"],
     block_highlight_text_color=widget_text_color,
     blockwidth=2,
     margin_y=5,
