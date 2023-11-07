@@ -35,6 +35,11 @@ vim.cmd([[nnoremap <leader>P "+P]])
 vim.cmd([[vnoremap <leader>p "+p]])
 vim.cmd([[vnoremap <leader>P "+P]])
 
+-- splits
+vim.keymap.set("n", "<leader>vs", ":vsplit <CR>")
+vim.keymap.set("n", "<leader>hs", ":split <CR>")
+vim.keymap.set("n", "<leader>cs", ":close <CR>")
+
 -- navigate splits
 vim.keymap.set("n", "<leader>l", ":wincmd l <CR>")
 vim.keymap.set("n", "<leader>h", ":wincmd h <CR>")
