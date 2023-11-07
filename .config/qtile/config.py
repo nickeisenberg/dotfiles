@@ -15,7 +15,9 @@ from my_utils.nvidia_widget import NvidiaSensors2
 from libqtile.widget import battery
 
 
-mod = "mod4"
+mod0 = "mod1"
+mod1 = "mod4"
+
 # terminal = guess_terminal()
 terminal = 'alacritty'
 browser = "firefox"
@@ -72,53 +74,53 @@ keys = [
     Key(['control'], "l", lazy.layout.right(), desc="Move focus to right"),
     Key(['control'], "j", lazy.layout.down(), desc="Move focus down"),
     Key(['control'], "k", lazy.layout.up(), desc="Move focus up"),
-    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    Key([mod0], "space", lazy.layout.next(), desc="Move window focus to other window"),
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([mod, "control"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
-    Key([mod, "control"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
-    Key([mod, "control"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod, "control"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    Key([mod0, "control"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([mod0, "control"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([mod0, "control"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
+    Key([mod0, "control"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
 
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
-    Key([mod, "shift"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.grow_down(), desc="Grow window down"),
-    Key([mod, "shift"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    Key([mod0, "shift"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
+    Key([mod0, "shift"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+    Key([mod0, "shift"], "j", lazy.layout.grow_down(), desc="Grow window down"),
+    Key([mod0, "shift"], "k", lazy.layout.grow_up(), desc="Grow window up"),
+    Key([mod0], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
 
-    Key([mod], "l", grow_right_floating_window(width=15), desc='grow floating to right'),
-    Key([mod], "h", grow_left_floating_window(width=15), desc='grow floating to left'), 
-    Key([mod], "k", grow_up_floating_window(height=15), desc='grow floating to up'), 
-    Key([mod], "j", grow_down_floating_window(height=15), desc='grow floating to down'),
+    Key([mod0], "l", grow_right_floating_window(width=15), desc='grow floating to right'),
+    Key([mod0], "h", grow_left_floating_window(width=15), desc='grow floating to left'), 
+    Key([mod0], "k", grow_up_floating_window(height=15), desc='grow floating to up'), 
+    Key([mod0], "j", grow_down_floating_window(height=15), desc='grow floating to down'),
     Key(
-        [mod, "mod1"], "h", grow_right_floating_window(width=-15), 
+        [mod0, mod1], "h", grow_right_floating_window(width=-15), 
         desc='shrink floating to right'
     ),
     Key(
-        [mod, "mod1"], "l", grow_left_floating_window(width=-15), 
+        [mod0, mod1], "l", grow_left_floating_window(width=-15), 
         desc='shrink floating to left'
     ), 
     Key(
-        [mod, "mod1"], "j", grow_up_floating_window(height=-15), 
+        [mod0, mod1], "j", grow_up_floating_window(height=-15), 
         desc='shrink floating to up'
     ), 
     Key(
-        [mod, "mod1"], "k", grow_down_floating_window(height=-15), 
+        [mod0, mod1], "k", grow_down_floating_window(height=-15), 
         desc='shrink floating to down'
     ),
     
     # Fullscreen and floating
-    Key([mod], "f", lazy.window.toggle_fullscreen(), desc="Toggle fullscreen on the focused window",),
-    Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
+    Key([mod0], "f", lazy.window.toggle_fullscreen(), desc="Toggle fullscreen on the focused window",),
+    Key([mod0], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
     
     # Launch Apps
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    Key([mod], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
+    Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
     Key(
-        [mod], "s", 
+        [mod0], "s", 
         lazy.spawn(
             os.path.expanduser("/usr/share/spotify/spotify")
         ), 
@@ -126,16 +128,16 @@ keys = [
     ),
 
     # Toggle between different layouts as defined below
-    Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+    Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     
     # System
-    Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
-    # Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([mod0], "q", lazy.window.kill(), desc="Kill focused window"),
+    # Key([mod0, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload the config"),
 
     # Applications
     Key(
-        [mod, "control"], "b", 
+        [mod0, "control"], "b", 
         lazy.spawn(
             os.path.expanduser("~/.config/rofi/scripts/launcher_t2")
         ), 
@@ -143,7 +145,7 @@ keys = [
     ),
 
     Key(
-        [mod, "control"], "q", 
+        [mod0, "control"], "q", 
         lazy.spawn(
             os.path.expanduser("~/.config/rofi/scripts/powermenu_t1")
         ), 
@@ -153,21 +155,21 @@ keys = [
     # Screen shoot
     # Full screen
     Key(
-        ["mod1", "shift"], "3", 
+        [mod1, "shift"], "3", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/full_screenshot.sh")
         )
     ),
     # Select area
     Key(
-        ["mod1", "shift"], "4", 
+        [mod1, "shift"], "4", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/selected_screenshot.sh")
         )
     ),
     # within active screen screen
     Key(
-        ["mod1", "shift"], "5", 
+        [mod1, "shift"], "5", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/active_win_screenshot.sh")
         )
@@ -196,26 +198,26 @@ keys = [
         ), 
         desc="Lower Bright by 5"
     ),
-    Key(['mod1'], "XF86MonBrightnessUp", 
+    Key([mod1], "XF86MonBrightnessUp", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/inc_dualbrightness.sh")
         ), 
         desc="Raise Bright by 5%"
     ),
-    Key(['mod1'], "XF86MonBrightnessDown", 
+    Key([mod1], "XF86MonBrightnessDown", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/dec_dualbrightness.sh")
         ), 
         desc="Lower Bright by 5"
     ),
-    Key([mod], "XF86MonBrightnessUp", 
+    Key([mod0], "XF86MonBrightnessUp", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/inc_keylight.sh"),
             shell=True   
         ), 
         desc="Raise Bright by 5%"
     ),
-    Key([mod], "XF86MonBrightnessDown", 
+    Key([mod0], "XF86MonBrightnessDown", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/dec_keylight.sh"),
             shell=True
@@ -320,7 +322,7 @@ def go_to_group_and_move_window(name: str):
 for i in groups:
     keys.append(
         Key(
-            [mod],
+            [mod0],
             i.name,
             lazy.function(go_to_group(i.name)),
             desc="Switch to group {}".format(i.name),
@@ -328,7 +330,7 @@ for i in groups:
     )
     keys.append(
         Key(
-            [mod, "control"],
+            [mod0, "control"],
             i.name,
             lazy.function(go_to_group_and_move_window(i.name)),
             desc="Switch to & move focused window to group {}".format(i.name),
@@ -440,9 +442,9 @@ layouts = [
 # Drag floating layouts.
 #--------------------------------------------------
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front()),
+    Drag([mod0], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
+    Drag([mod0], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Click([mod0], "Button2", lazy.window.bring_to_front()),
 ]
 
 
@@ -520,27 +522,27 @@ sharedbar_r.append(widget.Image(filename=rp_path))
 sharedbar_r.append(widget.Spacer())
 # sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
-sharedbar_r.append(widget.Image(filename=lp_path))
-
-sharedbar_r += [
-    widget.TextBox(
-        font='FontAwesome',
-         #text="",
-        text="CPU ",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=16
-    ),
-    widget.CPU(
-        foreground=widget_text_color,
-        background=widget_background,
-        format='{load_percent}%',
-        fontsize=20
-    )
-]
-
-sharedbar_r.append(widget.Image(filename=rp_path))
+# sharedbar_r.append(widget.Image(filename=lp_path))
+# 
+# sharedbar_r += [
+#     widget.TextBox(
+#         font='FontAwesome',
+#          #text="",
+#         text="CPU ",
+#         foreground=widget_text_color,
+#         background=widget_background,
+#         padding=0,
+#         fontsize=16
+#     ),
+#     widget.CPU(
+#         foreground=widget_text_color,
+#         background=widget_background,
+#         format='{load_percent}%',
+#         fontsize=20
+#     )
+# ]
+# 
+# sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
@@ -549,7 +551,7 @@ sharedbar_r.append(widget.Image(filename=lp_path))
 sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
-        text="GPU ",
+        text="vRAM",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
