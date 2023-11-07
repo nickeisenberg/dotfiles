@@ -15,7 +15,7 @@ from my_utils.nvidia_widget import NvidiaSensors2
 from libqtile.widget import battery
 
 
-mod = "mod1"
+mod = "mod4"
 # terminal = guess_terminal()
 terminal = 'alacritty'
 browser = "firefox"
@@ -94,19 +94,19 @@ keys = [
     Key([mod], "k", grow_up_floating_window(height=15), desc='grow floating to up'), 
     Key([mod], "j", grow_down_floating_window(height=15), desc='grow floating to down'),
     Key(
-        [mod, "mod4"], "h", grow_right_floating_window(width=-15), 
+        [mod, "mod1"], "h", grow_right_floating_window(width=-15), 
         desc='shrink floating to right'
     ),
     Key(
-        [mod, "mod4"], "l", grow_left_floating_window(width=-15), 
+        [mod, "mod1"], "l", grow_left_floating_window(width=-15), 
         desc='shrink floating to left'
     ), 
     Key(
-        [mod, "mod4"], "j", grow_up_floating_window(height=-15), 
+        [mod, "mod1"], "j", grow_up_floating_window(height=-15), 
         desc='shrink floating to up'
     ), 
     Key(
-        [mod, "mod4"], "k", grow_down_floating_window(height=-15), 
+        [mod, "mod1"], "k", grow_down_floating_window(height=-15), 
         desc='shrink floating to down'
     ),
     
@@ -153,21 +153,21 @@ keys = [
     # Screen shoot
     # Full screen
     Key(
-        ["mod4", "shift"], "3", 
+        ["mod1", "shift"], "3", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/full_screenshot.sh")
         )
     ),
     # Select area
     Key(
-        ["mod4", "shift"], "4", 
+        ["mod1", "shift"], "4", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/selected_screenshot.sh")
         )
     ),
     # within active screen screen
     Key(
-        ["mod4", "shift"], "5", 
+        ["mod1", "shift"], "5", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/active_win_screenshot.sh")
         )
@@ -196,13 +196,13 @@ keys = [
         ), 
         desc="Lower Bright by 5"
     ),
-    Key(['mod4'], "XF86MonBrightnessUp", 
+    Key(['mod1'], "XF86MonBrightnessUp", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/inc_dualbrightness.sh")
         ), 
         desc="Raise Bright by 5%"
     ),
-    Key(['mod4'], "XF86MonBrightnessDown", 
+    Key(['mod1'], "XF86MonBrightnessDown", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/dec_dualbrightness.sh")
         ), 
