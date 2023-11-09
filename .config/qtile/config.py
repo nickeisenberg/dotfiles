@@ -258,7 +258,7 @@ mainbar = widget.GroupBox(
     this_current_screen_border=color["red1"],
     this_screen_border=color["red"],
     blockwidth=2,
-    margin_y=5,
+    margin_y=3,
 )
 
 dualmonbar = widget.GroupBox(
@@ -273,7 +273,7 @@ dualmonbar = widget.GroupBox(
     this_screen_border=color["red"],
     block_highlight_text_color=widget_text_color,
     blockwidth=2,
-    margin_y=5,
+    margin_y=3,
 )
 
 
