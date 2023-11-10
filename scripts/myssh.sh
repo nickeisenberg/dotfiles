@@ -1,8 +1,8 @@
 function myssh() {
     
     if [[ $# -lt 1 ]]; then
-        echo "Usage: venv <option> [argument]"
-        echo "Use 'venv -h' or 'venv --help' for a list of available options."
+        echo "Usage: myssh <option> [argument]"
+        echo "Use 'myssh -h' or 'myssh --help' for a list of available options."
         return 1
     fi
 
@@ -33,7 +33,7 @@ function myssh() {
             ;;
 
         *)
-            echo "Invalid option. Use 'venv -h' or 'venv --help' for a list of available options."
+            echo "Invalid option. Use 'myssh -h' or 'myssh --help' for a list of available options."
             return 1
             ;;
     esac

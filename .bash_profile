@@ -49,10 +49,3 @@ alias python='python3'
 for file in $HOME/Dotfiles/scripts/*; do
     source $file
 done
-
-#--------------------------------------------------
-# source all ssh aliases
-#--------------------------------------------------
-for _alias in $HOME/Dotfiles/ssh/*; do
-    source $_alias
-done
