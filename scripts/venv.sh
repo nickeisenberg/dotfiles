@@ -47,7 +47,7 @@ function venv() {
             fi
             ;;
 
-        -sp|--site-package-location)
+        -sp|--site-packages)
             SITE_PACKAGES_DIR=$(pip show pip | grep Location | awk '{print $2}')
 
             if [[ ! $SITE_PACKAGES_DIR ]]; then
@@ -110,7 +110,7 @@ function venv() {
             echo "Options:"
             echo "  -m, --make <venv_name>                : Create a new virtual environment."
             echo "  -a, --activate <venv_name>            : Activate the specified virtual environment."
-            echo "  -sp, --site-package-location [package]: Navigate to the site-packages directory or specified package directory."
+            echo "  -sp, --site-packages [package]: Navigate to the site-packages directory or specified package directory."
             echo "  -da, --deactivate                     : Deactivate the currently active virtual environment."
             echo "  -ls, --list-all-environments          : List all available virtual environments in $VENV_DIR."
             echo "  -del, --delete-venv                   : Delete the specified venv."
