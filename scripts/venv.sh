@@ -9,7 +9,7 @@
 # 6) list all available venv's with ls 
 
 function venv() {
-    VENV_DIR="$HOME/Software/venv"
+    VENV_DIR="$HOME/.venv"
 
     # Check the number of arguments passed
     if [[ $# -lt 1 ]]; then
