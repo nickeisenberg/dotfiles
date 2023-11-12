@@ -12,6 +12,9 @@ v = vol.Volume(
     get_volume_command=cmd,
 )
 
+v.update()
+v.text
+
 v.get_volume()
 
 v.volume

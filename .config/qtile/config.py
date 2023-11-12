@@ -184,7 +184,7 @@ keys = [
     ),
     Key([], "XF86AudioMute", 
         lazy.spawn("amixer -q -D pulse sset Master toggle"), 
-        desc="Lower Volume by 5%"
+        desc="mute"
     ),
     Key([], "XF86MonBrightnessUp", 
         lazy.spawn(
@@ -603,7 +603,9 @@ sharedbar_r.append(widget.Image(filename=lp_path))
 # This command was from a previous qtile version
 # get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
 
-# Check mute is no longer needed
+#--------------------------------------------------
+# for qtile 0.22.1
+#--------------------------------------------------
 get_volume_cmd = [
     'amixer',
     '-D',
@@ -611,9 +613,14 @@ get_volume_cmd = [
     'get',
     'Master',
 ]
+#--------------------------------------------------
+#--------------------------------------------------
+# for qtile 0.23
+#--------------------------------------------------
 # get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
 # check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
 # check_mute_string = "0"
+#--------------------------------------------------
 sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',

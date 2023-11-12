@@ -4,16 +4,6 @@ import libqtile.widget.volume as vol
 import subprocess
 import re
 
-# This was for an older qtile version
-cmd = [
-    'amixer',
-    '-D',
-    'pulse',
-    'get',
-    'Master',
-]
-subprocess.check_output(cmd)
-#--------------------------------------------------
 
 # Get the volume percent
 cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
@@ -23,10 +13,6 @@ volgroups = re_vol.search(mixer_out)
 int(volgroups.groups()[0])
 
 
-cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
-v = vol.Volume(get_volume_command=cmd)
-
-v.get_volume()
 
 
 # figure out the check mute command
@@ -43,16 +29,11 @@ v = vol.Volume(
 )
 
 
-check_mute = subprocess.getoutput(v.check_mute_command)
-check_mute in v.check_mute_string
-
 v.get_volume()
 
 v._update_drawer()
 
-v.text
-
 v.update()
-v.volume)
+v.text
 
 
