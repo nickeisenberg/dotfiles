@@ -1,9 +1,12 @@
-### Install
-* Had to install qtile with 
-`pip install --no-build-isolation git+https://github.com/qtile/qtile.git`
-
 ### Battery Widget
-* There was no battery status icon for "Not charging". So inside
+* There was no battery status icon for "Not charging" There were several changes
+  that I needed to make to take care of this.
+
+  - *. Stop the SSH connection
+  - *. Stop the SSH connection
+  - *. Stop the SSH connection
+
+
 `libqtile.widgets.battery` I added `NOTCHARGING` to `BatteryState`. 
 
 I also had to add 
