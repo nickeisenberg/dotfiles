@@ -2,9 +2,9 @@
 * There was no battery status icon for "Not charging" There were several changes
   that I needed to make to take care of this.
 
-  - 1. Stop the SSH connection
-  - 2. Stop the SSH connection
-  - 3. Stop the SSH connection
+  * Stop the SSH connection
+  * Stop the SSH connection
+  * Stop the SSH connection
 
 
 `libqtile.widgets.battery` I added `NOTCHARGING` to `BatteryState`. 
