@@ -16,7 +16,7 @@ that I needed to make to take care of this inside
   ```
 * Second, I had to to add to the `update_status` method of `class _LinuxBattery`:
   ```
-  elif state == "Not charging":
+  elif stat == "Not charging":
       state = BatteryState.NOTCHARGING
   ```
 * Third, I had to the `build_string` method of `class Battery`: 

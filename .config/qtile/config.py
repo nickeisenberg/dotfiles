@@ -611,8 +611,9 @@ get_volume_cmd = [
     'get',
     'Master',
 ]
-check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
-check_mute_string = "0"
+# get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
+# check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
+# check_mute_string = "0"
 sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
@@ -627,8 +628,8 @@ sharedbar_r += [
         background=widget_background,
         foreground=widget_text_color,
         get_volume_command=get_volume_cmd,
-        # check_mute_sting=check_mute_string,
         # check_mute_command=check_mute_command,
+        # check_mute_sting=check_mute_string,
         # theme_path="~/Dotfiles/.config/qtile/icons/",
     )
 ]
