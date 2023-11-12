@@ -1,27 +1,29 @@
 ### Battery Widget
-* There was no battery status icon for "Not charging" There were several changes
-  that I needed to make to take care of this.
+* There was no battery status icon for "Not charging". There were several changes
+  that I needed to make to take care of this inside 
+  `/home/nicholas/.local/lib/python3.10/site-packages/libqtile/widget/battery.py`
 
-  * Stop the SSH connection
-  * Stop the SSH connection
-  * Stop the SSH connection
-
-
-`libqtile.widgets.battery` I added `NOTCHARGING` to `BatteryState`. 
-
-I also had to add 
-```
-elif state == "Not charging":
-    state = BatteryState.NOTCHARGING
-```
-inside of `libqtile.widgets.battery._LinuxBattery`. 
-
-Lastly, I added
-```
-elif status.state == BatteryState.NOTCHARGING:
-            char = self.discharge_char
-```
-inside of `libqtile.widgets.battery.Battery`.
+  * First, I added `NOTCHARGING` to `class BatteryState`:
+    ```
+    @unique
+    class BatteryState(Enum):
+        CHARGING = 1
+        DISCHARGING = 2
+        FULL = 3
+        EMPTY = 4
+        UNKNOWN = 5
+        NOTCHARGING = 6
+    ```
+  * Second, I had to to add to the `update_status' method of `class _LinuxBattery`:
+    ```
+    elif state == "Not charging":
+        state = BatteryState.NOTCHARGING
+    ```
+  * Third, I had to the `build_string` method of `class Battery`: 
+    ```
+    elif status.state == BatteryState.NOTCHARGING:
+        char = self.charge_char
+    ```
 
 ### Text color on focued and unfocued screens
 Inside of `libqtile.widget.groupbox.py` under the `draw` method, I added
