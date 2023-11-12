@@ -499,7 +499,7 @@ mybardual.append(dualmonbar)
 mybar.append(widget.Image(filename=rp_path))
 mybardual.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 # sharedbar_r.append(widget.Spacer())
 
 sharedbar_r.append(widget.Image(filename=lp_path))
@@ -546,7 +546,7 @@ sharedbar_r.append(widget.Spacer())
 # 
 # sharedbar_r.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
 
@@ -572,7 +572,7 @@ sharedbar_r += [
 
 sharedbar_r.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
 
@@ -596,7 +596,7 @@ sharedbar_r += [
 
 sharedbar_r.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
 
@@ -636,7 +636,7 @@ sharedbar_r += [
 
 sharedbar_r.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
 
