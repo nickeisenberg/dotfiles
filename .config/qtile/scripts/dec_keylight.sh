@@ -1,2 +1,18 @@
-path="/home/nicholas/Dotfiles/.config/qtile/scripts/"
-sudo $path/_dec_keylight.sh
+#! /bin/bash
+
+function decrease_keylight() {
+    
+    current=$(cat /sys/class/leds/tpacpi::kbd_backlight/brightness)
+
+    new=$(echo $current - 1 | bc)
+
+    if [ "$new" -lt 0 ]
+        then
+            ((new+=1))
+    fi
+
+    sudo echo $new | tee /sys/class/leds/tpacpi::kbd_backlight/brightness > /dev/null
+
+}  
+
+decrease_keylight

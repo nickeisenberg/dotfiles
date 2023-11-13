@@ -212,14 +212,14 @@ keys = [
     ),
     Key([mod0], "XF86MonBrightnessUp", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/inc_keylight.sh"),
+            os.path.expanduser("sudo ~/.config/qtile/scripts/inc_keylight.sh"),
             shell=True   
         ), 
         desc="Raise Bright by 5%"
     ),
     Key([mod0], "XF86MonBrightnessDown", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/dec_keylight.sh"),
+            os.path.expanduser("sudo ~/.config/qtile/scripts/dec_keylight.sh"),
             shell=True
         ), 
         desc="Lower Bright by 5"
