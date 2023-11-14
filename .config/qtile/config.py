@@ -600,27 +600,6 @@ sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
 
-# This command was from a previous qtile version
-# get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
-
-#--------------------------------------------------
-# for qtile 0.22.1
-#--------------------------------------------------
-get_volume_cmd = [
-    'amixer',
-    '-D',
-    'pulse',
-    'get',
-    'Master',
-]
-#--------------------------------------------------
-#--------------------------------------------------
-# for qtile 0.23
-#--------------------------------------------------
-# get_volume_cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''
-# check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
-# check_mute_string = "0"
-#--------------------------------------------------
 sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
@@ -630,14 +609,10 @@ sharedbar_r += [
         padding=0,
         fontsize=20
     ),
-    widget.Volume(
+    widget.PulseVolume(
         fontsize=18,
         background=widget_background,
         foreground=widget_text_color,
-        get_volume_command=get_volume_cmd,
-        # check_mute_command=check_mute_command,
-        # check_mute_sting=check_mute_string,
-        # theme_path="~/Dotfiles/.config/qtile/icons/",
     )
 ]
 

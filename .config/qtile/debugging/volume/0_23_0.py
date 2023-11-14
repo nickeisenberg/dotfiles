@@ -13,8 +13,6 @@ volgroups = re_vol.search(mixer_out)
 int(volgroups.groups()[0])
 
 
-
-
 # figure out the check mute command
 check_mute_command = 'pacmd list-sinks | grep -q \"muted: yes\"; echo $?'
 subprocess.getoutput(check_mute_command)
