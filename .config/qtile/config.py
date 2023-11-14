@@ -247,7 +247,7 @@ dualgroups = [
 
 groups = maingroups + dualgroups
 
-mainbar = widget.GroupBox(
+main_group_box = widget.GroupBox(
     fontsize=80,
     highlight_method="text",
     visible_groups=['1', '2', '3', '4', '5', '6'],
@@ -261,7 +261,7 @@ mainbar = widget.GroupBox(
     margin_y=3,
 )
 
-dualmonbar = widget.GroupBox(
+dual_group_box = widget.GroupBox(
     fontsize=80,
     highlight_method="text",
     visible_groups=['9', '0'],
@@ -315,8 +315,6 @@ def go_to_group_and_move_window(name: str):
             qtile.groups_map[name].cmd_toscreen()
 
     return _inner
-
-#--------------------------------------------------
 
 
 for i in groups:
@@ -475,7 +473,6 @@ sharedbar_l.append(
 )
 
 sharedbar_l.append(widget.Image(filename=lp_path))
-
 sharedbar_l.append(
     widget.Clock(
         foreground=widget_text_color,
@@ -485,25 +482,62 @@ sharedbar_l.append(
         format='%A, %b %d | %I:%M %p',
     )
 )
+sharedbar_l.append(widget.Image(filename=rp_path))
 
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
+
+sharedbar_l.append(widget.Image(filename=lp_path))
+sharedbar_l += [
+    widget.TextBox(
+        font='FontAwesome',
+        text="\uf028",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=20
+    ),
+    widget.PulseVolume(
+        fontsize=18,
+        background=widget_background,
+        foreground=widget_text_color,
+    )
+]
+sharedbar_l.append(widget.Image(filename=rp_path))
+
+sharedbar_l.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
+
+sharedbar_l.append(widget.Image(filename=lp_path))
+sharedbar_l.append(
+    widget.Battery(
+        battery="BAT0",
+        font='FontAwesome',
+        foreground=widget_text_color,
+        background=widget_background,
+        fontsize=16,
+        low_percentage=0.2,
+        low_foreground=widget_text_color,
+        update_interval=1,
+        format='{char} {percent:2.0%}',
+        charge_char="",
+        # discharge_char='',
+        discharge_char="\uf0e7",
+    )
+)
 sharedbar_l.append(widget.Image(filename=rp_path))
 
 sharedbar_l.append(widget.Spacer()) 
 
 mybar.append(widget.Image(filename=lp_path))
-mybardual.append(widget.Image(filename=lp_path))
-
-mybar.append(mainbar)
-mybardual.append(dualmonbar)
-
+mybar.append(main_group_box)
 mybar.append(widget.Image(filename=rp_path))
+
+mybardual.append(widget.Image(filename=lp_path))
+mybardual.append(dual_group_box)
 mybardual.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-# sharedbar_r.append(widget.Spacer())
 
 sharedbar_r.append(widget.Image(filename=lp_path))
-
 sharedbar_r += [
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
@@ -518,38 +552,26 @@ sharedbar_r += [
         background=widget_background,
     )
 ]
-
 sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Spacer())
-# sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
-
-# sharedbar_r.append(widget.Image(filename=lp_path))
-# 
-# sharedbar_r += [
-#     widget.TextBox(
-#         font='FontAwesome',
-#          #text="",
-#         text="CPU ",
-#         foreground=widget_text_color,
-#         background=widget_background,
-#         padding=0,
-#         fontsize=16
-#     ),
-#     widget.CPU(
-#         foreground=widget_text_color,
-#         background=widget_background,
-#         format='{load_percent}%',
-#         fontsize=20
-#     )
-# ]
-# 
-# sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
+sharedbar_r += [
+    widget.Net(
+        format='{down:.0f}{down_suffix} ↓↑ {up:.0f}{up_suffix}',
+        fontsize=20,
+        background=widget_background,
+        foreground=widget_text_color
+    )
+]
+sharedbar_r.append(widget.Image(filename=rp_path))
 
+sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
+
+sharedbar_r.append(widget.Image(filename=lp_path))
 sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
@@ -569,13 +591,11 @@ sharedbar_r += [
         foreground=widget_text_color
     )
 ]
-
 sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
 
 sharedbar_r.append(widget.Image(filename=lp_path))
-
 sharedbar_r += [
     widget.TextBox(
         font='FontAwesome',
@@ -593,53 +613,8 @@ sharedbar_r += [
         format='{MemUsed:.0f} MiB',
     )
 ]
-
 sharedbar_r.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_r.append(widget.Image(filename=lp_path))
-
-sharedbar_r += [
-    widget.TextBox(
-        font='FontAwesome',
-        text="\uf028",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20
-    ),
-    widget.PulseVolume(
-        fontsize=18,
-        background=widget_background,
-        foreground=widget_text_color,
-    )
-]
-
-sharedbar_r.append(widget.Image(filename=rp_path))
-
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_r.append(widget.Image(filename=lp_path))
-
-sharedbar_r.append(
-    widget.Battery(
-        battery="BAT0",
-        font='FontAwesome',
-        foreground=widget_text_color,
-        background=widget_background,
-        fontsize=16,
-        low_percentage=0.2,
-        low_foreground=widget_text_color,
-        update_interval=1,
-        format='{char} {percent:2.0%}',
-        charge_char="",
-        # discharge_char='',
-        discharge_char="\uf0e7",
-    )
-)
-
-sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
 
