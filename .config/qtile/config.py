@@ -14,6 +14,7 @@ from my_utils.nvidia_widget import NvidiaSensors2
 
 from libqtile.widget import battery
 
+HOME = os.environ['HOME']
 
 mod0 = "mod1"
 mod1 = "mod4"
