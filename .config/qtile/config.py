@@ -508,6 +508,8 @@ sharedbar_l += [
         foreground=widget_text_color,
         background=widget_background,
         progs=[
+            (' ', f'{HOME}/.config/qtile/scripts/launch_config.sh', 'launch spotify'),
+            # (' ', f'alacritty -e bash -i -c "source ~/.bash_profile && nvim {HOME}/.config/qtile/config.py"', 'launch qtile config'),
             (' ', 'spotify', 'launch spotify'),
             (' ', 'thunderbird', 'launch mail'),
             (' ', 'alacritty -e nmtui', 'Network Manager')
