@@ -119,14 +119,6 @@ keys = [
     # Launch Apps
     Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
-    Key(
-        [mod0], "s", 
-        lazy.spawn(
-            os.path.expanduser("/usr/share/spotify/spotify")
-        ), 
-        desc="Launch spotify"
-    ),
-
     # Toggle between different layouts as defined below
     Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     
@@ -517,23 +509,22 @@ sharedbar_l.append(
 )
 sharedbar_l.append(widget.Image(filename=rp_path))
 
-# sharedbar_l.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-# 
-# sharedbar_l.append(widget.Image(filename=lp_path))
-# sharedbar_l.append(
-#     widget.LaunchBar(
-#         fontsize=20,
-#         foreground=widget_text_color,
-#         background=widget_background,
-#         progs=[
-#             (' ', 'alacritty', 'launch alacritty'),
-#             (' ', '', 'launch spotify'),
-#             (' ', '', 'launch mail'),
-#             (' ', '', 'launch wifi client')
-#         ]
-#     )
-# )
-# sharedbar_l.append(widget.Image(filename=rp_path))
+sharedbar_l.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
+
+sharedbar_l.append(widget.Image(filename=lp_path))
+sharedbar_l.append(
+    widget.LaunchBar(
+        fontsize=20,
+        foreground=widget_text_color,
+        background=widget_background,
+        progs=[
+            (' ', 'spotify', 'launch spotify'),
+            (' ', 'thunderbird', 'launch mail'),
+            (' ', 'alacritty -e nmtui', 'Network Manager')
+        ]
+    )
+)
+sharedbar_l.append(widget.Image(filename=rp_path))
 
 sharedbar_l.append(widget.Spacer()) 
 
