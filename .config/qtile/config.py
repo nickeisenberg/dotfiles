@@ -174,18 +174,9 @@ keys = [
             os.path.expanduser("~/.config/qtile/scripts/active_win_screenshot.sh")
         )
     ),
-    Key([], "XF86AudioLowerVolume", 
-        lazy.spawn("amixer -D pulse sset Master 5%-"), 
-        desc="Lower Volume by 5%"
-    ),
-    Key([], "XF86AudioRaiseVolume", 
-        lazy.spawn("amixer -D pulse sset Master 5%+"), 
-        desc="Lower Volume by 5%"
-    ),
-    Key([], "XF86AudioMute", 
-        lazy.spawn("amixer -q -D pulse sset Master toggle"), 
-        desc="mute"
-    ),
+    Key([], "XF86AudioLowerVolume", lazy.widget["pulsevolume"].decrease_vol()),
+    Key([], "XF86AudioRaiseVolume", lazy.widget["pulsevolume"].increase_vol()),
+    Key([], "XF86AudioMute", lazy.widget["pulsevolume"].mute()),
     Key([], "XF86MonBrightnessUp", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/inc_brightness.sh")
@@ -490,7 +481,8 @@ sharedbar_l.append(widget.Image(filename=lp_path))
 sharedbar_l += [
     widget.TextBox(
         font='FontAwesome',
-        text="\uf028",
+        # text="\uf028",
+        text=" ",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -524,6 +516,24 @@ sharedbar_l.append(
     )
 )
 sharedbar_l.append(widget.Image(filename=rp_path))
+
+# sharedbar_l.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
+# 
+# sharedbar_l.append(widget.Image(filename=lp_path))
+# sharedbar_l.append(
+#     widget.LaunchBar(
+#         fontsize=20,
+#         foreground=widget_text_color,
+#         background=widget_background,
+#         progs=[
+#             (' ', 'alacritty', 'launch alacritty'),
+#             (' ', '', 'launch spotify'),
+#             (' ', '', 'launch mail'),
+#             (' ', '', 'launch wifi client')
+#         ]
+#     )
+# )
+# sharedbar_l.append(widget.Image(filename=rp_path))
 
 sharedbar_l.append(widget.Spacer()) 
 
