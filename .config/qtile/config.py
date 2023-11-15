@@ -410,15 +410,6 @@ layouts = [
     layout.MonadTall(**layout_theme),
     layout.Matrix(**layout_theme),
     layout.Floating(**layout_theme),
-    # layout.Max(**layout_theme),
-    # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
-    # layout.MonadWide(),
-    # layout.RatioTile(),
-    # layout.Tile(),
-    # layout.TreeTab(),
-    # layout.VerticalTile(),
-    # layout.Zoomy(),
 ]
 
 #--------------------------------------------------
@@ -429,7 +420,6 @@ mouse = [
     Drag([mod0], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
     Click([mod0], "Button2", lazy.window.bring_to_front()),
 ]
-
 
 #--------------------------------------------------
 
@@ -451,30 +441,29 @@ mybardual = []
 sharedbar_l = []
 sharedbar_r = []
 
-sharedbar_l.append(
-    widget.Sep(background=barcolor, padding=20, linewidth=0)
-)
+sharedbar_l += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
 
-sharedbar_l.append(widget.Image(filename=lp_path))
-sharedbar_l.append(
+sharedbar_l += [
+    widget.Image(filename=lp_path),
     widget.Clock(
         foreground=widget_text_color,
         # background=background,
         background=widget_background,
         fontsize=20,
-        format='%A, %b %d | %I:%M %p',
-    )
-)
-sharedbar_l.append(widget.Image(filename=rp_path))
-
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_l.append(widget.Image(filename=lp_path))
-sharedbar_l += [
+        format='%A, %b %d %I:%M %p ',
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" ",
+        foreground=widget_text_color,
+        background=color["white"],
+        padding=0,
+        fontsize=5
+    ),
     widget.TextBox(
         font='FontAwesome',
         # text="\uf028",
-        text=" ",
+        text="  ",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -482,16 +471,18 @@ sharedbar_l += [
     ),
     widget.PulseVolume(
         fontsize=18,
+        padding=5,
         background=widget_background,
         foreground=widget_text_color,
-    )
-]
-sharedbar_l.append(widget.Image(filename=rp_path))
-
-sharedbar_l.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_l.append(widget.Image(filename=lp_path))
-sharedbar_l.append(
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" ",
+        foreground=widget_text_color,
+        background=color["white"],
+        padding=0,
+        fontsize=5
+    ),
     widget.Battery(
         battery="BAT0",
         font='FontAwesome',
@@ -502,17 +493,15 @@ sharedbar_l.append(
         low_foreground=widget_text_color,
         update_interval=1,
         format='{char} {percent:2.0%}',
-        charge_char="",
+        charge_char="  ",
         # discharge_char='',
         discharge_char="\uf0e7",
-    )
-)
-sharedbar_l.append(widget.Image(filename=rp_path))
+    ),
+    widget.Image(filename=rp_path)
+]
 
-sharedbar_l.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_l.append(widget.Image(filename=lp_path))
-sharedbar_l.append(
+sharedbar_l += [
+    widget.Image(filename=lp_path),
     widget.LaunchBar(
         fontsize=20,
         foreground=widget_text_color,
@@ -522,11 +511,11 @@ sharedbar_l.append(
             (' ', 'thunderbird', 'launch mail'),
             (' ', 'alacritty -e nmtui', 'Network Manager')
         ]
-    )
-)
-sharedbar_l.append(widget.Image(filename=rp_path))
+    ),
+    widget.Image(filename=rp_path)
+]
 
-sharedbar_l.append(widget.Spacer()) 
+sharedbar_l += [widget.Spacer()]
 
 mybar.append(widget.Image(filename=lp_path))
 mybar.append(main_group_box)
@@ -536,10 +525,8 @@ mybardual.append(widget.Image(filename=lp_path))
 mybardual.append(dual_group_box)
 mybardual.append(widget.Image(filename=rp_path))
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_r.append(widget.Image(filename=lp_path))
 sharedbar_r += [
+    widget.Image(filename=lp_path),
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
         foreground=widget_text_color,
@@ -551,32 +538,32 @@ sharedbar_r += [
         fontsize=20,
         foreground=widget_text_color,
         background=widget_background,
-    )
+    ),
+    widget.Image(filename=rp_path)
 ]
-sharedbar_r.append(widget.Image(filename=rp_path))
 
 sharedbar_r.append(widget.Spacer())
 
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_r.append(widget.Image(filename=lp_path))
 sharedbar_r += [
+    widget.Image(filename=lp_path),
     widget.Net(
         format='{down:.0f}{down_suffix} ↓↑ {up:.0f}{up_suffix}',
         fontsize=20,
+        padding=5,
         background=widget_background,
         foreground=widget_text_color
-    )
-]
-sharedbar_r.append(widget.Image(filename=rp_path))
-
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_r.append(widget.Image(filename=lp_path))
-sharedbar_r += [
+    ),
     widget.TextBox(
         font='FontAwesome',
-        text="vRAM",
+        text=" ",
+        foreground=widget_text_color,
+        background=color["white"],
+        padding=0,
+        fontsize=5
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" vRAM",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -588,20 +575,22 @@ sharedbar_r += [
         sensors=["memory.used"],
         format="{memory_used}",
         fontsize=20,
+        padding=5,
         background=widget_background,
         foreground=widget_text_color
-    )
-]
-sharedbar_r.append(widget.Image(filename=rp_path))
-
-sharedbar_r.append(widget.Sep(background=barcolor, padding=0, linewidth=0))
-
-sharedbar_r.append(widget.Image(filename=lp_path))
-sharedbar_r += [
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" ",
+        foreground=widget_text_color,
+        background=color["white"],
+        padding=0,
+        fontsize=5
+    ),
     widget.TextBox(
         font='FontAwesome',
         # text="",
-        text="RAM ",
+        text=" RAM ",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -612,12 +601,11 @@ sharedbar_r += [
         background=widget_background,
         fontsize=20,
         format='{MemUsed:.0f} MiB',
-    )
+    ),
+    widget.Image(filename=rp_path)
 ]
-sharedbar_r.append(widget.Image(filename=rp_path))
 
-
-sharedbar_r.append(widget.Sep(background=barcolor, padding=20, linewidth=0))
+sharedbar_r += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
 
 mybar = sharedbar_l + mybar + sharedbar_r
 mybardual = sharedbar_l + mybardual + sharedbar_r
@@ -630,7 +618,6 @@ mybar = bar.Bar(
     margin=[0, 0, 0, 0],
     border_width=[8, 0, 8, 0],
     border_color=barcolor,
-    # opacity=0.8,
 ) 
 
 mybardual = bar.Bar(
@@ -641,7 +628,6 @@ mybardual = bar.Bar(
     margin=[0, 0, 0, 0],
     border_width=[8, 0, 8, 0],
     border_color=barcolor,
-    # opacity=0.8,
 )
 
 @hook.subscribe.startup
