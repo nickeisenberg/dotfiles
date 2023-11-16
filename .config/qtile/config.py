@@ -24,6 +24,7 @@ terminal = 'alacritty'
 browser = "firefox"
 
 
+
 color = {
     "background": '#1a1b26',
     "background_alt": "#2E2B46",
@@ -91,7 +92,6 @@ keys = [
     Key([mod0, "shift"], "j", lazy.layout.grow_down(), desc="Grow window down"),
     Key([mod0, "shift"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod0], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-
     Key([mod0], "l", grow_right_floating_window(width=15), desc='grow floating to right'),
     Key([mod0], "h", grow_left_floating_window(width=15), desc='grow floating to left'), 
     Key([mod0], "k", grow_up_floating_window(height=15), desc='grow floating to up'), 
@@ -508,8 +508,7 @@ sharedbar_l += [
         foreground=widget_text_color,
         background=widget_background,
         progs=[
-            (' ', f'{HOME}/.config/qtile/scripts/launch_config.sh', 'launch spotify'),
-            # (' ', f'alacritty -e bash -i -c "source ~/.bash_profile && nvim {HOME}/.config/qtile/config.py"', 'launch qtile config'),
+            (' ', f'{HOME}/.config/qtile/scripts/launch_config.sh', 'launch spotify'),
             (' ', 'spotify', 'launch spotify'),
             (' ', 'thunderbird', 'launch mail'),
             (' ', 'alacritty -e nmtui', 'Network Manager')
