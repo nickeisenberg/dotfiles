@@ -453,13 +453,13 @@ sharedbar_l += [
         fontsize=20,
         format='%A, %b %d %I:%M %p ',
     ),
-    widget.TextBox(
+   widget.TextBox(
         font='FontAwesome',
-        text=" ",
+        text="\u2502",
         foreground=widget_text_color,
-        background=color["white"],
+        background=widget_background,
         padding=0,
-        fontsize=5
+        fontsize=20
     ),
     widget.TextBox(
         font='FontAwesome',
@@ -478,11 +478,11 @@ sharedbar_l += [
     ),
     widget.TextBox(
         font='FontAwesome',
-        text=" ",
+        text="\u2502",
         foreground=widget_text_color,
-        background=color["white"],
+        background=widget_background,
         padding=0,
-        fontsize=5
+        fontsize=20
     ),
     widget.Battery(
         battery="BAT0",
@@ -555,13 +555,13 @@ sharedbar_r += [
         background=widget_background,
         foreground=widget_text_color
     ),
-    widget.TextBox(
+   widget.TextBox(
         font='FontAwesome',
-        text=" ",
+        text="\u2502",
         foreground=widget_text_color,
-        background=color["white"],
+        background=widget_background,
         padding=0,
-        fontsize=5
+        fontsize=20
     ),
     widget.TextBox(
         font='FontAwesome',
@@ -581,13 +581,13 @@ sharedbar_r += [
         background=widget_background,
         foreground=widget_text_color
     ),
-    widget.TextBox(
+   widget.TextBox(
         font='FontAwesome',
-        text=" ",
+        text="\u2502",
         foreground=widget_text_color,
-        background=color["white"],
+        background=widget_background,
         padding=0,
-        fontsize=5
+        fontsize=20
     ),
     widget.TextBox(
         font='FontAwesome',
