@@ -511,7 +511,8 @@ sharedbar_l += [
             (' ', f'{HOME}/.config/qtile/scripts/launch_config.sh', 'launch spotify'),
             (' ', 'spotify', 'launch spotify'),
             (' ', 'thunderbird', 'launch mail'),
-            (' ', 'alacritty -e nmtui', 'Network Manager')
+            (' ', 'alacritty -e nmtui', 'Network Manager'),
+            ('', 'firefox -new-window chat.openai.com', 'Open ChatGPT')
         ]
     ),
     widget.Image(filename=rp_path)
