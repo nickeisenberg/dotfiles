@@ -548,21 +548,21 @@ sharedbar_r.append(widget.Spacer())
 
 sharedbar_r += [
     widget.Image(filename=lp_path),
-    widget.Net(
-        format='{down:.0f}{down_suffix} ↓↑ {up:.0f}{up_suffix}',
-        fontsize=20,
-        padding=5,
-        background=widget_background,
-        foreground=widget_text_color
-    ),
-   widget.TextBox(
-        font='FontAwesome',
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20
-    ),
+    # widget.Net(
+    #     format='{down:.0f}{down_suffix} ↓↑ {up:.0f}{up_suffix}',
+    #     fontsize=20,
+    #     padding=5,
+    #     background=widget_background,
+    #     foreground=widget_text_color
+    # ),
+    # widget.TextBox(
+    #      font='FontAwesome',
+    #      text="\u2502",
+    #      foreground=widget_text_color,
+    #      background=widget_background,
+    #      padding=0,
+    #      fontsize=20
+    #  ),
     widget.TextBox(
         font='FontAwesome',
         text=" vRAM",
@@ -581,7 +581,7 @@ sharedbar_r += [
         background=widget_background,
         foreground=widget_text_color
     ),
-   widget.TextBox(
+    widget.TextBox(
         font='FontAwesome',
         text="\u2502",
         foreground=widget_text_color,
