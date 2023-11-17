@@ -1,5 +1,6 @@
 """
 Found on reddit.
+https://gist.github.com/Wampa842/83c78c171b8ca2f46e382875b6a76744
 
 * I made a small change that adds a space between memory usage and MiB in 
 NvidiaSensors2().poll below. The change is a "cheap fix" but it is good enough
