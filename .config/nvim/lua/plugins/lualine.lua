@@ -3,7 +3,7 @@ return {
   enabled = true,
   dependencies = { 'nvim-tree/nvim-web-devicons'},
   config = function()
-    local theme = require('lualine.themes.tokyonight')
+    local theme = require('lualine.themes.rose-pine')
     require('lualine').setup {
       options = {
         icons_enabled = true,

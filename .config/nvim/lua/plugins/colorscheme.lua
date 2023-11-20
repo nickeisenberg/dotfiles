@@ -6,7 +6,7 @@ return {
     config = function()
       vim.cmd([[colorscheme tokyonight-night]])
     end,
-    enabled = true
+    enabled = false
   },
 
   {
@@ -36,7 +36,7 @@ return {
     config = function()
       vim.cmd([[colorscheme rose-pine]])
     end,
-    enabled = false
+    enabled = true
   },
 
   {

@@ -1,0 +1,22 @@
+color = {
+    "background": '#1a1b26',
+    "background_alt": "#2E2B46",
+    "fg_gutter": "#3b4261",
+    "foreground": '#c0caf5',
+    "black": '#1d202f',
+    "red": '#f7768e',
+    "red1": "#db4b4b",
+    "green": '#9ece6a',
+    "yellow": '#e0af68',
+    "dark3": '#545c7e',
+    "blue": '#7aa2f7',
+    "blue1": "#2ac3de",
+    "blue2": "#0db9d7",
+    "blue5": "#89ddff",
+    "blue6": "#b4f9f8",
+    "blue7": "#394b70",
+    "magenta": '#bb9af7',
+    "cyan": '#7dcfff',
+    "white": '#a9b1d6',
+    "brightwhite": "#c0caf5"
+}
