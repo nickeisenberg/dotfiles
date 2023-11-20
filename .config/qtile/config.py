@@ -21,38 +21,37 @@ mod1 = "mod4"
 terminal = 'alacritty'
 browser = "firefox"
 
-color = {
-    "background": '#1a1b26',
-    "background_alt": "#2E2B46",
-    "fg_gutter": "#3b4261",
-    "foreground": '#c0caf5',
-    "black": '#1d202f',
-    "red": '#f7768e',
-    "red1": "#db4b4b",
-    "green": '#9ece6a',
-    "yellow": '#e0af68',
-    "dark3": '#545c7e',
-    "blue": '#7aa2f7',
-    "blue1": "#2ac3de",
-    "blue2": "#0db9d7",
-    "blue5": "#89ddff",
-    "blue6": "#b4f9f8",
-    "blue7": "#394b70",
-    "magenta": '#bb9af7',
-    "cyan": '#7dcfff',
-    "white": '#a9b1d6',
-    "brightwhite": "#c0caf5"
+colors = {
+	"_eperimental_nc": '#16141f',
+	"nc": '#16141f',
+	"base": '#191724',
+	"surface": '#1f1d2e',
+    "overlay": '#26233a',
+	"muted": '#6e6a86',
+	"subtle": '#908caa',
+	"text": '#e0def4',
+	"love": '#eb6f92',
+	"gold": '#f6c177',
+	"rose": '#ebbcba',
+    "muted_love": "#db4b4b",
+	"pine": '#31748f',
+	"foam": '#9ccfd8',
+	"iris": '#c4a7e7',
+	"highlight_low": '#21202e',
+	"highlight_med": '#403d52',
+    "highlight_high": '#524f67',
+    "none": 'NONE'
 }
 
-barcolor = color["background"]
-widget_background = color["fg_gutter"]
-widget_text_color = color["brightwhite"]
-urgent = color["red"]
-muted_urgent = color['red1']
-selected = color["blue"]
+barcolor = colors["base"]
+widget_background = colors["highlight_med"]
+widget_text_color = colors["text"]
+urgent = colors["love"]
+muted_urgent = colors['muted_love']
+selected = colors["foam"]
 
-lp_path = "~/Dotfiles/.config/qtile/icons/lp_gutter.png"
-rp_path = "~/Dotfiles/.config/qtile/icons/rp_gutter.png"
+lp_path = "~/Dotfiles/.config/qtile/icons/lp_rose_base.png"
+rp_path = "~/Dotfiles/.config/qtile/icons/rp_rose_base.png"
 
 #--------------------------------------------------
 # Ketbindings 
@@ -448,6 +447,8 @@ sharedbar_l += [
     widget.Image(filename=rp_path)
 ]
 
+sharedbar_l += [widget.Sep(padding=20, foreground=barcolor)]
+
 sharedbar_l += [
     widget.Image(filename=lp_path),
     widget.LaunchBar(
@@ -476,6 +477,7 @@ mybardual.append(dual_group_box)
 mybardual.append(widget.Image(filename=rp_path))
 
 sharedbar_r += [
+    widget.Sep(padding=20, foreground=barcolor),
     widget.Image(filename=lp_path),
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],

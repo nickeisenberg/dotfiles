@@ -1,6 +1,6 @@
 colors : {
 	"_eperimental_nc": '#16141f',
-	"nc" : '#16141f',
+	"nc": '#16141f',
 	"base": '#191724',
 	"surface": '#1f1d2e',
     "overlay": '#26233a',

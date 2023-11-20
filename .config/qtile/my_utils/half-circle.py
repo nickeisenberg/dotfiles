@@ -71,8 +71,8 @@ class PillIcon:
             return fig
 
 
-background = '#1a1b26'
-background_alt = "#2E2B46"
+background = '#191724'
+background_alt = '#403d52'
 
 pill = PillIcon(background=background, foreground=background_alt)
 
