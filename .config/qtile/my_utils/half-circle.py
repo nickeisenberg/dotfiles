@@ -3,7 +3,6 @@ import numpy as np
 
 
 class PillIcon:
-
     def __init__(self, background, foreground):
         self.background = background
         self.foreground = foreground
@@ -69,7 +68,6 @@ class PillIcon:
             plt.show()
         else:
             return fig
-
 
 background = '#191724'
 background_alt = '#403d52'
