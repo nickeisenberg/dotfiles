@@ -77,6 +77,7 @@ return {
       clangd = {},
       pyright = {},
       rust_analyzer = {},
+      bashls = {},
       tsserver = {},
       html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },
       lua_ls = {

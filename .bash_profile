@@ -20,8 +20,8 @@ xset r rate 250 30
 export PATH=$PATH:/home/nicholas/.spicetify
 
 # cuda paths
-export PATH="/usr/local/cuda/bin:$PATH"
-export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+export PATH="/usr/local/cuda-12.1/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda-12.1/lib64:$LD_LIBRARY_PATH"
 
 # spicetify stuff
 export PATH=$PATH:/home/nicholas/.spicetify
