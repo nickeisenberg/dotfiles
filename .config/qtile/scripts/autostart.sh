@@ -3,7 +3,7 @@
 # capslock to control
 setxkbmap -option ctrl:nocaps &
 
-picom --experimental-backends --backend glx --xrender-sync-fence &
+# picom --experimental-backends --backend glx --xrender-sync-fence &
 
 # set up the dual monitor
 # Use xrandr --verbose to ge the monitor names

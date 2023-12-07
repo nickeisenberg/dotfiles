@@ -79,6 +79,7 @@ return {
       rust_analyzer = {},
       bashls = {},
       tsserver = {},
+      marksman = {},
       html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },
       lua_ls = {
         Lua = {
