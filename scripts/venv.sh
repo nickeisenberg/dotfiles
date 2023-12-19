@@ -10,6 +10,8 @@
 
 function venv() {
     VENV_DIR="$HOME/.venv"
+    DEFAULT_REQ_FILE="requirements.txt"
+    REQ_FILE="$DEFAULT_REQ_FILE"
 
     # Check the number of arguments passed
     if [[ $# -lt 1 ]]; then
@@ -105,6 +107,20 @@ function venv() {
             fi
             ;;
 
+        -req|--make-req)
+            if [[ $# -gt 2 ]]; then
+                echo "Usage: venv -req/--make-req [output_file]"
+                return 1
+            fi
+            if [[ $# -eq 2 ]]; then
+                REQ_FILE="$2"
+            fi
+            echo "Creating $REQ_FILE with pip freeze..."
+            pip freeze > "$REQ_FILE"
+            echo "$REQ_FILE created with the current Python environment's packages."
+            ;;
+
+
         -h|--help)
             echo "Usage: venv <option> [argument]"
             echo "Options:"
@@ -114,6 +130,7 @@ function venv() {
             echo "  -da, --deactivate                     : Deactivate the currently active virtual environment."
             echo "  -ls, --list-all-environments          : List all available virtual environments in $VENV_DIR."
             echo "  -del, --delete-venv                   : Delete the specified venv."
+            echo "  -req, --make-req                      : Make a requirements.txt file to CWD"
             echo "  -h, --help                            : Display this help message."
             ;;
 
@@ -123,4 +140,3 @@ function venv() {
             ;;
     esac
 }
-
