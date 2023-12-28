@@ -78,6 +78,7 @@ return {
       pyright = {},
       rust_analyzer = {},
       bashls = {},
+      sqlls = {},
       tsserver = {},
       marksman = {},
       html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },

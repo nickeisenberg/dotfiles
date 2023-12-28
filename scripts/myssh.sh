@@ -11,12 +11,12 @@ function myssh() {
 
         -jetex|--jetson-from-external)
             ip=$(jq -r '.external_home_ip' ~/.credentials/ipaddr.json)
-            ssh -p 2201 -L 7474:localhost:7474 -L 7687:localhost:7687 "eisenbnt@$ip"
+            ssh -p 2202 -L 7474:localhost:7474 -L 7687:localhost:7687 "eisenbnt@$ip"
             ;;
 
         -jetin|--jetson-from-external)
             ip=$(jq -r '.eisenbnt_at_SDRD3' ~/.credentials/ipaddr.json)
-            ssh -p 2201 -L 7474:localhost:7474 -L 7687:localhost:7687 "eisenbnt@$ip"
+            ssh -p 2202 -L 7474:localhost:7474 -L 7687:localhost:7687 "eisenbnt@$ip"
             ;;
 
         -h|--help)

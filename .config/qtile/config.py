@@ -338,12 +338,12 @@ floating_layout_theme = {
     "border_width": 2,
     "border_focus": selected,
     "border_normal": widget_background,
-    "float_rules": [
-        *layout.Floating.default_float_rules,
-        Match(wm_class="eog"),  # pyaws.plotter
-        Match(wm_class="EOG"),  # pyaws.plotter
-        Match(func=lambda w: w.name and w.name.startswith('Figure')),  #matplotlib
-    ]
+    # "float_rules": [
+    #     *layout.Floating.default_float_rules,
+    #     Match(wm_class="eog"),  # pyaws.plotter
+    #     Match(wm_class="EOG"),  # pyaws.plotter
+    #     Match(func=lambda w: w.name and w.name.startswith('Figure')),  #matplotlib
+    # ]
 }
 
 floating_layout = layout.Floating(**floating_layout_theme)
