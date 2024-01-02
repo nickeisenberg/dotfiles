@@ -43,7 +43,8 @@ colors = {
     "none": 'NONE'
 }
 
-barcolor = colors["base"]
+# barcolor = colors["base"]
+barcolor = colors["highlight_med"]
 widget_background = colors["highlight_med"]
 widget_text_color = colors["text"]
 urgent = colors["love"]
@@ -393,7 +394,7 @@ sharedbar_r = []
 sharedbar_l += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
 
 sharedbar_l += [
-    widget.Image(filename=lp_path),
+    # widget.Image(filename=lp_path),
     widget.Clock(
         foreground=widget_text_color,
         # background=background,
@@ -444,13 +445,14 @@ sharedbar_l += [
         charge_char="  ",
         discharge_char="\uf0e7",
     ),
-    widget.Image(filename=rp_path)
-]
-
-sharedbar_l += [widget.Sep(padding=20, foreground=barcolor)]
-
-sharedbar_l += [
-    widget.Image(filename=lp_path),
+    widget.TextBox(
+        font='FontAwesome',
+        text="\u2502",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=20
+    ),
     widget.LaunchBar(
         fontsize=20,
         foreground=widget_text_color,
@@ -463,22 +465,23 @@ sharedbar_l += [
             (' ', 'spotify', 'launch spotify'),
         ]
     ),
-    widget.Image(filename=rp_path)
+    # widget.Image(filename=rp_path)
 ]
+
 
 sharedbar_l += [widget.Spacer()]
 
-mybar.append(widget.Image(filename=lp_path))
+# mybar.append(widget.Image(filename=lp_path))
 mybar.append(main_group_box)
-mybar.append(widget.Image(filename=rp_path))
+# mybar.append(widget.Image(filename=rp_path))
 
-mybardual.append(widget.Image(filename=lp_path))
+# mybardual.append(widget.Image(filename=lp_path))
 mybardual.append(dual_group_box)
-mybardual.append(widget.Image(filename=rp_path))
+# mybardual.append(widget.Image(filename=rp_path))
 
 sharedbar_r += [
     widget.Sep(padding=20, foreground=barcolor),
-    widget.Image(filename=lp_path),
+    # widget.Image(filename=lp_path),
     widget.CurrentLayoutIcon(
         # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
         foreground=widget_text_color,
@@ -491,13 +494,13 @@ sharedbar_r += [
         foreground=widget_text_color,
         background=widget_background,
     ),
-    widget.Image(filename=rp_path)
+    # widget.Image(filename=rp_path)
 ]
 
 sharedbar_r.append(widget.Spacer())
 
 sharedbar_r += [
-    widget.Image(filename=lp_path),
+    # widget.Image(filename=lp_path),
     widget.TextBox(
         font='FontAwesome',
         text=" vRAM",
@@ -536,7 +539,7 @@ sharedbar_r += [
         fontsize=20,
         format='{MemUsed:.0f} MiB',
     ),
-    widget.Image(filename=rp_path)
+    # widget.Image(filename=rp_path)
 ]
 
 sharedbar_r += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
