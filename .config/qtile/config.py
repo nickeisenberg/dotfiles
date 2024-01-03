@@ -549,7 +549,7 @@ mybardual = sharedbar_l + mybardual + sharedbar_r
 
 mybar = bar.Bar(
     mybar,
-    35,
+    25,
     background=barcolor,
     margin=[0, 0, 0, 0],
     border_width=[8, 0, 8, 0],
@@ -558,7 +558,7 @@ mybar = bar.Bar(
 
 mybardual = bar.Bar(
     mybardual,
-    35,
+    25,
     background=barcolor,
     margin=[0, 0, 0, 0],
     border_width=[8, 0, 8, 0],
