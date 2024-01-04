@@ -19,6 +19,7 @@ return {
           'rust',
           'tsx',
           'html',
+          'markdown',
           'javascript',
           'typescript',
           'vimdoc',
@@ -28,8 +29,11 @@ return {
     
         -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
         auto_install = true,
-    
-        highlight = { enable = true },
+        highlight = { 
+          enable = true,
+          disable = { "latex" },
+          additional_vim_regex_highlighting = { "latex", "markdown" }
+        },
         indent = { enable = true },
         incremental_selection = {
           enable = true,
