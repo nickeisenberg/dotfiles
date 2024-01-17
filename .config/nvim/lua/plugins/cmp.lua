@@ -12,7 +12,7 @@ return {
 
     -- Adds cmdline completion capabilities
     'hrsh7th/cmp-cmdline',
-    
+
     -- Adds path completino
     'hrsh7th/cmp-path',
 
