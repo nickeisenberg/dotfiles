@@ -1,4 +1,4 @@
-colors : {
+colors = {
 	"_eperimental_nc": '#16141f',
 	"nc": '#16141f',
 	"base": '#191724',
@@ -10,6 +10,7 @@ colors : {
 	"love": '#eb6f92',
 	"gold": '#f6c177',
 	"rose": '#ebbcba',
+    "muted_love": "#db4b4b",
 	"pine": '#31748f',
 	"foam": '#9ccfd8',
 	"iris": '#c4a7e7',

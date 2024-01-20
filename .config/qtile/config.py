@@ -8,9 +8,14 @@ from libqtile.config import (
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from libqtile.command import lazy as clazy
-from my_utils.utils import *
-from my_utils.nvidia_widget import NvidiaSensors2
-from libqtile.widget import battery
+from my_utils import (
+    NvidiaSensors2,
+    grow_up_floating_window,
+    grow_right_floating_window,
+    grow_left_floating_window,
+    grow_down_floating_window,
+)
+
 
 HOME = os.environ['HOME']
 
@@ -43,7 +48,6 @@ colors = {
     "none": 'NONE'
 }
 
-# barcolor = colors["base"]
 barcolor = colors["highlight_med"]
 widget_background = colors["highlight_med"]
 widget_text_color = colors["text"]
@@ -574,7 +578,6 @@ def _():
     mybar.window.window.set_property("QTILE_BAR", 1, "CARDINAL", 32)
     mybardual.window.window.set_property("QTILE_BAR", 2, "CARDINAL", 32)
 
-# peakpx.com for the wallpapers
 # Use `xrandr --listmonitors` to see the correct order
 screens = [
     Screen(
