@@ -1,13 +1,12 @@
 import os
 import numpy as np
 import subprocess
-from libqtile import bar, layout, widget, hook, qtile
+from libqtile import bar, layout, widget, hook
 from libqtile.config import (
-    Click, Drag, Group, Key, Match, Screen, ScratchPad, DropDown
+    Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 )
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
-from libqtile.command import lazy as clazy
 from my_utils import (
     NvidiaSensors2,
     grow_up_floating_window,
@@ -19,8 +18,8 @@ from my_utils import (
 
 HOME = os.environ['HOME']
 
-mod0 = "mod1"
-mod1 = "mod4"
+mod0 = "mod1"  # alt
+mod1 = "mod4"  # super
 
 # terminal = guess_terminal()
 terminal = 'alacritty'
@@ -55,11 +54,8 @@ urgent = colors["love"]
 muted_urgent = colors['muted_love']
 selected = colors["foam"]
 
-lp_path = "~/Dotfiles/.config/qtile/icons/lp_rose_base.png"
-rp_path = "~/Dotfiles/.config/qtile/icons/rp_rose_base.png"
-
 #--------------------------------------------------
-# Ketbindings 
+# Key Bindings 
 #--------------------------------------------------
 
 keys = [
@@ -337,7 +333,6 @@ keys += [
 ]
 
 
-
 # To get wm_class, etc info, run xprop in a terminal and click on the window
 floating_layout_theme = { 
     "border_width": 2,
@@ -345,8 +340,6 @@ floating_layout_theme = {
     "border_normal": widget_background,
     # "float_rules": [
     #     *layout.Floating.default_float_rules,
-    #     Match(wm_class="eog"),  # pyaws.plotter
-    #     Match(wm_class="EOG"),  # pyaws.plotter
     #     Match(func=lambda w: w.name and w.name.startswith('Figure')),  #matplotlib
     # ]
 }
@@ -398,7 +391,6 @@ sharedbar_r = []
 sharedbar_l += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
 
 sharedbar_l += [
-    # widget.Image(filename=lp_path),
     widget.Clock(
         foreground=widget_text_color,
         # background=background,
@@ -469,25 +461,18 @@ sharedbar_l += [
             (' ', 'spotify', 'launch spotify'),
         ]
     ),
-    # widget.Image(filename=rp_path)
 ]
 
 
 sharedbar_l += [widget.Spacer()]
 
-# mybar.append(widget.Image(filename=lp_path))
 mybar.append(main_group_box)
-# mybar.append(widget.Image(filename=rp_path))
 
-# mybardual.append(widget.Image(filename=lp_path))
 mybardual.append(dual_group_box)
-# mybardual.append(widget.Image(filename=rp_path))
 
 sharedbar_r += [
     widget.Sep(padding=20, foreground=barcolor),
-    # widget.Image(filename=lp_path),
     widget.CurrentLayoutIcon(
-        # custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -498,13 +483,11 @@ sharedbar_r += [
         foreground=widget_text_color,
         background=widget_background,
     ),
-    # widget.Image(filename=rp_path)
 ]
 
 sharedbar_r.append(widget.Spacer())
 
 sharedbar_r += [
-    # widget.Image(filename=lp_path),
     widget.TextBox(
         font='FontAwesome',
         text=" vRAM",
@@ -542,8 +525,7 @@ sharedbar_r += [
         background=widget_background,
         fontsize=20,
         format='{MemUsed:.0f} MiB',
-    ),
-    # widget.Image(filename=rp_path)
+    )
 ]
 
 sharedbar_r += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
