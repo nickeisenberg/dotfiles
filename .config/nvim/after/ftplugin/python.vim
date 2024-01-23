@@ -7,3 +7,5 @@
 "
 set colorcolumn=80
 " hi ColorColumn guibg=#7aa2f7
+
+set textwidth=80

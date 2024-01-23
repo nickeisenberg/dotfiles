@@ -1,5 +1,3 @@
--- vim built in file explorer
--- vim.keymap.set("n", "<leader>ve", vim.cmd.Ex)
 vim.keymap.set(
   "n",
   "<leader>ve",
@@ -8,10 +6,6 @@ vim.keymap.set(
     vim.cmd.Ex()
   end
 )
-
--- Move the the previous or next buffer
-vim.keymap.set("n", "<S-h>", vim.cmd.BufferLineCyclePrev)
-vim.keymap.set("n", "<S-l>", vim.cmd.BufferLineCycleNext)
 
 -- close a buffer
 vim.keymap.set("n", "<leader>bd", vim.cmd.bd)

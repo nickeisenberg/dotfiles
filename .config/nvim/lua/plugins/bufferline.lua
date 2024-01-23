@@ -10,6 +10,8 @@ return {
     { "<leader>bP",
       "<Cmd>BufferLineGroupClose ungrouped<CR>",
       desc = "Delete non-pinned buffers" },
+    { "<S-h>", "<Cmd>BufferLineCyclePrev<CR>", desc = ""},
+    { "<S-l>", "<Cmd>BufferLineCycleNext<CR>", desc = ""}
   },
   opts = {
     options = {
