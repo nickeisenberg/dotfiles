@@ -3,7 +3,9 @@ return {
 	keys = {
 		{
 			"<leader>dc",
-			function() require("dap").continue() end,
+			function()
+        require("dap").continue()
+      end,
 			desc = "Start/Continue Debugger",
 		},
 		{
