@@ -3,8 +3,10 @@ Text to see how the color scheme looks
 """
 import numpy as np
 
+def f(x, y, z):
+    pass
 
-np.linspace(0, 1, 100)
+x, y, z = 0, 0, 0
 
 # here is a comment
 

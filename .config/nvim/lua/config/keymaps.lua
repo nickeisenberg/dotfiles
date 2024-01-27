@@ -14,6 +14,15 @@ vim.keymap.set("n", "<leader>bd", vim.cmd.bd)
 vim.cmd([[nnoremap <leader>md `>]])
 vim.cmd([[nnoremap <leader>mu `<]])
 
+
+-- words separated by a white space move to thier own line
+
+
+vim.cmd([[nnoremap <leader>gl :s/\s/\r/g<CR>]])
+vim.cmd([[vnoremap <leader>gl :s/\s/\r/g<CR>]])
+
+
+
 -- line and column highlight
 -- vim.cmd([[map <leader>lc :set cursorcolumn!<Bar>set cursorline!<CR>]])
 

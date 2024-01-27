@@ -1,5 +1,6 @@
 source ~/.bashrc
 source ~/.credentials/password.sh
+source ~/.credentials/keypairs/paths.sh
 
 #--------------------------------------------------
 # Load the gitbranch in the PS1
