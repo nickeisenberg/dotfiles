@@ -1,7 +1,8 @@
 # A function that opens up a tmux pane in an IDE like enviornment.
 #
+# Layouts
 #
-#  __________________________
+#  Full______________________
 # |            |            |
 # |            |            |
 # |  Pane 0    |  Pane 1    |
@@ -10,10 +11,29 @@
 # |            |  Pane 2    |
 # |____________|____________|
 #
+#  2v________________________
+# |                         |
+# |                         |
+# |        Pane 0           |
+# |                         |
+# |_________________________|
+# |        Pane 1           |
+# |____________ ____________|
+#
+#  2h________________________
+# |            |            |
+# |            |            |
+# |  Pane 0    |  Pane 1    |
+# |            |            |
+# |            |            |
+# |            |            |
+# |____________|____________|
+#
 
 function ide() {
     local NAME="default_session"
     local VENV=""
+    local LAYOUT=""
     local OPEN_WITH=""
     local PYTHON=false
 
@@ -22,6 +42,7 @@ function ide() {
         echo ""
         echo "Options:"
         echo "  -n, --name        Name of the tmux session (default: default_session)"
+        echo "  -l, --layout      Layout options: 2v, 2h, full"
         echo "  -v, --venv        Virtual environment to activate in tmux panes"
         echo "  -ow, --open-with  File to open in neovim on the left pane"
         echo "  -p, --python      Open python interpreter in the top right pane"
@@ -32,6 +53,7 @@ function ide() {
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             -n|--name) NAME="$2"; shift ;;
+            -l|--layout) LAYOUT="$2"; shift ;;
             -v|--venv) VENV="$2"; shift ;;
             -ow|--open-with) OPEN_WITH="$2"; shift ;;
             -p|--python) PYTHON=true ;;
@@ -49,15 +71,22 @@ function ide() {
     fi
 
     # If we reached here, the session does not exist, so create and configure it
-        
-    # Start tmux session
-    tmux new-session -s "$NAME" -n editor -d
 
-    # Split the window into left and right panes
-    tmux split-window -t "$NAME:0.0" -h -p 40 
-    # Split the right pane verically
-    tmux split-window -t "$NAME:0.1" -v -p 10  
-
+    if [ $LAYOUT == "full" ]; then
+        tmux new-session -s "$NAME" -n editor -d
+        # Split the window into left and right panes
+        tmux split-window -t "$NAME:0.0" -h -p 40 
+        # Split the right pane verically
+        tmux split-window -t "$NAME:0.1" -v -p 10  
+    elif [ $LAYOUT == "2h" ]; then
+        tmux new-session -s "$NAME" -n editor -d
+        # Split the window into left and right panes
+        tmux split-window -t "$NAME:0.0" -h -p 40 
+    elif [ $LAYOUT == "2v" ]; then
+        tmux new-session -s "$NAME" -n editor -d
+        # Split the window into left and right panes
+        tmux split-window -t "$NAME:0.0" -v -p 8 
+    fi
 
     # Apply --venv to all panes if set
     if [ ! -z "$VENV" ]; then
