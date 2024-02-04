@@ -1,1 +1,0 @@
-/home/nicholas/Software/ssh_manager/myssh.sh
