@@ -1,0 +1,1 @@
+/home/nicholas/Software/venv_manager/venv/venv310.sh
