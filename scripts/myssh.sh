@@ -29,14 +29,14 @@ function myssh() {
                 ip=$(jq -r '.crsr' ~/.credentials/ipaddr.json)
                 user=eisenbnt
                 port=22
-                pem=/home/nicholas/.credentials/keypairs/CRSR.pem
+                pem=$HOME/.credentials/keypairs/CRSR.pem
                 shift
                 ;;
             -crsradmin|--crsr-aws-ubuntu-profile)
                 ip=$(jq -r '.crsr' ~/.credentials/ipaddr.json)
                 user=ubuntu
                 port=22
-                pem=/home/nicholas/.credentials/keypairs/CRSR.pem
+                pem=$HOME/.credentials/keypairs/CRSR.pem
                 shift
                 ;;
             -L)
