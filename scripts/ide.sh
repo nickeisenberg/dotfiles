@@ -33,7 +33,8 @@
 function ide() {
     local NAME="default_session"
     local VENV=""
-    local LAYOUT=""
+    local WHICH="310"
+    local LAYOUT="full"
     local OPEN_WITH=""
     local PYTHON=false
 
@@ -55,6 +56,7 @@ function ide() {
             -n|--name) NAME="$2"; shift ;;
             -l|--layout) LAYOUT="$2"; shift ;;
             -v|--venv) VENV="$2"; shift ;;
+            -w|--which) WHICH="$2"; shift ;;
             -ow|--open-with) OPEN_WITH="$2"; shift ;;
             -p|--python) PYTHON=true ;;
             *) echo "Unknown parameter passed: $1. Use -h or --help for usage information."; return 1 ;;
@@ -90,9 +92,18 @@ function ide() {
 
     # Apply --venv to all panes if set
     if [ ! -z "$VENV" ]; then
-        for pane in $(tmux list-panes -F '#{pane_id}'); do
-            tmux send-keys -t "$pane" "venv -a $VENV" C-m
-        done
+        if [[ "$WHICH" == "310" ]]; then
+            for pane in $(tmux list-panes -F '#{pane_id}'); do
+                tmux send-keys -t "$pane" "venv310 -a $VENV" C-m
+            done
+        elif [[ "$WHICH" == "311" ]]; then
+            for pane in $(tmux list-panes -F '#{pane_id}'); do
+                tmux send-keys -t "$pane" "venv311 -a $VENV" C-m
+            done
+        else
+            echo "-w | --which must be either 310 or 311"
+            exit 1
+        fi
     fi
 
     # Open file in neovim in left pane if --open-with is set
