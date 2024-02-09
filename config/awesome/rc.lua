@@ -220,6 +220,9 @@ end
 local battery_widget = wibox.widget.textbox()
 battery_widget:set_align("right")
 
+
+--------------------------------------------------
+-- Battery widget
 awful.widget.watch("acpi -b", 30,
   function(widget, stdout)
 
@@ -298,7 +301,37 @@ local ram_usage_timer = gears.timer({
     callback  = update_ram_usage
 })
 --------------------------------------------------
---
+
+--------------------------------------------------
+-- Volume Widget
+--------------------------------------------------
+local volume_widget = wibox.widget {
+    widget = wibox.widget.textbox,
+    align  = 'center',
+    valign = 'center',
+    text   = 'Vol: --%'
+}
+
+-- Function to update the widget
+local function update_volume(widget)
+    -- Using amixer to get volume level and mute status
+    awful.spawn.easy_async_with_shell("amixer get Master", function(stdout)
+        local volume = stdout:match("(%d?%d?%d)%%") -- Matches the volume level
+        local status = stdout:match("%[(o[nf]+)%]") -- Matches the mute status [on]/[off]
+        if status == "off" then
+            widget.text = "Vol: Muted"
+        else
+            widget.text = "Vol: " .. volume .. "%"
+        end
+    end)
+end
+
+-- Update volume on AwesomeWM startup
+update_volume(volume_widget)
+--------------------------------------------------
+
+
+
 local sep = wibox.widget.textbox()
 sep:set_markup('<span font="12"> - </span>')
 
@@ -375,6 +408,7 @@ awful.screen.connect_for_each_screen(
           layout = wibox.layout.fixed.horizontal,
           ram_usage_widget, sep,
           vram_usage_widget, sep,
+          volume_widget, sep,
           battery_widget,
           wibox.widget.textbox(" "),
         },
@@ -474,8 +508,33 @@ globalkeys = gears.table.join(
     { }, "XF86AudioMute",
     function ()
       awful.spawn("amixer -D pulse set Master 1+ toggle", false)
+      gears.timer.start_new(
+        0.05,
+        function()
+          update_volume(volume_widget)
+          return false -- Return false so the timer does not restart
+        end
+      )
     end,
     { description = "Toggle Mute", group = "fnKeys" }
+  ),
+
+  -- Increase brightness
+  awful.key(
+    {}, "XF86MonBrightnessUp",
+    function ()
+      awful.spawn("light -A 10", false)
+    end, 
+    {description = "+10% brightness", group = "fnKeys"}
+  ),
+  
+  -- Decrease brightness
+  awful.key(
+    {}, "XF86MonBrightnessDown",
+    function ()
+      awful.spawn("light -U 10", false)
+    end,
+    {description = "-10% brightness", group = "fnKeys"}
   ),
 
   awful.key(
@@ -483,6 +542,13 @@ globalkeys = gears.table.join(
     function ()
       awful.spawn.with_shell(
         "amixer -D pulse sset Master 5%+"
+      )
+      gears.timer.start_new(
+        0.05,
+        function()
+          update_volume(volume_widget)
+          return false -- Return false so the timer does not restart
+        end
       )
     end,
     { description = "Raise Volume 5%", group = "fnKeys" }
@@ -494,28 +560,15 @@ globalkeys = gears.table.join(
       awful.spawn.with_shell(
         "amixer -D pulse sset Master 5%-"
       )
+      gears.timer.start_new(
+        0.05,
+        function()
+          update_volume(volume_widget)
+          return false -- Return false so the timer does not restart
+        end
+      )
     end,
     { description = "Lower Volume 5%", group = "fnKeys" }
-  ),
-
-  awful.key(
-    { }, "XF86MonBrightnessUp",
-    function ()
-      awful.spawn.with_shell(
-        "~/Dotfiles/.config/awesome/scripts/inc_brightness.sh"
-      )
-    end,
-    { description = "Increase screen brightness", group = "fnKeys" }
-  ),
-
-  awful.key(
-    { }, "XF86MonBrightnessDown",
-    function ()
-      awful.spawn.with_shell(
-        "~/Dotfiles/.config/awesome/scripts/dec_brightness.sh"
-      )
-    end,
-    { description = "Decrease screen brightness", group = "fnKeys" }
   ),
 
   awful.key(
