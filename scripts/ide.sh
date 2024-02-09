@@ -80,11 +80,11 @@ function ide() {
         tmux split-window -t "$NAME:0.0" -h -p 40 
         # Split the right pane verically
         tmux split-window -t "$NAME:0.1" -v -p 10  
-    elif [ $LAYOUT == "2h" ]; then
+    elif [ $LAYOUT == "2v" ]; then
         tmux new-session -s "$NAME" -n editor -d
         # Split the window into left and right panes
         tmux split-window -t "$NAME:0.0" -h -p 40 
-    elif [ $LAYOUT == "2v" ]; then
+    elif [ $LAYOUT == "2h" ]; then
         tmux new-session -s "$NAME" -n editor -d
         # Split the window into left and right panes
         tmux split-window -t "$NAME:0.0" -v -p 8 
