@@ -312,12 +312,12 @@ local volume_widget = wibox.widget {
     text   = 'Vol: --%'
 }
 
--- Function to update the widget
-
 local function update_volume(widget)
   -- Using pactl to get volume level and mute status
+  local cmd = "pactl list sinks | awk '/Mute:/{m = $2} /Volume: "
+  cmd = cmd .. "front-left:/{v = $5} END{print m \" \" v}'"
   awful.spawn.easy_async_with_shell(
-    "pactl list sinks | awk '/Mute:/{m = $2} /Volume: front-left:/{v = $5} END{print m \" \" v}'",
+    cmd,
     function(stdout)
       local mute, volume = stdout:match("(%S+)%s(%d?%d?%d)%%") -- Matches the mute status and volume level
       if mute == "yes" then
