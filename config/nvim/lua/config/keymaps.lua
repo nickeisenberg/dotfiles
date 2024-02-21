@@ -38,6 +38,16 @@ vim.cmd([[nnoremap <leader>P "+P]])
 vim.cmd([[vnoremap <leader>p "+p]])
 vim.cmd([[vnoremap <leader>P "+P]])
 
+
+-- Move to the next paragraph without opening folds
+vim.api.nvim_set_keymap('n', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]], {noremap = true, silent = true})
+
+-- Move to the previous paragraph without opening folds
+vim.api.nvim_set_keymap('n', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]], {noremap = true, silent = true})
+
+-- Easier save key
+vim.keymap.set("n", "<leader>w", "<ESC>:w <CR>")
+
 -- splits
 vim.keymap.set("n", "<leader>vs", ":vsplit <CR>")
 vim.keymap.set("n", "<leader>s", ":split <CR>")

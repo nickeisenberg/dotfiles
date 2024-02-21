@@ -33,7 +33,7 @@
 function ide() {
     local NAME="default_session"
     local VENV=""
-    local WHICH="310"
+    local WHICH="311"
     local LAYOUT="full"
     local OPEN_WITH=""
     local PYTHON=false
@@ -42,12 +42,13 @@ function ide() {
         echo "Usage: ide [OPTIONS]"
         echo ""
         echo "Options:"
-        echo "  -n, --name        Name of the tmux session (default: default_session)"
-        echo "  -l, --layout      Layout options: 2v, 2h, full"
-        echo "  -v, --venv        Virtual environment to activate in tmux panes"
-        echo "  -ow, --open-with  File to open in neovim on the left pane"
-        echo "  -p, --python      Open python interpreter in the top right pane"
-        echo "  -h, --help        Display this help message and exit"
+        echo "  -n, --name          Name of the tmux session (default: default_session)"
+        echo "  -l, --layout        Layout options: 2v, 2h, full"
+        echo "  -v, --venv          Virtual environment to activate in tmux panes"
+        echo "  -wp, --which-python Choose python verion 3.10 or 3.11"
+        echo "  -ow, --open-with    File to open in neovim on the left pane"
+        echo "  -p, --python        Open python interpreter in the top right pane"
+        echo "  -h, --help          Display this help message and exit"
         return 0
     fi
 
@@ -56,7 +57,7 @@ function ide() {
             -n|--name) NAME="$2"; shift ;;
             -l|--layout) LAYOUT="$2"; shift ;;
             -v|--venv) VENV="$2"; shift ;;
-            -w|--which) WHICH="$2"; shift ;;
+            -wp|--which-python) WHICH="$2"; shift ;;
             -ow|--open-with) OPEN_WITH="$2"; shift ;;
             -p|--python) PYTHON=true ;;
             *) echo "Unknown parameter passed: $1. Use -h or --help for usage information."; return 1 ;;
@@ -101,7 +102,7 @@ function ide() {
                 tmux send-keys -t "$pane" "venv311 -a $VENV" C-m
             done
         else
-            echo "-w | --which must be either 310 or 311"
+            echo "-wp | --which-python must be either 310 or 311"
             exit 1
         fi
     fi
