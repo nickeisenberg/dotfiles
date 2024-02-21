@@ -1111,5 +1111,14 @@ client.connect_signal(
 )
 -- }}}
 
+-- wallpaper
+awful.spawn.with_shell(
+  "feh --bg-scale ~/dots_ubuntu/config/awesome/wallpaper/rosepine.png"
+)
+
 -- caps to ctrl
 awful.spawn.with_shell("setxkbmap -option caps:ctrl_modifier")
+
+
+
+
