@@ -563,13 +563,13 @@ def _():
 # Use `xrandr --listmonitors` to see the correct order
 screens = [
     Screen(
-        wallpaper="~/Pictures/Wallpaper/rosepine.png",
-        wallpaper_mode="stretch",
+        # wallpaper="~/Pictures/Wallpaper/rosepine.png",
+        # wallpaper_mode="stretch",
         top=mybar
     ),
     Screen(
-        wallpaper="~/Pictures/Wallpaper/rosepine.png",
-        wallpaper_mode="stretch",
+        # wallpaper="~/Pictures/Wallpaper/rosepine.png",
+        # wallpaper_mode="stretch",
         top=mybardual
     ),
 ]
