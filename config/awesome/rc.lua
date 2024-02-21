@@ -313,24 +313,25 @@ local volume_widget = wibox.widget {
 }
 
 -- Function to update the widget
+
 local function update_volume(widget)
-    -- Using amixer to get volume level and mute status
-    awful.spawn.easy_async_with_shell("amixer get Master", function(stdout)
-        local volume = stdout:match("(%d?%d?%d)%%") -- Matches the volume level
-        local status = stdout:match("%[(o[nf]+)%]") -- Matches the mute status [on]/[off]
-        if status == "off" then
-            widget.text = "Vol: Muted"
-        else
-            widget.text = "Vol: " .. volume .. "%"
-        end
-    end)
+  -- Using pactl to get volume level and mute status
+  awful.spawn.easy_async_with_shell(
+    "pactl list sinks | awk '/Mute:/{m = $2} /Volume: front-left:/{v = $5} END{print m \" \" v}'",
+    function(stdout)
+      local mute, volume = stdout:match("(%S+)%s(%d?%d?%d)%%") -- Matches the mute status and volume level
+      if mute == "yes" then
+        widget.text = "Vol: Muted"
+      else
+        widget.text = "Vol: " .. volume .. "%"
+      end
+    end
+  )
 end
 
 -- Update volume on AwesomeWM startup
 update_volume(volume_widget)
 --------------------------------------------------
-
-
 
 local sep = wibox.widget.textbox()
 sep:set_markup('<span font="12"> - </span>')
@@ -504,21 +505,6 @@ globalkeys = gears.table.join(
     { description = "open ChatGPT on Google Chrome", group = "launcher" }
   ),
 
-  awful.key(
-    { }, "XF86AudioMute",
-    function ()
-      awful.spawn("amixer -D pulse set Master 1+ toggle", false)
-      gears.timer.start_new(
-        0.05,
-        function()
-          update_volume(volume_widget)
-          return false -- Return false so the timer does not restart
-        end
-      )
-    end,
-    { description = "Toggle Mute", group = "fnKeys" }
-  ),
-
   -- Increase brightness
   awful.key(
     {}, "XF86MonBrightnessUp",
@@ -538,10 +524,11 @@ globalkeys = gears.table.join(
   ),
 
   awful.key(
-    { }, "XF86AudioRaiseVolume",
+    { }, "XF86AudioMute",
     function ()
-      awful.spawn.with_shell(
-        "amixer -D pulse sset Master 5%+"
+      awful.spawn(
+        "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        false
       )
       gears.timer.start_new(
         0.05,
@@ -551,14 +538,49 @@ globalkeys = gears.table.join(
         end
       )
     end,
-    { description = "Raise Volume 5%", group = "fnKeys" }
+    { description = "Toggle Mute", group = "fnKeys" }
   ),
 
+  awful.key(
+  { }, "XF86AudioRaiseVolume",
+  function ()
+    awful.spawn.easy_async_with_shell(
+      "pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\\d+%' | " ..
+      "tr -d '%' | head -n 1",
+      function(stdout)
+        local current_volume = tonumber(stdout)
+        if current_volume < 100 then -- Check if current volume is less than the cap
+          awful.spawn.with_shell("pactl set-sink-volume @DEFAULT_SINK@ +2%")
+          awful.spawn.easy_async_with_shell(
+            "pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\\d+%' | " ..
+            "tr -d '%' | head -n 1",
+            function(stdout)
+              local new_volume = tonumber(stdout)
+              if new_volume > 100 then
+                awful.spawn.with_shell("pactl set-sink-volume @DEFAULT_SINK@ 100%")
+              end
+            end
+          )
+        end
+        gears.timer.start_new(
+          0.05,
+          function()
+            update_volume(volume_widget)
+            return false -- Return false so the timer does not restart
+          end
+        )
+      end
+    )
+  end,
+  {description = "Raise Volume 2%", group = "fnKeys"}
+  ),
   awful.key(
     { }, "XF86AudioLowerVolume",
     function ()
       awful.spawn.with_shell(
-        "amixer -D pulse sset Master 5%-"
+        -- "amixer -D pulse sset Master 5%-"
+        "pactl set-sink-volume @DEFAULT_SINK@ -2%"
+
       )
       gears.timer.start_new(
         0.05,
@@ -568,7 +590,7 @@ globalkeys = gears.table.join(
         end
       )
     end,
-    { description = "Lower Volume 5%", group = "fnKeys" }
+    { description = "Lower Volume 2%", group = "fnKeys" }
   ),
 
   awful.key(
