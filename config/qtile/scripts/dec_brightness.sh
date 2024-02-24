@@ -1,11 +1,11 @@
 #!/bin/bash
 
-dec_bright(){
+# to get this to work with no sudo password, I added
+# `nicholas ALL=(ALL) NOPASSWD: /usr/bin/light` in to the file
+# /etc/sudoers.d/sudo_no_password
 
-    local val=$(xrandr --verbose | awk '/Bright/ {print $2}' | head -1)
-    local inv_val=-.1
-    local newval=$(echo "$val + $inv_val" | bc);
-    xrandr --output eDP-1 --brightness $newval
+dec_bright(){
+    sudo light -U 10
 };
 
 dec_bright

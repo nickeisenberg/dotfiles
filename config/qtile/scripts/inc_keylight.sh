@@ -1,12 +1,8 @@
 #! /bin/bash
 
-# Inside /etc/sudoers.d I have to add a file called `inc_keylight` and inside
-# this file I added the following line:
-# nicholas ALL=(ALL:ALL) NOPASSWD: /home/nicholas/Dotfiles/.config/qtile/scripts/_inc_keylight.sh
-# The name of the file in /etc/sudoers.d in not important as all files in that dir are
-# imported. This removes the need for a sudo password to change values inside the 
-# keylight brightness folder. I did the same for the dec_keylight function as well.
-
+# to get this to work with no sudo password, I added
+# nicholas ALL=(ALL:ALL) NOPASSWD: /home/nicholas/Dotfiles/.config/qtile/scripts/inc_keylight.sh
+# /etc/sudoers.d/sudo_no_password
 
 function increase_keylight() {
     

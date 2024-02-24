@@ -1,5 +1,9 @@
 #! /bin/bash
 
+# to get this to work with no sudo password, I added
+# nicholas ALL=(ALL:ALL) NOPASSWD: /home/nicholas/Dotfiles/.config/qtile/scripts/dec_keylight.sh
+# /etc/sudoers.d/sudo_no_password
+
 function decrease_keylight() {
     
     current=$(cat /sys/class/leds/tpacpi::kbd_backlight/brightness)

@@ -2,6 +2,8 @@ source ~/.bashrc
 source ~/.credentials/password.sh
 source ~/.credentials/keypairs/paths.sh
 
+export EDITOR='nvim'
+
 #--------------------------------------------------
 # Load the gitbranch in the PS1
 #--------------------------------------------------
