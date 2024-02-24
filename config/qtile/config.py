@@ -1,19 +1,25 @@
 import os
-import numpy as np
 import subprocess
-from libqtile import bar, layout, widget, hook
+
+from libqtile import bar, widget, hook
+from libqtile.layout.columns import Columns
+from libqtile.layout.xmonad import MonadTall
+from libqtile.layout.matrix import Matrix
+from libqtile.layout.floating import Floating
 from libqtile.config import (
     Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 )
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
-from my_utils import (
+from utils import (
     NvidiaSensors2,
     grow_up_floating_window,
     grow_right_floating_window,
     grow_left_floating_window,
     grow_down_floating_window,
+    go_to_group,
+    go_to_group_and_move_window
 )
+import socket
 
 
 HOME = os.environ['HOME']
@@ -21,9 +27,12 @@ HOME = os.environ['HOME']
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-# terminal = guess_terminal()
 terminal = 'alacritty'
-browser = "firefox"
+
+if socket.gethostname() == "lenovo":
+    browser = "firefox"
+elif socket.gethostname() == "stl-b324166":
+    browser = "google-chrome"
 
 colors = {
 	"_eperimental_nc": '#16141f',
@@ -178,12 +187,14 @@ keys = [
 # Groups
 #--------------------------------------------------
 maingroups = [
-    Group(name="1", label="•", screen_affinity=0),
-    Group(name="2", label="•", screen_affinity=0),
-    Group(name="3", label="•", screen_affinity=0),
-    Group(name="4", label="•", screen_affinity=0),
-    Group(name="5", label="•", screen_affinity=0),
-    Group(name="6", label="•", screen_affinity=0),
+    Group(name="1", label="1", screen_affinity=0),
+    Group(name="2", label="2", screen_affinity=0),
+    Group(name="3", label="3", screen_affinity=0),
+    Group(name="4", label="4", screen_affinity=0),
+    Group(name="5", label="5", screen_affinity=0),
+    Group(name="6", label="6", screen_affinity=0),
+    Group(name="7", label="7", screen_affinity=0),
+    Group(name="8", label="8", screen_affinity=0),
 ]
 
 dualgroups = [
@@ -194,9 +205,9 @@ dualgroups = [
 groups = maingroups + dualgroups
 
 main_group_box = widget.GroupBox(
-    fontsize=80,
-    highlight_method="text",
-    visible_groups=['1', '2', '3', '4', '5', '6'],
+    fontsize=20,
+    highlight_method="default",
+    visible_groups=['1', '2', '3', '4', '5', '6', '7', '8'],
     background=widget_background,
     active=selected,
     inactive=widget_text_color,
@@ -223,54 +234,12 @@ dual_group_box = widget.GroupBox(
 )
 
 
-def go_to_group(name: str):
-    """
-    See "How can I get my groups to stick to screens?" on the following link
-    https://docs.qtile.org/en/latest/manual/faq.html
-    """
-    def _inner(qtile):
-        if len(qtile.screens) == 1:
-            qtile.groups_map[name].cmd_toscreen()
-            return
-
-        if name in np.arange(1, len(maingroups) + 1).astype(str):
-            qtile.focus_screen(0)
-            qtile.groups_map[name].cmd_toscreen()
-        else:
-            qtile.focus_screen(1)
-            qtile.groups_map[name].cmd_toscreen()
-
-    return _inner
-
-
-def go_to_group_and_move_window(name: str):
-    """
-    See "How can I get my groups to stick to screens?" on the following link
-    https://docs.qtile.org/en/latest/manual/faq.html
-    """
-    def _inner(qtile):
-        if len(qtile.screens) == 1:
-            qtile.current_window.togroup(name, switch_group=True)
-            return
-
-        if name in np.arange(1, len(maingroups) + 1).astype(str):
-            qtile.current_window.togroup(name, switch_group=False)
-            qtile.focus_screen(0)
-            qtile.groups_map[name].cmd_toscreen()
-        else:
-            qtile.current_window.togroup(name, switch_group=False)
-            qtile.focus_screen(1)
-            qtile.groups_map[name].cmd_toscreen()
-
-    return _inner
-
-
 for i in groups:
     keys.append(
         Key(
             [mod0],
             i.name,
-            lazy.function(go_to_group(i.name)),
+            lazy.function(go_to_group(i.name, maingroups)),
             desc="Switch to group {}".format(i.name),
         )
     )
@@ -278,7 +247,7 @@ for i in groups:
         Key(
             [mod0, "control"],
             i.name,
-            lazy.function(go_to_group_and_move_window(i.name)),
+            lazy.function(go_to_group_and_move_window(i.name, maingroups)),
             desc="Switch to & move focused window to group {}".format(i.name),
         )
     )
@@ -344,7 +313,7 @@ floating_layout_theme = {
     # ]
 }
 
-floating_layout = layout.Floating(**floating_layout_theme)
+floating_layout = Floating(**floating_layout_theme)
 
 layout_theme = { 
     "border_width": 2,
@@ -355,10 +324,10 @@ layout_theme = {
 }
 
 layouts = [
-    layout.Columns(**layout_theme),
-    layout.MonadTall(**layout_theme),
-    layout.Matrix(**layout_theme),
-    layout.Floating(**layout_theme),
+    Columns(**layout_theme),
+    MonadTall(**layout_theme),
+    Matrix(**layout_theme),
+    Floating(**layout_theme),
 ]
 
 #--------------------------------------------------
@@ -379,18 +348,19 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
-# The dual monitor bars are essentially the same except for the groupbox.
-# sharebar_l and sharedbar_r are the shared left and right parts. The groupbox
-# in the middle is the only change 
-
 mybar = []
-mybardual = []
-sharedbar_l = []
-sharedbar_r = []
 
-sharedbar_l += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
-
-sharedbar_l += [
+mybar += [
+    widget.Sep(background=barcolor, padding=10, linewidth=0),
+    widget.TextBox(
+         font='FontAwesome',
+         text="", 
+         foreground=widget_text_color,
+         background=widget_background,
+         padding=0,
+         fontsize=20
+    ),
+    widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.Clock(
         foreground=widget_text_color,
         # background=background,
@@ -398,7 +368,60 @@ sharedbar_l += [
         fontsize=20,
         format='%A, %b %d %I:%M %p ',
     ),
-   widget.TextBox(
+    widget.Spacer(),
+    main_group_box,
+    widget.Sep(padding=20, foreground=barcolor),
+    widget.CurrentLayoutIcon(
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        scale=.5
+    ),
+    widget.CurrentLayout(
+        fontsize=20,
+        foreground=widget_text_color,
+        background=widget_background,
+    ),
+    widget.Spacer(),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" vRAM",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=16
+    ),
+    NvidiaSensors2(
+        sensors=["memory.used"],
+        format="{memory_used}",
+        fontsize=20,
+        padding=5,
+        background=widget_background,
+        foreground=widget_text_color
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text="\u2502",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=20
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" RAM ",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=16
+    ),
+    widget.Memory(
+        foreground=widget_text_color,
+        background=widget_background,
+        fontsize=20,
+        format='{MemUsed:.0f} MiB',
+    ),
+    widget.TextBox(
         font='FontAwesome',
         text="\u2502",
         foreground=widget_text_color,
@@ -441,97 +464,8 @@ sharedbar_l += [
         charge_char="  ",
         discharge_char="\uf0e7",
     ),
-    widget.TextBox(
-        font='FontAwesome',
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20
-    ),
-    widget.LaunchBar(
-        fontsize=20,
-        foreground=widget_text_color,
-        background=widget_background,
-        progs=[
-            (' ', f'{HOME}/.config/qtile/scripts/launch_config.sh', 'launch ~/.config'),
-            ('', 'firefox -new-window chat.openai.com', 'Open ChatGPT'),
-            (' ', 'alacritty -e nmtui', 'Network Manager'),
-            (' ', 'thunderbird', 'launch mail'),
-            (' ', 'spotify', 'launch spotify'),
-        ]
-    ),
+    widget.Sep(background=barcolor, padding=20, linewidth=0),
 ]
-
-
-sharedbar_l += [widget.Spacer()]
-
-mybar.append(main_group_box)
-
-mybardual.append(dual_group_box)
-
-sharedbar_r += [
-    widget.Sep(padding=20, foreground=barcolor),
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        scale=.5
-    ),
-    widget.CurrentLayout(
-        fontsize=20,
-        foreground=widget_text_color,
-        background=widget_background,
-    ),
-]
-
-sharedbar_r.append(widget.Spacer())
-
-sharedbar_r += [
-    widget.TextBox(
-        font='FontAwesome',
-        text=" vRAM",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=16
-    ),
-    NvidiaSensors2(
-        sensors=["memory.used"],
-        format="{memory_used}",
-        fontsize=20,
-        padding=5,
-        background=widget_background,
-        foreground=widget_text_color
-    ),
-    widget.TextBox(
-        font='FontAwesome',
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20
-    ),
-    widget.TextBox(
-        font='FontAwesome',
-        text=" RAM ",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=16
-    ),
-    widget.Memory(
-        foreground=widget_text_color,
-        background=widget_background,
-        fontsize=20,
-        format='{MemUsed:.0f} MiB',
-    )
-]
-
-sharedbar_r += [widget.Sep(background=barcolor, padding=20, linewidth=0)]
-
-mybar = sharedbar_l + mybar + sharedbar_r
-mybardual = sharedbar_l + mybardual + sharedbar_r
 
 mybar = bar.Bar(
     mybar,
@@ -542,41 +476,21 @@ mybar = bar.Bar(
     border_color=barcolor,
 ) 
 
-mybardual = bar.Bar(
-    mybardual,
-    25,
-    background=barcolor,
-    margin=[0, 0, 0, 0],
-    border_width=[8, 0, 8, 0],
-    border_color=barcolor,
-)
 
-@hook.subscribe.startup
-def _():
-    """
-    Name the bars so that Picom can ignore then for rounded edges.
-    See corner radius in picom.conf
-    """
-    mybar.window.window.set_property("QTILE_BAR", 1, "CARDINAL", 32)
-    mybardual.window.window.set_property("QTILE_BAR", 2, "CARDINAL", 32)
 
-# Use `xrandr --listmonitors` to see the correct order
+# wallpaper now set in autostart.sh
 screens = [
     Screen(
-        # wallpaper="~/Pictures/Wallpaper/rosepine.png",
-        # wallpaper_mode="stretch",
         top=mybar
     ),
     Screen(
-        # wallpaper="~/Pictures/Wallpaper/rosepine.png",
-        # wallpaper_mode="stretch",
-        top=mybardual
+        top=mybar
     ),
 ]
 
 
 #--------------------------------------------------
-# general setup
+# from qtile default
 #--------------------------------------------------
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
