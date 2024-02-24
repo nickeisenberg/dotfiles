@@ -1118,7 +1118,3 @@ awful.spawn.with_shell(
 
 -- caps to ctrl
 awful.spawn.with_shell("setxkbmap -option caps:ctrl_modifier")
-
-
-
-

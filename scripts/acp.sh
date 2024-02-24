@@ -2,6 +2,7 @@
 
 function acp {
     local message=""
+    local remote=""
     local branch_name=""
 
     while [[ "$#" -gt 0 ]]; do
@@ -10,7 +11,11 @@ function acp {
                 message="$2"
                 shift
                 ;;
-            --branch-name|-bn)
+            --remote|-r)
+                remote="$2"
+                shift
+                ;;
+            --branch-name|-b)
                 branch_name="$2"
                 shift
                 ;;
@@ -22,12 +27,12 @@ function acp {
         shift
     done
 
-    if [[ -z "$message" ]] || [[ -z "$branch_name" ]]; then
-        echo "Please provide both --message and --branch-name"
+    if [[ -z "$message" ]] || [[ -z "$branch_name" ]] || [[ -z "$remote" ]]; then
+        echo "Please provide both --message | -m, --remote | -r and --branch-name | -b"
         return 1
     fi
 
     git add -A
     git commit -m "$message"
-    git push -u origin "$branch_name"
+    git push -u $remote "$branch_name"
 }

@@ -1,4 +1,5 @@
 source ~/.bashrc
+source ~/.hiddenvar
 
 #--------------------------------------------------
 # This occurred in the alacritty install
