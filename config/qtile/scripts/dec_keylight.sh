@@ -14,12 +14,21 @@ decrease_keylight() {
 
     local current
     local new
+    local max
+    local increment
     local pathFound=false
 
     for path in "${paths[@]}"; do
         if [ -e "$path" ]; then
             current=$(cat "$path")
-            new=$((current - 1))
+
+            if [[ "$path" == *"system"* ]]; then
+                increment=25
+            else
+                increment=1
+            fi
+
+            new=$((current - increment))
 
             # Ensure new brightness level is not less than 0
             if [ "$new" -lt 0 ]; then

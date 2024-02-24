@@ -4,7 +4,6 @@
 # nicholas ALL=(ALL:ALL) NOPASSWD: /home/nicholas/Dotfiles/.config/qtile/scripts/inc_keylight.sh
 # /etc/sudoers.d/sudo_no_password
 
-
 increase_keylight() {
     # Define common backlight control paths
     declare -a paths=(
@@ -16,16 +15,26 @@ increase_keylight() {
     local current
     local new
     local max
+    local increment
     local pathFound=false
 
     for path in "${paths[@]}"; do
         if [ -e "$path" ]; then
             current=$(cat "$path")
             max=$(cat "${path%/*}/max_brightness")
-            new=$((current + 1))
 
+            # Check if 'system' is in the path and adjust the increment accordingly
+            if [[ "$path" == *"system"* ]]; then
+                increment=25
+            else
+                increment=1
+            fi
+
+            new=$((current + increment))
+
+            # Ensure new value does not exceed max
             if [ "$new" -gt "$max" ]; then
-                new=$current # Loop back to 0 or set to max if you don't want cycling
+                new=$max # Optionally, set to max or handle overflow differently
             fi
 
             echo $new | sudo tee "$path" > /dev/null
