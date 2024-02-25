@@ -402,7 +402,7 @@ mybar += [
     widget.Spacer(),
     widget.TextBox(
         font='FontAwesome',
-        text=" vRAM",
+        text="vRAM",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -411,7 +411,7 @@ mybar += [
     NvidiaSensors2(
         sensors=["memory.used"],
         format="{memory_used}",
-        fontsize=20,
+        fontsize=18,
         padding=5,
         background=widget_background,
         foreground=widget_text_color
@@ -426,7 +426,7 @@ mybar += [
     ),
     widget.TextBox(
         font='FontAwesome',
-        text=" RAM ",
+        text=" RAM",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -435,7 +435,7 @@ mybar += [
     widget.Memory(
         foreground=widget_text_color,
         background=widget_background,
-        fontsize=20,
+        fontsize=18,
         format='{MemUsed:.0f} MiB',
     ),
     widget.TextBox(
@@ -448,11 +448,12 @@ mybar += [
     ),
     widget.TextBox(
         font='FontAwesome',
-        text="  ",
+        # text="  ",
+        text=" Vol",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
-        fontsize=20
+        fontsize=16
     ),
     widget.PulseVolume(
         fontsize=18,
@@ -478,8 +479,10 @@ mybar += [
         low_foreground=widget_text_color,
         update_interval=1,
         format='{char} {percent:2.0%}',
-        charge_char="  ",
-        discharge_char="\uf0e7",
+        # charge_char="  ",
+        # discharge_char="\uf0e7",
+        charge_char="C",
+        discharge_char="NC",
     ),
     widget.Sep(background=barcolor, padding=20, linewidth=0),
 ]
