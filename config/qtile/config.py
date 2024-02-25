@@ -23,8 +23,6 @@ from utils import (
 import socket
 
 
-HOME = os.environ['HOME']
-
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
@@ -50,6 +48,7 @@ colors = {
     "muted_love": "#db4b4b",
 	"pine": '#31748f',
 	"foam": '#9ccfd8',
+	"cyan": '#ebbcba',
 	"iris": '#c4a7e7',
 	"highlight_low": '#21202e',
 	"highlight_med": '#403d52',
@@ -62,7 +61,7 @@ widget_background = colors["highlight_med"]
 widget_text_color = colors["text"]
 urgent = colors["love"]
 muted_urgent = colors['muted_love']
-selected = colors["gold"]
+selected = colors["foam"]
 
 #--------------------------------------------------
 # Key Bindings 
@@ -143,7 +142,7 @@ keys = [
     Key(
         [mod1, "shift"], "5", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh active")
+            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh window")
         ),
         desc="screen shot of active window"
     ),
@@ -402,7 +401,7 @@ mybar += [
     widget.Spacer(),
     widget.TextBox(
         font='FontAwesome',
-        text="vRAM",
+        text="vRAM:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -426,7 +425,7 @@ mybar += [
     ),
     widget.TextBox(
         font='FontAwesome',
-        text=" RAM",
+        text=" RAM:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -449,7 +448,7 @@ mybar += [
     widget.TextBox(
         font='FontAwesome',
         # text="  ",
-        text=" Vol",
+        text=" Vol:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -481,8 +480,8 @@ mybar += [
         format='{char} {percent:2.0%}',
         # charge_char="  ",
         # discharge_char="\uf0e7",
-        charge_char="C",
-        discharge_char="NC",
+        charge_char="Bat: (C)",
+        discharge_char="Bat: (NC)",
     ),
     widget.Sep(background=barcolor, padding=20, linewidth=0),
 ]
