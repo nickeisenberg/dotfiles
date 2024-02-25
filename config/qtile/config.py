@@ -10,6 +10,7 @@ from libqtile.config import (
     Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 )
 from libqtile.lazy import lazy
+import libqtile.command as command
 from utils import (
     NvidiaSensors2,
     grow_up_floating_window,
@@ -29,10 +30,10 @@ mod1 = "mod4"  # super
 
 terminal = 'alacritty'
 
-if socket.gethostname() == "lenovo":
-    browser = "firefox"
-elif socket.gethostname() == "stl-b324166":
+if socket.gethostname() == "stl-b324166":
     browser = "google-chrome"
+else:
+    browser = "firefox"
 
 colors = {
 	"_eperimental_nc": '#16141f',
@@ -61,7 +62,7 @@ widget_background = colors["highlight_med"]
 widget_text_color = colors["text"]
 urgent = colors["love"]
 muted_urgent = colors['muted_love']
-selected = colors["foam"]
+selected = colors["gold"]
 
 #--------------------------------------------------
 # Key Bindings 
@@ -102,6 +103,11 @@ keys = [
     Key([mod0], "t", lazy.window.toggle_floating()),
     Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
+    Key(
+        [mod0], "h", 
+        lazy.spawn(f"{browser} --new-window https://chat.openai.com/"), 
+        desc=f"Launch ChatGPT"
+    ),
     Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod0], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload the config"),
@@ -119,42 +125,46 @@ keys = [
         ), 
         desc="Launch the Rofi file explorer"
     ),
+
     Key(
         [mod1, "shift"], "3", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/full_screenshot.sh")
+            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh full")
         ),
         desc="full screen screenshot"
     ),
     Key(
         [mod1, "shift"], "4", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/selected_screenshot.sh")
+            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh select")
         ),
         desc="screenshot of selected area"
     ),
     Key(
         [mod1, "shift"], "5", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/active_win_screenshot.sh")
+            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh active")
         ),
         desc="screen shot of active window"
     ),
+
     Key([], "XF86AudioLowerVolume", lazy.widget["pulsevolume"].decrease_vol()),
     Key([], "XF86AudioRaiseVolume", lazy.widget["pulsevolume"].increase_vol()),
     Key([], "XF86AudioMute", lazy.widget["pulsevolume"].mute()),
+
     Key([], "XF86MonBrightnessUp", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/inc_brightness.sh")
-        ), 
-        desc="Raise Bright by 5%"
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/adjust_brightness.sh up"
+        )), 
+        desc="Raise screen brightness"
     ),
     Key([], "XF86MonBrightnessDown", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/dec_brightness.sh")
-        ), 
-        desc="Lower Bright by 5"
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/adjust_brightness.sh down"
+        )), 
+        desc="Lower screen brightness"
     ),
+
     Key([mod1], "XF86MonBrightnessUp", 
         lazy.spawn(
             os.path.expanduser("~/.config/qtile/scripts/inc_dualbrightness.sh")
@@ -167,19 +177,20 @@ keys = [
         ), 
         desc="Lower Bright by 5"
     ),
+
     Key([mod0], "XF86MonBrightnessUp", 
         lazy.spawn(
-            os.path.expanduser("sudo ~/.config/qtile/scripts/inc_keylight.sh"),
+            os.path.expanduser("sudo ~/.config/qtile/scripts/adjust_keylight.sh up"),
             shell=True   
         ), 
-        desc="Raise Bright by 5%"
+        desc="Raise keylight brightness"
     ),
     Key([mod0], "XF86MonBrightnessDown", 
         lazy.spawn(
-            os.path.expanduser("sudo ~/.config/qtile/scripts/dec_keylight.sh"),
+            os.path.expanduser("sudo ~/.config/qtile/scripts/adjust_keylight.sh down"),
             shell=True
         ), 
-        desc="Lower Bright by 5"
+        desc="Lower keylight brightness"
     ),
 ]
 
@@ -334,8 +345,14 @@ layouts = [
 # Drag floating layouts.
 #--------------------------------------------------
 mouse = [
-    Drag([mod0], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod0], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Drag(
+        [mod0], "Button1", lazy.window.set_position_floating(), 
+        start=lazy.window.get_position()
+    ),
+    Drag(
+        [mod0], "Button3", lazy.window.set_size_floating(), 
+        start=lazy.window.get_size()
+    ),
     Click([mod0], "Button2", lazy.window.bring_to_front()),
 ]
 #--------------------------------------------------

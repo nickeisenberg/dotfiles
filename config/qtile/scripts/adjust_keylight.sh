@@ -1,10 +1,6 @@
-#! /bin/bash
+#!/bin/bash
 
-# to get this to work with no sudo password, I added
-# nicholas ALL=(ALL:ALL) NOPASSWD: /home/nicholas/Dotfiles/.config/qtile/scripts/dec_keylight.sh
-# /etc/sudoers.d/sudo_no_password
-
-decrease_keylight() {
+adjust_keylight() {
     # Define common backlight control paths
     declare -a paths=(
         "/sys/class/leds/tpacpi::kbd_backlight/brightness" # Path for ThinkPad
@@ -21,19 +17,35 @@ decrease_keylight() {
     for path in "${paths[@]}"; do
         if [ -e "$path" ]; then
             current=$(cat "$path")
+            max=$(cat "${path%/*}/max_brightness")
 
+            # Adjust the increment based on the system type
             if [[ "$path" == *"system"* ]]; then
                 increment=25
             else
                 increment=1
             fi
 
-            new=$((current - increment))
-
-            # Ensure new brightness level is not less than 0
-            if [ "$new" -lt 0 ]; then
-                new=0 # Keep at the lowest brightness level
-            fi
+            case $1 in
+                up)
+                    new=$((current + increment))
+                    # Ensure new value does not exceed max
+                    if [ "$new" -gt "$max" ]; then
+                        new=$max
+                    fi
+                    ;;
+                down)
+                    new=$((current - increment))
+                    # Ensure new brightness level is not less than 0
+                    if [ "$new" -lt 0 ]; then
+                        new=0
+                    fi
+                    ;;
+                *)
+                    echo "Usage: ${0##*/} {up|down}"
+                    return 1
+                    ;;
+            esac
 
             echo $new | sudo tee "$path" > /dev/null
             pathFound=true
@@ -47,4 +59,4 @@ decrease_keylight() {
     fi
 }
 
-decrease_keylight
+adjust_keylight $1
