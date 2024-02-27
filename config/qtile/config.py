@@ -482,6 +482,7 @@ mybar += [
         # discharge_char="\uf0e7",
         charge_char="Bat: (C)",
         discharge_char="Bat: (NC)",
+        not_charging_char="Bat: (NC)"
     ),
     widget.Sep(background=barcolor, padding=20, linewidth=0),
 ]

@@ -1,5 +1,4 @@
 from os import system
-clear = lambda : system('clear')
 import libqtile.widget.battery as bat
 
 # this correctly loads the system
@@ -12,7 +11,7 @@ l = bat._LinuxBattery()
 
 l._load_file('energy')
 
-l._get_param('status_file')[0]
+l._get_param('status_file')
 
 l.update_status()
 
