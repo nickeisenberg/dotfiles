@@ -487,6 +487,7 @@ mybar += [
     widget.Sep(background=barcolor, padding=20, linewidth=0),
 ]
 
+
 mybar = bar.Bar(
     mybar,
     25,

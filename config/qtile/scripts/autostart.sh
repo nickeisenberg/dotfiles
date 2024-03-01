@@ -14,6 +14,8 @@ setxkbmap -option ctrl:nocaps &
 xsetroot -solid '#191724'
 #----------
 
+python3 ~/.config/qtile/scripts/battery_check.py &
+
 #----------
 # set up the dual monitor
 # Use xrandr --verbose to ge the monitor names
