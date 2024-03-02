@@ -11,6 +11,7 @@ while not first:
             'Your battery below 15%.'
         ])
         first = True
+    time.sleep(60)
 
 second = False
 while not second:
@@ -21,3 +22,4 @@ while not second:
             'Your battery below 5%.'
         ])
         second= True
+    time.sleep(60)
