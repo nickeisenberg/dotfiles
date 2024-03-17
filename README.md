@@ -1,1 +1,1 @@
-My dotfiles for ubuntu 22.03.
+My dotfiles
