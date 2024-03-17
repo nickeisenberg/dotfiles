@@ -50,6 +50,6 @@ alias python='python3'
 #--------------------------------------------------
 # source all scripts
 #--------------------------------------------------
-for file in $HOME/dots_ubuntu/scripts/*; do
+for file in $HOME/dotfiles/scripts/*; do
     source $file
 done
