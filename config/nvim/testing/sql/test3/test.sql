@@ -1,1 +1,2 @@
-select * from parents_and_children.children limit 1;
+use parents_and_children;
+select * from mailing limit 1;
