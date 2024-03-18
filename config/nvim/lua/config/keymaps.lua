@@ -15,14 +15,6 @@ vim.cmd([[nnoremap <leader>md `>]])
 vim.cmd([[nnoremap <leader>mu `<]])
 
 
--- words separated by a white space move to thier own line
-
-
-vim.cmd([[nnoremap <leader>gl :s/\s/\r/g<CR>]])
-vim.cmd([[vnoremap <leader>gl :s/\s/\r/g<CR>]])
-
-
-
 -- line and column highlight
 -- vim.cmd([[map <leader>lc :set cursorcolumn!<Bar>set cursorline!<CR>]])
 
@@ -60,6 +52,9 @@ vim.keymap.set("n", "<leader>l", ":wincmd l <CR>")
 vim.keymap.set("n", "<leader>h", ":wincmd h <CR>")
 vim.keymap.set("n", "<leader>j", ":wincmd j <CR>")
 vim.keymap.set("n", "<leader>k", ":wincmd k <CR>")
+
+
+vim.keymap.set("n", "<leader>gg", ":G ")
 
 -- Map 'nd' to go to the next diagnostic
 vim.api.nvim_set_keymap('n', '<leader>nd', '<cmd>lua vim.diagnostic.goto_next()<CR>', {noremap = true, silent = true})
