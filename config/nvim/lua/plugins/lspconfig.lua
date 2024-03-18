@@ -14,7 +14,6 @@ return {
   },
   config = function ()
     local on_attach = function(_, bufnr)
-
       local nmap = function(keys, func, desc)
         if desc then
           desc = 'LSP: ' .. desc
@@ -23,10 +22,22 @@ return {
         vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
       end
 
-      nmap('<leader>gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-      nmap('<leader>gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-      nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-      nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+      nmap('<leader>gd', 
+        require('telescope.builtin').lsp_definitions, 
+        '[G]oto [D]efinition'
+      )
+      nmap('<leader>gr', 
+        require('telescope.builtin').lsp_references, 
+        '[G]oto [R]eferences'
+      )
+      nmap('<leader>ds', 
+        require('telescope.builtin').lsp_document_symbols, 
+        '[D]ocument [S]ymbols'
+      )
+      nmap('K', 
+        vim.lsp.buf.hover, 
+        'Hover Documentation'
+      )
 
       -- Create a command `:Format` local to the LSP buffer
       vim.api.nvim_buf_create_user_command(
@@ -81,6 +92,5 @@ return {
         }
       end,
     }
-
   end
 }
