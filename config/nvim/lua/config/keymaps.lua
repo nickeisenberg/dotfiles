@@ -54,7 +54,7 @@ vim.keymap.set("n", "<leader>j", ":wincmd j <CR>")
 vim.keymap.set("n", "<leader>k", ":wincmd k <CR>")
 
 
-vim.keymap.set("n", "<leader>gg", ":G ")
+vim.keymap.set("n", "<leader>vf", ":G ")
 
 -- Map 'nd' to go to the next diagnostic
 vim.api.nvim_set_keymap('n', '<leader>nd', '<cmd>lua vim.diagnostic.goto_next()<CR>', {noremap = true, silent = true})
