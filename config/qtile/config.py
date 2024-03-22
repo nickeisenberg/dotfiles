@@ -208,8 +208,8 @@ maingroups = [
 ]
 
 dualgroups = [
-    Group(name="9", label="•", screen_affinity=1),
-    Group(name="0", label="•", screen_affinity=1),
+    Group(name="9", label="9", screen_affinity=1),
+    Group(name="0", label="10", screen_affinity=1),
 ]
 
 groups = maingroups + dualgroups
@@ -229,7 +229,7 @@ main_group_box = widget.GroupBox(
 )
 
 dual_group_box = widget.GroupBox(
-    fontsize=80,
+    fontsize=20,
     highlight_method="text",
     visible_groups=['9', '0'],
     background=widget_background,
@@ -364,9 +364,9 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
-mybar = []
+mybar_items = []
 
-mybar += [
+mybar_items += [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.TextBox(
          font='FontAwesome',
@@ -488,8 +488,24 @@ mybar += [
 ]
 
 
+mybar_dual_items = [
+    widget.Spacer(), 
+    dual_group_box, 
+    widget.Spacer()
+]
+
+
 mybar = bar.Bar(
-    mybar,
+    mybar_items,
+    25,
+    background=barcolor,
+    margin=[0, 0, 0, 0],
+    border_width=[8, 0, 8, 0],
+    border_color=barcolor,
+) 
+
+mybar_dual = bar.Bar(
+    mybar_dual_items,
     25,
     background=barcolor,
     margin=[0, 0, 0, 0],
@@ -498,14 +514,13 @@ mybar = bar.Bar(
 ) 
 
 
-
 # wallpaper now set in autostart.sh
 screens = [
     Screen(
         top=mybar
     ),
     Screen(
-        top=mybar
+        top=mybar_dual
     ),
 ]
 
