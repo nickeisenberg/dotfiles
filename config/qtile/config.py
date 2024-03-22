@@ -230,7 +230,7 @@ main_group_box = widget.GroupBox(
 
 dual_group_box = widget.GroupBox(
     fontsize=20,
-    highlight_method="text",
+    highlight_method="default",
     visible_groups=['9', '0'],
     background=widget_background,
     active=selected,
