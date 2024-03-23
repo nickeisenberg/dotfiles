@@ -44,7 +44,7 @@ vim.keymap.set("n", "<leader>w", "<ESC>:w <CR>")
 
 -- splits
 vim.keymap.set("n", "<leader>vs", ":vsplit <CR>")
-vim.keymap.set("n", "<leader>s", ":split <CR>")
+vim.keymap.set("n", "<leader>hs", ":split <CR>")
 vim.keymap.set("n", "<leader>cs", ":close <CR>")
 
 -- navigate splits

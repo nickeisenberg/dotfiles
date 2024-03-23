@@ -2,6 +2,8 @@ vim.o.termguicolors = true
 vim.o.mouse = 'a'
 vim.o.hlsearch = false
 
+vim.o.shell = "bash --login"
+
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
