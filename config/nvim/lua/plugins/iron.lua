@@ -27,12 +27,11 @@ return {
       ignore_blank_lines = true,
     }
 
-    
     vim.keymap.set('n', '<space>rh', function()
       iron.setup(
         {
           config = {
-            repl_open_cmd = view.split.botright("%40"),
+            repl_open_cmd = view.split.botright("%25"),
           }
         }
       )
