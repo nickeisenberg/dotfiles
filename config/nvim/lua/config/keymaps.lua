@@ -96,6 +96,6 @@ local function show_cmd_in_float(cmd)
     vim.api.nvim_open_win(buf, true, opts)
 end
 
-vim.api.nvim_create_user_command('ShowCmd', function(opts)
+vim.api.nvim_create_user_command('ShowCmdInFloat', function(opts)
   show_cmd_in_float(opts.args)
 end, { nargs = 1, complete = "command", desc = "Show command output in a floating window" })
