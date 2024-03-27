@@ -50,9 +50,17 @@ return {
     end, {silent = true})
 
 
+    -- vim.keymap.set('n', '<space>sp', function()
+    --   vim.cmd('normal! vip')
+    --   iron.visual_send()
+    -- end, {silent = true})
+
     vim.keymap.set('n', '<space>sp', function()
       vim.cmd('normal! vip')
-      iron.visual_send()
+      -- Introduce a slight delay before executing the next command
+      vim.defer_fn(function()
+        iron.visual_send()
+      end, 100) -- Delay in milliseconds
     end, {silent = true})
 
 
