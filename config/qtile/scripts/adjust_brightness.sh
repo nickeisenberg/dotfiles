@@ -9,10 +9,10 @@
 adjust_brightness(){
     case $1 in
         up)
-            sudo light -A 10
+            sudo light -A 2
             ;;
         down)
-            sudo light -U 10
+            sudo light -U 2
             ;;
         *)
             echo "Usage: $0 {up|down}"
