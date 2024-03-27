@@ -32,12 +32,16 @@ vim.cmd([[vnoremap <leader>P "+P]])
 
 
 -- Move to the next paragraph without opening folds
-vim.api.nvim_set_keymap('n', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]], {noremap = true, silent = true})
-vim.api.nvim_set_keymap('v', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]], {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
+  { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
+  { noremap = true, silent = true })
 
 -- Move to the previous paragraph without opening folds
-vim.api.nvim_set_keymap('n', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]], {noremap = true, silent = true})
-vim.api.nvim_set_keymap('v', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]], {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]],
+  { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]],
+  { noremap = true, silent = true })
 
 -- Easier save key
 vim.keymap.set("n", "<leader>w", "<ESC>:w <CR>")
@@ -57,5 +61,41 @@ vim.keymap.set("n", "<leader>k", ":wincmd k <CR>")
 vim.keymap.set("n", "<leader>vf", ":G ")
 
 -- Map 'nd' to go to the next diagnostic
-vim.api.nvim_set_keymap('n', '<leader>nd', '<cmd>lua vim.diagnostic.goto_next()<CR>', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<leader>pd', '<cmd>lua vim.diagnostic.goto_prev()<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>nd', '<cmd>lua vim.diagnostic.goto_next()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>pd', '<cmd>lua vim.diagnostic.goto_prev()<CR>', { noremap = true, silent = true })
+
+
+local function show_cmd_in_float(cmd)
+    local output = vim.fn.execute(cmd)
+    
+    -- Create a buffer for the floating window
+    local buf = vim.api.nvim_create_buf(false, true)
+    local output_lines = vim.split(output, "\n")
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, output_lines)
+
+    local max_line_len = 0
+    for _, line in ipairs(output_lines) do
+        max_line_len = math.max(max_line_len, #line)
+    end
+
+    local width = max_line_len
+    local height = #output_lines
+    local win_width = vim.api.nvim_get_option("columns")
+    
+    local opts = {
+        relative = "editor",
+        width = width,
+        height = height,
+        col = win_width - width,
+        row = 0,
+        anchor = "NW",
+        style = "minimal"
+    }
+    
+    -- Create the floating window with the buffer
+    vim.api.nvim_open_win(buf, true, opts)
+end
+
+vim.api.nvim_create_user_command('ShowCmd', function(opts)
+  show_cmd_in_float(opts.args)
+end, { nargs = 1, complete = "command", desc = "Show command output in a floating window" })
