@@ -10,8 +10,8 @@ setxkbmap -option ctrl:nocaps &
 #----------
 # Wallpaper
 #----------
-# feh --bg-scale ~/dots_ubuntu/config/qtile/rosepine.png
-xsetroot -solid '#191724'
+# xsetroot -solid '#191724'
+feh --bg-scale $HOME/Downloads/wall-02.webp
 #----------
 
 python3 ~/.config/qtile/scripts/battery_check.py &
