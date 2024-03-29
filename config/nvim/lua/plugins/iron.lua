@@ -42,6 +42,7 @@ return {
     end
     vim.api.nvim_create_user_command('ReplBelow', _repl_below, {})
 
+    vim.keymap.set('n', '<space>rb', ":ReplBelow <CR>")
 
     vim.keymap.set('n', '<space>rh', function()
       iron.setup(
