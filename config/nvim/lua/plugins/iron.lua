@@ -12,7 +12,7 @@ return {
             command = { "bash" }
           }
         },
-        repl_open_cmd = view.split.vertical.botright("%40"),
+        repl_open_cmd = view.split.vertical.rightbelow("%40"),
       },
       keymaps = {
         send_line = "<space>sl",
@@ -44,7 +44,7 @@ return {
       iron.setup(
         {
           config = {
-            repl_open_cmd = view.split.vertical.botright("%40"),
+            repl_open_cmd = view.split.vertical.rightbelow("%40"),
           }
         }
       )
