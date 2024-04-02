@@ -1,6 +1,6 @@
 return {
   -- "Vigemus/iron.nvim",
-  dir = "/home/nicholas/GitRepos/iron.nvim",
+  dir = "/home/nicholas/GitRepos/iron_nvim/iron.nvim",
   branch = "master",
   config = function()
     local iron = require("iron.core")
