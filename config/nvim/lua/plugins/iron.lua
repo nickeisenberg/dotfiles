@@ -1,5 +1,7 @@
 return {
-  "Vigemus/iron.nvim",
+  -- "Vigemus/iron.nvim",
+  dir = "/home/nicholas/GitRepos/iron.nvim",
+  branch = "master",
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
@@ -29,32 +31,21 @@ return {
 
 
     vim.keymap.set('n', '<space>rh', function()
-      iron.setup(
-        {
-          config = {
-            repl_open_cmd = view.split.rightbelow("%25"),
-          }
-        }
-      )
+      local config = require("iron.config")
+      config.repl_open_cmd = view.split.rightbelow("%25")
       vim.cmd('IronRepl')
     end, {silent = true})
 
 
     vim.keymap.set('n', '<space>rv', function()
-      iron.setup(
-        {
-          config = {
-            repl_open_cmd = view.split.vertical.rightbelow("%40"),
-          }
-        }
-      )
+      local config = require("iron.config")
+      config.repl_open_cmd = view.split.vertical.botright("%40")
       vim.cmd('IronRepl')
     end, {silent = true})
 
 
     vim.keymap.set('n', '<space>sp', function()
       vim.cmd('normal! vip')
-      -- Introduce a slight delay before executing the next command
       vim.defer_fn(function()
         iron.visual_send()
       end, 100) -- Delay in milliseconds

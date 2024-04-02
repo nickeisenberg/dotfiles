@@ -51,6 +51,8 @@ vim.keymap.set("n", "<leader>vs", ":vsplit <CR>")
 vim.keymap.set("n", "<leader>ss", ":split <CR>")
 vim.keymap.set("n", "<leader>cs", ":close <CR>")
 
+vim.keymap.set("n", "<leader>z", ":vertical split")
+
 -- navigate splits
 vim.keymap.set("n", "<leader>l", ":wincmd l <CR>")
 vim.keymap.set("n", "<leader>h", ":wincmd h <CR>")

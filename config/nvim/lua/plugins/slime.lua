@@ -2,7 +2,6 @@ return {
   "jpalardy/vim-slime",
   enabled = true,
   config = function()
-
     if os.getenv("TMUX") then
         vim.cmd [[
             let tmux_socket = get(split($TMUX, ","), 0)
