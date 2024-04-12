@@ -25,11 +25,3 @@ require("lazy").setup({
 
 -- requrie my config folder
 require('config')
-
--- vim.cmd(
---   [[
---     let g:LanguageClient_serverCommands = {
---       \ 'sql': ['sql-language-server', 'up', '--method', 'stdio'],
---       \ }
---   ]]
--- )
