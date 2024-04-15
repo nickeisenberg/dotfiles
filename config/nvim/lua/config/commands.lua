@@ -32,17 +32,3 @@ end
 vim.api.nvim_create_user_command('ShowCmdInFloat', function(opts)
   show_cmd_in_float(opts.args)
 end, { nargs = 1, complete = "command", desc = "Show command output in a floating window" })
-
-
-local function _DBConfigSaveRoot(newSaveLocation)
-  vim.cmd("let g:db_ui_save_location = '" .. newSaveLocation .. "'")
-end
-
-vim.api.nvim_create_user_command('DBConfigSaveLocation', function(input)
-  local newLocation = input.args
-  if newLocation == "" then
-    newLocation = vim.fn.getcwd()
-  end
-  _DBConfigSaveRoot(newLocation)
-end, {nargs = '?'})
-
