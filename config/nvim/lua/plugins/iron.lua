@@ -22,7 +22,8 @@ return {
         send_file = "<space>sf",
         exit = "<space>rq",
         clear = "<space>rc",
-        send_mark = "<space>sm",
+        interrupt = "<space><c-c>",
+        cr = "<space><cr>",
       },
       highlight = {
         italic = true
@@ -49,7 +50,7 @@ return {
       vim.cmd('IronRepl')
     end, {silent = true})
 
-    vim.keymap.set('n', '<space>rt', '<cmd>IronRepl<cr>')
+    vim.keymap.set('n', '<space>rr', '<cmd>IronRepl<cr>')
     vim.keymap.set('n', '<space>rR', '<cmd>IronRestart<cr>')
   end
 }
