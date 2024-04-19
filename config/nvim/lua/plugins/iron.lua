@@ -31,24 +31,27 @@ return {
       ignore_blank_lines = true,
     }
 
-    vim.keymap.set('n', '<space>sp', function()
+    local send_paragraph = function()
       vim.cmd('normal! vip')
       vim.defer_fn(function()
         iron.visual_send()
-      end, 100) -- Delay in milliseconds
-    end, {silent = true})
+      end, 100)
+    end
+    vim.keymap.set('n', '<space>sp', send_paragraph, {silent = true})
 
-    vim.keymap.set('n', '<space>rh', function()
-      local config = require("iron.config")
-      config.repl_open_cmd = view.split.rightbelow("%25")
-      vim.cmd('IronRepl')
-    end, {silent = true})
+    local toggle_below = function()
+        local config = require("iron.config")
+        config.repl_open_cmd = view.split.rightbelow("%25")
+        vim.cmd('IronRepl')
+    end
+    vim.keymap.set('n', '<space>rh', toggle_below, {silent = true})
 
-    vim.keymap.set('n', '<space>rv', function()
-      local config = require("iron.config")
-      config.repl_open_cmd = view.split.vertical.botright("%40")
-      vim.cmd('IronRepl')
-    end, {silent = true})
+    local toggle_right = function()
+        local config = require("iron.config")
+        config.repl_open_cmd = view.split.vertical.botright("%40")
+        vim.cmd('IronRepl')
+    end
+    vim.keymap.set('n', '<space>rv', toggle_right, {silent = true})
 
     vim.keymap.set('n', '<space>rr', '<cmd>IronRepl<cr>')
     vim.keymap.set('n', '<space>rR', '<cmd>IronRestart<cr>')
