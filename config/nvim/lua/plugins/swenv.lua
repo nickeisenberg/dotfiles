@@ -1,5 +1,5 @@
 return {
-  "AckslD/swenv.nvim",
+  "nickeisenberg/swenv.nvim",
   config = function()
     require('swenv').setup({
       get_venvs = function(venvs_path)
@@ -8,7 +8,6 @@ return {
       -- venvs_path = vim.fn.expand(''),
       post_set_venv = nil,
     })
-
 
     local function find_git_root()
       local path = vim.fn.expand('%:p:h')
