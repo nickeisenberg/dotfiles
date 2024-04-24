@@ -1,12 +1,14 @@
 return {
   "nickeisenberg/swenv.nvim",
+  -- dir = "~/GitRepos/swenv.nvim",
+  -- branch = "main",
   config = function()
     require('swenv').setup({
-      get_venvs = function(venvs_path)
-        return require('swenv.api').get_venvs(venvs_path)
-      end,
+      -- get_venvs = function(venvs_path)
+      --   return require('swenv.api').get_venvs(venvs_path)
+      -- end,
       -- venvs_path = vim.fn.expand(''),
-      post_set_venv = nil,
+      -- post_set_venv = nil,
     })
 
     local function find_git_root()
