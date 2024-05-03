@@ -28,6 +28,9 @@ return {
       ignore_blank_lines = true,
     }
 
+    vim.keymap.set('n', '<space>rr', '<cmd>IronRepl<cr>')
+    vim.keymap.set('n', '<space>rR', '<cmd>IronRestart<cr>')
+
     local toggle_below = function()
       local config = require("iron.config")
       config.repl_open_cmd = view.split.rightbelow("%25")
@@ -41,8 +44,5 @@ return {
       vim.cmd('IronRepl')
     end
     vim.keymap.set('n', '<space>rv', toggle_right, { silent = true })
-
-    vim.keymap.set('n', '<space>rr', '<cmd>IronRepl<cr>')
-    vim.keymap.set('n', '<space>rR', '<cmd>IronRestart<cr>')
   end
 }
