@@ -2,6 +2,7 @@ return {
   -- "Vigemus/iron.nvim",
   dir = "~/GitRepos/iron.nvim/iron.nvim",
   branch = "master",
+  -- "nickeisenberg/iron.nvim",
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
@@ -9,16 +10,12 @@ return {
     iron.setup {
       config = {
         scratch_repl = true,
-        repl_definition = {
-          sh = {
-            command = { "bash" }
-          }
-        },
         repl_open_cmd = view.split.vertical.rightbelow("%40"),
       },
       keymaps = {
         send_line = "<space>sl",
         visual_send = "<space>sp",
+        send_paragraph = "<space>sp",
         send_file = "<space>sf",
         exit = "<space>rq",
         clear = "<space>rc",
@@ -31,27 +28,19 @@ return {
       ignore_blank_lines = true,
     }
 
-    local send_paragraph = function()
-      vim.cmd('normal! vip')
-      vim.defer_fn(function()
-        iron.visual_send()
-      end, 100)
-    end
-    vim.keymap.set('n', '<space>sp', send_paragraph, {silent = true})
-
     local toggle_below = function()
-        local config = require("iron.config")
-        config.repl_open_cmd = view.split.rightbelow("%25")
-        vim.cmd('IronRepl')
+      local config = require("iron.config")
+      config.repl_open_cmd = view.split.rightbelow("%25")
+      vim.cmd('IronRepl')
     end
-    vim.keymap.set('n', '<space>rh', toggle_below, {silent = true})
+    vim.keymap.set('n', '<space>rh', toggle_below, { silent = true })
 
     local toggle_right = function()
-        local config = require("iron.config")
-        config.repl_open_cmd = view.split.vertical.botright("%40")
-        vim.cmd('IronRepl')
+      local config = require("iron.config")
+      config.repl_open_cmd = view.split.vertical.rightbelow("%40")
+      vim.cmd('IronRepl')
     end
-    vim.keymap.set('n', '<space>rv', toggle_right, {silent = true})
+    vim.keymap.set('n', '<space>rv', toggle_right, { silent = true })
 
     vim.keymap.set('n', '<space>rr', '<cmd>IronRepl<cr>')
     vim.keymap.set('n', '<space>rR', '<cmd>IronRestart<cr>')
