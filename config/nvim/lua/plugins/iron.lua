@@ -7,22 +7,11 @@ return {
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
-    local isWindows = require("iron.util.os").isWindows
-
-    local repl_definition = {}
-    if isWindows() then
-      repl_definition = {
-        python = {
-          command = { "ipython", "--no-autoindent" }
-        }
-      }
-    end
 
     iron.setup {
       config = {
         scratch_repl = true,
         repl_open_cmd = view.split.vertical.rightbelow("%40"),
-        repl_definition = repl_definition
       },
       keymaps = {
         send_line = "<space>sl",
