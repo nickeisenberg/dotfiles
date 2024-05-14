@@ -1,8 +1,8 @@
 return {
-  -- "Vigemus/iron.nvim",
-  dir = "~/GitRepos/iron.nvim/iron.nvim",
+  "Vigemus/iron.nvim",
+  -- dir = "~/GitRepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
-  branch = "master",
+  -- branch = "dev",
   -- "nickeisenberg/iron.nvim",
   config = function()
     local iron = require("iron.core")
@@ -17,6 +17,7 @@ return {
         send_line = "<space>sl",
         visual_send = "<space>sp",
         send_paragraph = "<space>sp",
+        send_until_cursor = "<space>su",
         send_file = "<space>sf",
         exit = "<space>rq",
         clear = "<space>rc",
