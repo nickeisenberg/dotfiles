@@ -1,17 +1,24 @@
 return {
-  "Vigemus/iron.nvim",
-  -- dir = "~/GitRepos/iron.nvim/iron.nvim",
+  -- "Vigemus/iron.nvim",
+  dir = "~/GitRepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
-  -- branch = "dev",
   -- "nickeisenberg/iron.nvim",
+  branch = "dev",
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
-
+    local format = require("iron.fts.common").bracketed_paste_python
+    
     iron.setup {
       config = {
         scratch_repl = true,
         repl_open_cmd = view.split.vertical.rightbelow("%40"),
+        -- repl_definition = {
+        --   python = {
+        --     command = {"ipython", "--no-autoindent"},
+        --     format = format
+        --   }
+        -- }
       },
       keymaps = {
         send_line = "<space>sl",
