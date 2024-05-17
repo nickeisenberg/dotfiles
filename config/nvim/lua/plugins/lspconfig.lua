@@ -4,42 +4,26 @@ return {
   dependencies = {
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
-
-    -- Useful status updates for LSP
-    -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
     { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
-
-    -- Additional lua configuration, makes nvim stuff amazing!
     'folke/neodev.nvim',
   },
   config = function ()
     local on_attach = function(_, bufnr)
-      local nmap = function(keys, func, desc)
-        if desc then
-          desc = 'LSP: ' .. desc
-        end
-
-        vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-      end
-
-      nmap('<leader>gd', 
-        require('telescope.builtin').lsp_definitions, 
-        '[G]oto [D]efinition'
-      )
-      nmap('<leader>gr', 
-        require('telescope.builtin').lsp_references, 
-        '[G]oto [R]eferences'
-      )
-      nmap('<leader>ds', 
-        require('telescope.builtin').lsp_document_symbols, 
-        '[D]ocument [S]ymbols'
-      )
-      nmap('K', 
-        vim.lsp.buf.hover, 
-        'Hover Documentation'
+      vim.keymap.set(
+        'n', '<leader>gd', require('telescope.builtin').lsp_definitions,
+        { buffer = bufnr, desc = '[G]oto [D]efinition' }
       )
 
-      -- Create a command `:Format` local to the LSP buffer
+      vim.keymap.set(
+        'n', '<leader>gr', require('telescope.builtin').lsp_references,
+        { buffer = bufnr, desc = '[G]oto [D]efinition' }
+      )
+
+      vim.keymap.set(
+        'n', '<leader>gs', require('telescope.builtin').lsp_document_symbols,
+        { buffer = bufnr, desc = '[D]ocument [S]ymbols' }
+      )
+
       vim.api.nvim_buf_create_user_command(
         bufnr,
         'Format',

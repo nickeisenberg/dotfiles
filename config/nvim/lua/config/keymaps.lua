@@ -52,16 +52,6 @@ vim.keymap.set("n", "<leader>k", ":wincmd k <CR>")
 --  Fugitive keymap
 vim.keymap.set("n", "<leader>vf", ":G ")
 
--- Map 'nd' to go to the next diagnostic
-vim.api.nvim_set_keymap(
-  'n', '<leader>nd', '<cmd>lua vim.diagnostic.goto_next()<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  'n', '<leader>pd', '<cmd>lua vim.diagnostic.goto_prev()<CR>',
-  { noremap = true, silent = true }
-)
-
 -- Resize splits
 vim.keymap.set("n","<c-Up>", ":resize -2 <cr>")
 vim.keymap.set("n","<c-Down>", ":resize +2 <cr>")
