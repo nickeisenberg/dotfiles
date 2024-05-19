@@ -7,7 +7,7 @@ return {
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
-    
+
     iron.setup {
       config = {
         scratch_repl = true,
