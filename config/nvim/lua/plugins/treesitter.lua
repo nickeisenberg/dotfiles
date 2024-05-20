@@ -24,7 +24,8 @@ return {
           'typescript',
           'vimdoc',
           'vim',
-          'bash'
+          'bash',
+          'regex'
         },
     
         -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
