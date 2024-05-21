@@ -7,18 +7,11 @@ return {
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
-    local python_format = require("iron.fts.common").bracketed_paste_python
 
     iron.setup {
       config = {
         scratch_repl = true,
         repl_open_cmd = view.split.vertical.rightbelow("%40"),
-        repl_defintion = {
-        python = {
-          command = { "python3" },
-          format = python_format
-        }
-      }
       },
       keymaps = {
         send_line = "<space>sl",

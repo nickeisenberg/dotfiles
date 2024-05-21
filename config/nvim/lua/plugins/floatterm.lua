@@ -12,7 +12,7 @@ return {
     vim.cmd([[tnoremap <leader>tp <C-\><C-n>:FloatermPrev<CR>]])
     vim.cmd([[nnoremap <leader>tk :FloatermKill<CR>]])
     vim.cmd([[tnoremap <leader>tk <C-\><C-n>:FloatermKill<CR>]])
-    vim.cmd([[let g:floaterm_shell="/usr/bin/bash --login"]])
+    vim.cmd([[let g:floaterm_shell="/bin/bash --login"]])
     vim.cmd([[let g:floaterm_width=0.8]])
     vim.cmd([[let g:floaterm_height=0.8]])
     vim.cmd([[let g:floaterm_title="ft:$1/$2"]])
