@@ -18,6 +18,8 @@ return {
           format = python_format
         }
       }
+    else
+      repl_definition = nil
     end
 
     iron.setup {
