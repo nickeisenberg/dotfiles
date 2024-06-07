@@ -1,8 +1,8 @@
 source ~/.bashrc
 
 # python path
-PATH="/Users/nickeisenberg/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:${PATH}"
-export PATH
+# PATH="/Library/Frameworks/Python.framework/Versions/3.10/bin:${PATH}"
+# export PATH
 
 # add mysql to path
 export PATH=${PATH}:/usr/local/mysql/bin/
