@@ -401,7 +401,7 @@ mybar_items += [
     widget.Spacer(),
     widget.TextBox(
         font='FontAwesome',
-        text="vRAM:",
+        text="VRAM:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
