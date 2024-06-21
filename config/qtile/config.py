@@ -61,7 +61,7 @@ widget_background = colors["highlight_med"]
 widget_text_color = colors["text"]
 urgent = colors["love"]
 muted_urgent = colors['muted_love']
-selected = colors["foam"]
+selected = colors["rose"]
 
 #--------------------------------------------------
 # Key Bindings 
