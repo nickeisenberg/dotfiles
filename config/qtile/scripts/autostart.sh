@@ -16,6 +16,9 @@ xsetroot -solid '#191724'
 
 python3 ~/.config/qtile/scripts/battery_check.py &
 
+# natural scrolling
+xinput set-prop 11 "libinput Natural Scrolling Enabled" 1
+
 #----------
 # set up the dual monitor
 # Use xrandr --verbose to ge the monitor names
