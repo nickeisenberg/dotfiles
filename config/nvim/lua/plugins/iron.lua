@@ -7,26 +7,25 @@ return {
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
-    local bracketed_paste_python = require("iron.fts.common").bracketed_paste_python
     local this_os = require("utils").get_os_name()
 
-    local repl_definition = {}
+    local python_repl_definition
     if this_os == "Darwin" then
-      repl_definition = {
-        python = {
-          command = { "ipython", "--no-autoindent" },
-          format = bracketed_paste_python
-        }
+      python_repl_definition = {
+        command = { "ipython", "--no-autoindent" },
+        format = require("iron.fts.common").bracketed_paste_python
       }
     else
-      repl_definition = {}
+      python_repl_definition = nil
     end
 
     iron.setup {
       config = {
         scratch_repl = true,
         repl_open_cmd = view.split.vertical.rightbelow("%40"),
-        repl_definition = repl_definition
+        repl_definition = {
+          python = python_repl_definition,
+        }
       },
       keymaps = {
         send_line = "<space>sl",
