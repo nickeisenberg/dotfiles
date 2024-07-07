@@ -1,13 +1,13 @@
 return {
-  "Vigemus/iron.nvim",
-  -- dir = "~/GitRepos/iron.nvim/iron.nvim",
+  -- "Vigemus/iron.nvim",
+  dir = "~/GitRepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
   -- "nickeisenberg/iron.nvim",
   branch = "master",
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
-    local python_format = require("iron.fts.common").bracketed_paste_python
+    local bracketed_paste_python = require("iron.fts.common").bracketed_paste_python
     local this_os = require("utils").get_os_name()
 
     local repl_definition = {}
@@ -15,11 +15,11 @@ return {
       repl_definition = {
         python = {
           command = { "ipython", "--no-autoindent" },
-          format = python_format
+          format = bracketed_paste_python
         }
       }
     else
-      repl_definition = nil
+      repl_definition = {}
     end
 
     iron.setup {
