@@ -1,9 +1,9 @@
 return {
-  -- "Vigemus/iron.nvim",
-  dir = "~/GitRepos/iron.nvim/iron.nvim",
+  "Vigemus/iron.nvim",
+  -- dir = "~/GitRepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
   -- "nickeisenberg/iron.nvim",
-  branch = "master",
+  -- branch = "master",
   config = function()
     local iron = require("iron.core")
     local view = require("iron.view")
@@ -16,7 +16,10 @@ return {
         format = require("iron.fts.common").bracketed_paste_python
       }
     else
-      python_repl_definition = nil
+      python_repl_definition = {
+        command = { "python3" },
+        format = require("iron.fts.common").bracketed_paste_python
+      }
     end
 
     iron.setup {
