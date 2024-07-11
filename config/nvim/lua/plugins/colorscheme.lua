@@ -1,7 +1,7 @@
 return {
   {
     "folke/tokyonight.nvim",
-    lazy = true, -- make sure we load this during startup if it is your main colorscheme
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       vim.cmd([[colorscheme tokyonight-night]])
@@ -11,7 +11,7 @@ return {
 
   {
     "catppuccin/nvim",
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    lazy = true, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       vim.cmd([[colorscheme catppuccin]])
@@ -30,8 +30,18 @@ return {
   },
 
   {
+    "sho-87/kanagawa-paper.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+    config = function ()
+      vim.cmd("colorscheme kanagawa-paper")
+    end
+  },
+
+  {
     'rose-pine/neovim',
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    lazy = true, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       vim.cmd([[colorscheme rose-pine]])
