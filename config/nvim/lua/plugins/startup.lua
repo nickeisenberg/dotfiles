@@ -7,6 +7,14 @@ return {
     -- if not status then
     --   return
     -- end
+
+    local function get_startup_time()
+      local start_time = vim.g.start_time
+      local end_time = vim.loop.hrtime()
+      local startup_time_ms = (end_time - start_time) / 1e6 -- convert to milliseconds
+      return string.format("nvim loaded in %.2fms", startup_time_ms)
+    end
+
     local starter = require "mini.starter"
     return {
       starter.setup({
@@ -32,6 +40,7 @@ return {
           [[  oooooo||___|___||||||||||||___|__|||oooooooooo| |oo  ]],
           [[ ooooooo||||||||||||||||||||||||||||||oooooooooo| |ooo ]],
           [[ooooooooooooooooooooooooooooooooooooooooooooooooooooooo]],
+          '---------------' .. get_startup_time() .. '---------------'
         }, "\n"),
         query_updaters = [[abcdefghilmoqrstuvwxyz0123456789_-,.ABCDEFGHIJKLMOQRSTUVWXYZ]],
         items = {

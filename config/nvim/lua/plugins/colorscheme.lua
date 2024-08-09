@@ -1,5 +1,15 @@
 return {
   {
+    'rose-pine/neovim',
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
+    config = function()
+      vim.cmd([[colorscheme rose-pine]])
+    end,
+    enabled = true
+  },
+
+  {
     "folke/tokyonight.nvim",
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
@@ -32,21 +42,12 @@ return {
   {
     "sho-87/kanagawa-paper.nvim",
     lazy = false,
+    enabled = false,
     priority = 1000,
     opts = {},
     config = function ()
       vim.cmd("colorscheme kanagawa-paper")
     end
-  },
-
-  {
-    'rose-pine/neovim',
-    lazy = true, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
-    config = function()
-      vim.cmd([[colorscheme rose-pine]])
-    end,
-    enabled = true
   },
 
   {
