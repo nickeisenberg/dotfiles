@@ -10,7 +10,6 @@ from libqtile.config import (
     Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 )
 from libqtile.lazy import lazy
-import libqtile.command as command
 from utils import (
     NvidiaSensors2,
     grow_up_floating_window,
@@ -20,7 +19,6 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window
 )
-import socket
 
 
 mod0 = "mod1"  # alt
@@ -28,10 +26,7 @@ mod1 = "mod4"  # super
 
 terminal = 'alacritty'
 
-if socket.gethostname() == "stl-b324166":
-    browser = "google-chrome"
-else:
-    browser = "firefox"
+browser = "firefox"
 
 colors = {
 	"_eperimental_nc": '#16141f',
