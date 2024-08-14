@@ -10,8 +10,12 @@ setxkbmap -option ctrl:nocaps &
 #----------
 # Wallpaper
 #----------
-xsetroot -solid '#191724'
-# feh --bg-scale $HOME/Downloads/wall-02.webp
+
+# rosepint
+# xsetroot -solid '#191724'
+
+# nvim default
+xsetroot -solid "#14161b"
 #----------
 
 python3 ~/.config/qtile/scripts/battery_check.py &
