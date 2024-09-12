@@ -178,11 +178,11 @@ maingroups = [
     Group(name="4", label="4", screen_affinity=0),
     Group(name="5", label="5", screen_affinity=0),
     Group(name="6", label="6", screen_affinity=0),
-    Group(name="7", label="7", screen_affinity=0),
-    Group(name="8", label="8", screen_affinity=0),
 ]
 
 dualgroups = [
+    Group(name="7", label="7", screen_affinity=1),
+    Group(name="8", label="8", screen_affinity=1),
     Group(name="9", label="9", screen_affinity=1),
     Group(name="0", label="10", screen_affinity=1),
 ]
@@ -192,7 +192,7 @@ groups = maingroups + dualgroups
 main_group_box = widget.GroupBox(
     fontsize=20,
     highlight_method="default",
-    visible_groups=['1', '2', '3', '4', '5', '6', '7', '8'],
+    visible_groups=['1', '2', '3', '4', '5', '6'],
     background=widget_background,
     active=selected,
     inactive=widget_text_color,
@@ -206,7 +206,7 @@ main_group_box = widget.GroupBox(
 dual_group_box = widget.GroupBox(
     fontsize=20,
     highlight_method="default",
-    visible_groups=['9', '0'],
+    visible_groups=['7', '8', '9', '0'],
     background=widget_background,
     active=selected,
     inactive=widget_text_color,

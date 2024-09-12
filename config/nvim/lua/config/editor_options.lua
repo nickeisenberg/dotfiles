@@ -1,6 +1,7 @@
 vim.o.termguicolors = true
 vim.o.mouse = 'a'
 vim.o.hlsearch = false
+vim.o.background = "dark"
 
 vim.o.shell = "bash --login"
 

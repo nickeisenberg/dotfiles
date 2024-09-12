@@ -1,4 +1,4 @@
-import = ["~/.config/alacritty/nvim-default.toml"]
+import = ["~/.config/alacritty/rose-pine.toml"]
 
 [env]
 TERM = "xterm-256color"

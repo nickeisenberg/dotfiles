@@ -6,7 +6,7 @@ return {
     config = function()
       vim.cmd([[colorscheme rose-pine]])
     end,
-    enabled = false
+    enabled = true
   },
 
   {
@@ -20,16 +20,6 @@ return {
   },
 
   {
-    "catppuccin/nvim",
-    lazy = true, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
-    config = function()
-      vim.cmd([[colorscheme catppuccin]])
-    end,
-    enabled = false
-  },
-
-  {
     'rebelot/kanagawa.nvim',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
@@ -38,26 +28,4 @@ return {
     end,
     enabled = false
   },
-
-  {
-    "sho-87/kanagawa-paper.nvim",
-    lazy = false,
-    enabled = false,
-    priority = 1000,
-    opts = {},
-    config = function ()
-      vim.cmd("colorscheme kanagawa-paper")
-    end
-  },
-
-  {
-    'EdenEast/nightfox.nvim',
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
-    config = function()
-      vim.cmd([[colorscheme carbonfox]])
-    end,
-    enabled = false
-  },
 }
-
