@@ -44,7 +44,6 @@ return {
       bashls = {},
       sqlls = {},
       texlab = {},
-      tsserver = {},
       marksman = {},
       html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },
       lua_ls = {
