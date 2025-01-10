@@ -464,6 +464,14 @@ mybar_items += [
 
 
 mybar_dual_items = [
+    widget.Sep(background=barcolor, padding=10, linewidth=0),
+    widget.Clock(
+        foreground=widget_text_color,
+        # background=background,
+        background=widget_background,
+        fontsize=20,
+        format='%A, %b %d %I:%M %p ',
+    ),
     widget.Spacer(), 
     dual_group_box, 
     widget.Spacer()

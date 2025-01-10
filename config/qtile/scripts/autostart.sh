@@ -12,10 +12,10 @@ setxkbmap -option ctrl:nocaps &
 #----------
 
 # rosepint
-# xsetroot -solid '#191724'
+xsetroot -solid '#191724'
 
 # nvim default
-xsetroot -solid "#14161b"
+# xsetroot -solid "#14161b"
 #----------
 
 python3 ~/.config/qtile/scripts/battery_check.py &
