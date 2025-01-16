@@ -1,4 +1,4 @@
-#! /usr/bin/python3.11
+#! /usr/bin/python3
 
 import argparse
 import time
@@ -27,12 +27,9 @@ def start_timer(seconds):
     print(f"Timer started for {seconds} seconds.")
     print("You can check the timer progress by running the script with --check.")
 
-    # Start the timer in the background
-    script = f"""
-import time, os
-time.sleep({seconds})
-os.system('notify-send "Time is up!"')
-"""
+    script = (
+            f"import time, os; time.sleep({seconds}); os.system('notify-send Time is up!')"
+        )
 
     # Run the timer script as a background process
     subprocess.Popen(
