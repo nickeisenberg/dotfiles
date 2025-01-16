@@ -4,8 +4,10 @@ import argparse
 import time
 import sys
 import json
+import os
 from pathlib import Path
 import subprocess
+import signal
 
 # File to store the timer state
 TIMER_STATE_FILE = Path("/tmp/timer_state.json")
@@ -17,27 +19,30 @@ def start_timer(seconds):
     start_time = time.time()
     timer_state = {
         "start_time": start_time,
-        "duration": seconds
+        "duration": seconds,
     }
 
-    # Save the state to a file
-    with TIMER_STATE_FILE.open("w") as f:
-        json.dump(timer_state, f)
-
-    print(f"Timer started for {seconds} seconds.")
-    print("You can check the timer progress by running the script with --check.")
-
     script = (
-            f"import time, os; time.sleep({seconds}); os.system('notify-send Time is up!')"
-        )
+        f"import time, os; time.sleep({seconds}); "
+        f"os.system(\"zenity --info --title='Timer Alert' --text='TIME IS UP!' --width=300 --height=200\")"
+    )
 
     # Run the timer script as a background process
-    subprocess.Popen(
+    process = subprocess.Popen(
         [sys.executable, "-c", script],
         start_new_session=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
+
+    # Save the process ID and state to the file
+    timer_state["pid"] = process.pid
+    with TIMER_STATE_FILE.open("w") as f:
+        json.dump(timer_state, f)
+
+    print(f"Timer started for {seconds} seconds.")
+    print("You can check the timer progress by running the script with --check.")
+    print("To stop the timer, use --kill.")
 
 
 def check_timer():
@@ -67,6 +72,36 @@ def check_timer():
     print(f"Time remaining: {hrs:02}:{mins:02}:{secs:02}")
 
 
+def kill_timer():
+    """Kill the active timer."""
+    if not TIMER_STATE_FILE.exists():
+        print("No active timer to kill.")
+        sys.exit(1)
+
+    # Load the timer state
+    with TIMER_STATE_FILE.open("r") as f:
+        timer_state = json.load(f)
+
+    # Get the process ID
+    pid = timer_state.get("pid")
+    if not pid:
+        print("No process ID found. Timer may have already ended.")
+        TIMER_STATE_FILE.unlink()
+        sys.exit(1)
+
+    try:
+        # Terminate the process
+        os.kill(pid, signal.SIGTERM)
+        print("Timer killed successfully.")
+    except ProcessLookupError:
+        print("Timer process not found. It may have already ended.")
+    except Exception as e:
+        print(f"Error killing timer: {e}")
+    finally:
+        # Clean up the state file
+        TIMER_STATE_FILE.unlink()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Set a timer with desktop notifications.")
     parser.add_argument(
@@ -79,15 +114,22 @@ def main():
         "-hr", "--hours", type=int, default=0, help="Number of hours for the timer."
     )
     parser.add_argument(
-        "-c", "--check", 
-        action="store_true", 
+        "-c", "--check",
+        action="store_true",
         help="Check the remaining time for the current timer."
+    )
+    parser.add_argument(
+        "-k", "--kill",
+        action="store_true",
+        help="Kill the active timer."
     )
 
     args = parser.parse_args()
 
     if args.check:
         check_timer()
+    elif args.kill:
+        kill_timer()
     else:
         # Calculate total seconds
         seconds = args.seconds + (args.minutes * 60) + (args.hours * 3600)
