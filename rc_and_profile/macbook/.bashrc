@@ -6,6 +6,7 @@ eval $(gdircolors ~/.dircolors/dircolors.256dark)
 # Aliases
 alias ls='gls --color=auto'
 alias ll='ls -al'
+alias l='ls -CF'
 #--------------------------------------------------
 
 

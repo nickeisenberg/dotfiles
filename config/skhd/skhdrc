@@ -32,4 +32,5 @@ ctrl + cmd - 6 : yabai -m window --space 6 && yabai -m space --focus 6
 cmd - m : osascript -e 'tell application "System Events" to key code 160'
 
 # Open up a iterm window
-cmd - return : ~/.config/skhd/scripts/newterm.sh
+# cmd - return : ~/.config/skhd/scripts/newterm.sh
+cmd - return : ~/.config/skhd/scripts/alacritty.sh
