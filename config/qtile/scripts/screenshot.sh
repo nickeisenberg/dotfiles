@@ -2,7 +2,7 @@
 
 take_screenshot() {
     local mode=$1 # The mode of the screenshot: full, select, or window
-    local filename="$HOME/Pictures/Screenshots/screen_$(date +%Y-%m-%d-%T).png"
+    local filename="$HOME/pictures/Screenshots/screen_$(date +%Y-%m-%d-%T).png"
 
     case $mode in
         full)

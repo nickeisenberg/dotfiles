@@ -10,7 +10,6 @@ from libqtile.config import (
     Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 )
 from libqtile.lazy import lazy
-import libqtile.command as command
 from utils import (
     NvidiaSensors2,
     grow_up_floating_window,
@@ -20,48 +19,24 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window
 )
-import socket
-
+from colors.rosepine import Colors
 
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
-
 terminal = 'alacritty'
+browser = "firefox"
 
-if socket.gethostname() == "stl-b324166":
-    browser = "google-chrome"
-else:
-    browser = "firefox"
+#--------------------------------------------------
+# color setup
+#--------------------------------------------------
+colors = Colors()
 
-colors = {
-	"_eperimental_nc": '#16141f',
-	"nc": '#16141f',
-	"base": '#191724',
-	"surface": '#1f1d2e',
-    "overlay": '#26233a',
-	"muted": '#6e6a86',
-	"subtle": '#908caa',
-	"text": '#e0def4',
-	"love": '#eb6f92',
-	"gold": '#f6c177',
-	"rose": '#ebbcba',
-    "muted_love": "#db4b4b",
-	"pine": '#31748f',
-	"foam": '#9ccfd8',
-	"cyan": '#ebbcba',
-	"iris": '#c4a7e7',
-	"highlight_low": '#21202e',
-	"highlight_med": '#403d52',
-    "highlight_high": '#524f67',
-    "none": 'NONE'
-}
-
-barcolor = colors["highlight_med"]
-widget_background = colors["highlight_med"]
-widget_text_color = colors["text"]
-urgent = colors["love"]
-muted_urgent = colors['muted_love']
-selected = colors["foam"]
+barcolor = colors.barcolor
+widget_background = colors.widget_background
+widget_text_color = colors.widget_text_color
+urgent = colors.urgent
+muted_urgent = colors.muted_urgent
+selected = colors.selected
 
 #--------------------------------------------------
 # Key Bindings 
@@ -203,11 +178,11 @@ maingroups = [
     Group(name="4", label="4", screen_affinity=0),
     Group(name="5", label="5", screen_affinity=0),
     Group(name="6", label="6", screen_affinity=0),
-    Group(name="7", label="7", screen_affinity=0),
-    Group(name="8", label="8", screen_affinity=0),
 ]
 
 dualgroups = [
+    Group(name="7", label="7", screen_affinity=1),
+    Group(name="8", label="8", screen_affinity=1),
     Group(name="9", label="9", screen_affinity=1),
     Group(name="0", label="10", screen_affinity=1),
 ]
@@ -217,7 +192,7 @@ groups = maingroups + dualgroups
 main_group_box = widget.GroupBox(
     fontsize=20,
     highlight_method="default",
-    visible_groups=['1', '2', '3', '4', '5', '6', '7', '8'],
+    visible_groups=['1', '2', '3', '4', '5', '6'],
     background=widget_background,
     active=selected,
     inactive=widget_text_color,
@@ -231,7 +206,7 @@ main_group_box = widget.GroupBox(
 dual_group_box = widget.GroupBox(
     fontsize=20,
     highlight_method="default",
-    visible_groups=['9', '0'],
+    visible_groups=['7', '8', '9', '0'],
     background=widget_background,
     active=selected,
     inactive=widget_text_color,
@@ -401,7 +376,7 @@ mybar_items += [
     widget.Spacer(),
     widget.TextBox(
         font='FontAwesome',
-        text="vRAM:",
+        text="VRAM:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
@@ -489,6 +464,14 @@ mybar_items += [
 
 
 mybar_dual_items = [
+    widget.Sep(background=barcolor, padding=10, linewidth=0),
+    widget.Clock(
+        foreground=widget_text_color,
+        # background=background,
+        background=widget_background,
+        fontsize=20,
+        format='%A, %b %d %I:%M %p ',
+    ),
     widget.Spacer(), 
     dual_group_box, 
     widget.Spacer()

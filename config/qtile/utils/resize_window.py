@@ -1,4 +1,5 @@
-from libqtile.command import lazy as clazy
+from libqtile.lazy import lazy as clazy
+
 
 @clazy.window.function 
 def resize_floating_window(window, width: int = 0, height: int = 0): 

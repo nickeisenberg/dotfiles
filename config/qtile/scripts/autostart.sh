@@ -10,11 +10,18 @@ setxkbmap -option ctrl:nocaps &
 #----------
 # Wallpaper
 #----------
+
+# rosepint
 xsetroot -solid '#191724'
-# feh --bg-scale $HOME/Downloads/wall-02.webp
+
+# nvim default
+# xsetroot -solid "#14161b"
 #----------
 
 python3 ~/.config/qtile/scripts/battery_check.py &
+
+# natural scrolling
+xinput set-prop 11 "libinput Natural Scrolling Enabled" 1
 
 #----------
 # set up the dual monitor
