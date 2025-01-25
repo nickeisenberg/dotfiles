@@ -41,8 +41,7 @@ return {
 
     local servers = {
       clangd = {},
-      pyright = {},
-      rust_analyzer = {},
+      basedpyright = {},
       bashls = {},
       sqlls = {},
       texlab = {},

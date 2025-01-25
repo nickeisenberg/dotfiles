@@ -474,6 +474,17 @@ mybar_dual_items = [
     ),
     widget.Spacer(), 
     dual_group_box, 
+    widget.CurrentLayoutIcon(
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        scale=.5
+    ),
+    widget.CurrentLayout(
+        fontsize=20,
+        foreground=widget_text_color,
+        background=widget_background,
+    ),
     widget.Spacer()
 ]
 

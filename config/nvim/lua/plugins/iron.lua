@@ -18,7 +18,8 @@ return {
     else
       python_repl_definition = {
         command = { "python3" },
-        format = require("iron.fts.common").bracketed_paste_python
+        format = require("iron.fts.common").bracketed_paste_python,
+        block_deviders = { "# %%", "#%%" },
       }
     end
 
@@ -35,6 +36,8 @@ return {
         visual_send = "<space>sp",
         send_paragraph = "<space>sp",
         send_until_cursor = "<space>su",
+        send_code_block = "<space>sb",
+        send_code_block_and_move = "<space>sn",
         send_file = "<space>sf",
         exit = "<space>rq",
         clear = "<space>rc",
