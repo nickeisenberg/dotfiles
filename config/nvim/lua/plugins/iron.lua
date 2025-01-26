@@ -1,6 +1,6 @@
 return {
   "Vigemus/iron.nvim",
-  -- dir = "~/GitRepos/iron.nvim/iron.nvim",
+  -- dir = "~/gitrepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
   -- "nickeisenberg/iron.nvim",
   -- branch = "master",
@@ -29,7 +29,10 @@ return {
         repl_open_cmd = view.split.vertical.rightbelow("%40"),
         repl_definition = {
           python = python_repl_definition,
-        }
+        },
+        repl_filetype = function(_, ft)
+          return ft
+        end,
       },
       keymaps = {
         send_line = "<space>sl",

@@ -41,7 +41,9 @@ return {
 
     local servers = {
       clangd = {},
-      basedpyright = {},
+      basedpyright = {
+        typeCheckingMode = "standard"
+      },
       bashls = {},
       sqlls = {},
       texlab = {},
