@@ -1,24 +1,25 @@
 return {
-  "Vigemus/iron.nvim",
+  -- "Vigemus/iron.nvim",
   -- dir = "~/gitrepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
-  -- "nickeisenberg/iron.nvim",
-  -- branch = "master",
+  "nickeisenberg/iron.nvim",
+  branch = "dev",
   config = function()
-    local iron = require("iron.core")
+    local iron = require("iron")
     local view = require("iron.view")
-    local this_os = require("utils").get_os_name()
+    local common = require("iron.fts.common")
+    local get_os_name = require("utils").get_os_name
 
     local python_repl_definition
-    if this_os == "Darwin" then
+    if get_os_name() == "Darwin" then
       python_repl_definition = {
         command = { "ipython", "--no-autoindent" },
-        format = require("iron.fts.common").bracketed_paste_python
+        format = common.bracketed_paste_python
       }
     else
       python_repl_definition = {
         command = { "python3" },
-        format = require("iron.fts.common").bracketed_paste_python,
+        format = common.bracketed_paste_python,
         block_deviders = { "# %%", "#%%" },
       }
     end
