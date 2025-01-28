@@ -1,9 +1,9 @@
 return {
-  -- "Vigemus/iron.nvim",
+  "Vigemus/iron.nvim",
   -- dir = "~/gitrepos/iron.nvim/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
-  "nickeisenberg/iron.nvim",
-  branch = "dev",
+  -- "nickeisenberg/iron.nvim",
+  -- branch = "master",
   config = function()
     local iron = require("iron")
     local view = require("iron.view")
