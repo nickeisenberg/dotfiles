@@ -50,31 +50,84 @@ function source_file() {
     fi
 }
 
-function sym_link_to_bin() {
-    if [[ -f $1 ]]; then
+function in_path() {
+    if [[ ":$PATH:" == *":$1:"* ]]; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+export PATH=$PATH:"$HOME/.local/nicholas/bin"
+function sym_link_to_my_bin() {
+    local MY_BIN_DIR="$HOME/.local/nicholas/bin"
+    local SUCCESS
+
+    if [[ ! -d "$MY_BIN_DIR" ]]; then
+        echo "$MY_BIN_DIR does not exit."
+        read -p "Should I create it and add it to PATH? [y/N]" response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            mkdir -p $MY_BIN_DIR
+            if [[ -d $MY_BIN_DIR ]]; then
+                echo "$MY_BIN_DIR has been created"
+                SUCCESS="true"
+            else
+                echo "FAIL: $MY_BIN_DIR has not been created"
+                SUCCESS="false"
+            fi
+
+            export PATH=$PATH:$MY_BIN_DIR
+            if [[ $(in_path MY_BIN_DIR)=="true" ]]; then
+                echo "$MY_BIN_DIR has been added to path"
+                SUCCESS="true"
+            else
+                echo "FAIL: $MY_BIN_DIR has not been added to path"
+                SUCCESS="false"
+            fi
+        fi
+    else
+        if [[ $(in_path "$MY_BIN_DIR") == "false" ]]; then
+            echo "$MY_BIN_DIR is not in PATH."
+            read -p "Should I add it to PATH? [y/N]" response
+
+            if [[ "$response" =~ ^[Yy]$ ]]; then
+                export PATH=$PATH:$MY_BIN_DIR
+            fi
+
+            if [[ $(in_path MY_BIN_DIR) == "true" ]]; then
+                echo "$MY_BIN_DIR has been added to path"
+                SUCCESS="true"
+            else
+                echo "FAIL: $MY_BIN_DIR has not been added to path"
+                SUCCESS="false"
+            fi
+        fi
+    fi
+
+    if [[ -f $1 && $SUCCESS != "false" ]]; then
         local BASENAME=$(basename $1)
         local FILENAME="${BASENAME%%.*}"
         chmod +x $1
-        if [[ -d "$HOME/.local/bin" ]]; then
-            if [[ ! -L "$HOME/.local/bin/$FILENAME" ]]; then
-                read -p "Attempting to symlink $1 to $HOME/.local/bin. Do you want to continue '$1'? [y/N]: " response
-                if [[ "$response" =~ ^[Yy]$ ]]; then
-                    sudo ln -s $1 "$HOME/.local/bin/$FILENAME"
-                    echo "The link "$HOME/.local/bin/$FILENAME" has been created"
-                else
-                    echo "Link skipped"
-                fi
+        if [[ ! -L "$MY_BIN_DIR/$FILENAME" ]]; then
+            echo "Attempting to symlink $1 to $MY_BIN_DIR/$FILENAME." 
+            read -p "Do you want to continue [y/N]: " response
+            if [[ "$response" =~ ^[Yy]$ ]]; then
+                ln -s $1 "$MY_BIN_DIR/$FILENAME"
+                echo "The link "$MY_BIN_DIR/$FILENAME" has been created"
+            else
+                echo "Link skipped"
             fi
         fi
     else
         echo "$1 is not a file" 
+        echo $SUCCESS
     fi
 }
 
 if [[ -d "$HOME/software" ]]; then
     source_file "$HOME/software/venv_manager/src/venv.sh"
     source_file "$HOME/software/tmux_ide/ide.sh"
-    sym_link_to_bin "$HOME/software/timer/timer.py"
+    sym_link_to_my_bin "$HOME/software/timer/timer.py"
 fi
 
 # some aliases
