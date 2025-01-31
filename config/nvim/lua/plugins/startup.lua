@@ -1,6 +1,6 @@
 return {
   "echasnovski/mini.starter",
-  enabled = true,
+  enabled = false,
   event = "VimEnter",
   config = function ()
     -- local status, starter = pcall(require, "mini.starter")
