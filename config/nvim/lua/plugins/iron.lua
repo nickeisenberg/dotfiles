@@ -22,7 +22,8 @@ return {
             command = { "ipython", "--no-autoindent" } and OS == "Darwin" or { "python3" },
             format = common.bracketed_paste_python,
             block_deviders = { "# %%", "#%%" },
-          }
+          },
+          sh = { command = { "bash" } }
         },
         repl_filetype = function(_, ft)
           return ft

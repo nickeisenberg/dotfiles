@@ -42,6 +42,41 @@ export PATH="$HOME/.local/bin:$PATH"
 # sudo edit env variables
 export SUDO_EDITOR="nvim"
 
+function source_file() {
+    if [[ -f $1 ]]; then
+        source $1
+    else
+        echo "$1 is not a file" 
+    fi
+}
+
+function sym_link_to_bin() {
+    if [[ -f $1 ]]; then
+        local BASENAME=$(basename $1)
+        local FILENAME="${BASENAME%%.*}"
+        chmod +x $1
+        if [[ -d "$HOME/.local/bin" ]]; then
+            if [[ ! -L "$HOME/.local/bin/$FILENAME" ]]; then
+                read -p "Attempting to symlink $1 to $HOME/.local/bin. Do you want to continue '$1'? [y/N]: " response
+                if [[ "$response" =~ ^[Yy]$ ]]; then
+                    sudo ln -s $1 "$HOME/.local/bin/$FILENAME"
+                    echo "The link "$HOME/.local/bin/$FILENAME" has been created"
+                else
+                    echo "Link skipped"
+                fi
+            fi
+        fi
+    else
+        echo "$1 is not a file" 
+    fi
+}
+
+if [[ -d "$HOME/software" ]]; then
+    source_file "$HOME/software/venv_manager/src/venv.sh"
+    source_file "$HOME/software/tmux_ide/ide.sh"
+    sym_link_to_bin "$HOME/software/timer/timer.py"
+fi
+
 # some aliases
 alias ipython='python3 -m IPython'
 alias python='python3'

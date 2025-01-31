@@ -2,6 +2,9 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
+-- there is an issue with the version on lua being used
+-- local awesome = require("awesome")
+
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")

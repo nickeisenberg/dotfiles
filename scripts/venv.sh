@@ -1,1 +1,0 @@
-/home/nicholas/software/venv_manager/venv/venv.sh
