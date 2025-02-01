@@ -1,3 +1,11 @@
+#-------------------------------------------------- 
+# Some helpers
+#-------------------------------------------------- 
+for file in $HOME/dotfiles/scripts/*; do
+    source $file
+done
+#-------------------------------------------------- 
+
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -56,28 +64,16 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-is_on_system() {
-    if command -v $1 &> /dev/null; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-parse_git_branch() {
- git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-}
-
+# From helpers.sh
 if [ "$color_prompt" = yes ]; then
     if is_on_system git; then
-        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[01;31m\]$(parse_git_branch)\[\033[00m\]\$ '
+        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[01;31m\]$(get_git_branch)\[\033[00m\]\$ '
     else
         PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[01;31m\]\[\033[00m\]\$ '
     fi
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
 fi
-
 #--------------------------------------------------
 
 
