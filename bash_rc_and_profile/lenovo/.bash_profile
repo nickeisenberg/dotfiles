@@ -58,8 +58,10 @@ function in_path() {
     fi
 }
 
-export PATH=$PATH:"$HOME/.local/nicholas/bin"
-function sym_link_to_my_bin() {
+MY_BIN_DIR="$HOME/.local/nicholas/bin"
+export PATH=$PATH:"$MY_BIN_DIR:"
+
+function setup_my_bin() {
     local MY_BIN_DIR="$HOME/.local/nicholas/bin"
     local SUCCESS
 
@@ -101,8 +103,17 @@ function sym_link_to_my_bin() {
                 echo "FAIL: $MY_BIN_DIR has not been added to path"
                 SUCCESS="false"
             fi
+        else
+            SUCCESS="true"
         fi
     fi
+    echo $SUCCESS
+}
+
+function sym_link_to_my_bin() {
+    local MY_BIN_DIR="$HOME/.local/nicholas/bin"
+    
+    local SUCCESS=$(setup_my_bin)
 
     if [[ -f $1 && $SUCCESS != "false" ]]; then
         local BASENAME=$(basename $1)
