@@ -1,15 +1,20 @@
-return {
+local M = {}
+
+M.rosepine = {
   "rose-pine/neovim",
   name = "rose-pine",
   config = function()
-    -- local pine = require("rose-pine")
-    -- pine.setup({
-    --   palette = {
-    --     main = {
-    --       base = "#000000"
-    --     }
-    --   }
-    -- })
     vim.cmd("colorscheme rose-pine")
   end
 }
+
+M.vague = {
+  "vague2k/vague.nvim",
+  config = function()
+    require("vague").setup({
+      -- optional configuration here
+    })
+  end
+}
+
+return M.rosepine

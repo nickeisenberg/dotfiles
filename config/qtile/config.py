@@ -122,9 +122,13 @@ keys = [
         desc="screen shot of active window"
     ),
 
-    Key([], "XF86AudioLowerVolume", lazy.widget["pulsevolume"].decrease_vol()),
-    Key([], "XF86AudioRaiseVolume", lazy.widget["pulsevolume"].increase_vol()),
-    Key([], "XF86AudioMute", lazy.widget["pulsevolume"].mute()),
+    Key(
+        [], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
+    ),
+    Key(
+        [], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
+    ),
+    Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")),
 
     Key([], "XF86MonBrightnessUp", 
         lazy.spawn(os.path.expanduser(

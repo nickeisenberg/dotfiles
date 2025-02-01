@@ -110,9 +110,7 @@ function setup_my_bin() {
     echo $SUCCESS
 }
 
-function sym_link_to_my_bin() {
-    local MY_BIN_DIR="$HOME/.local/nicholas/bin"
-    
+function sym_link_file_to_my_bin() {
     local SUCCESS=$(setup_my_bin)
 
     if [[ -f $1 && $SUCCESS != "false" ]]; then
@@ -130,15 +128,15 @@ function sym_link_to_my_bin() {
             fi
         fi
     else
+        echo "success": $SUCCESS
         echo "$1 is not a file" 
-        echo $SUCCESS
     fi
 }
 
 if [[ -d "$HOME/software" ]]; then
     source_file "$HOME/software/venv_manager/src/venv.sh"
     source_file "$HOME/software/tmux_ide/ide.sh"
-    sym_link_to_my_bin "$HOME/software/timer/timer.py"
+    sym_link_file_to_my_bin "$HOME/software/timer/timer.py"
 fi
 
 # some aliases
