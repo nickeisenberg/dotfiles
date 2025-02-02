@@ -447,6 +447,22 @@ mybar_items += [
         padding=0,
         fontsize=20
     ),
+    widget.Wlan(
+        interface="wlp0s20f3",
+        font="FontAwesome",
+        fontsize=16,
+        foreground=widget_text_color,
+        background=widget_background,
+        format='{essid} {percent:2.0%}'
+    ),
+    widget.TextBox(
+        font='FontAwesome',
+        text="\u2502",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=20
+    ),
     widget.Battery(
         battery="BAT0",
         font='FontAwesome',
