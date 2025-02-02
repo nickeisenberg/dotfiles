@@ -25,6 +25,15 @@ function is_on_system() {
 }
 
 
+function in_path() {
+    if [[ ":$PATH:" == *":$1:"* ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
 function get_git_branch() {
     if is_on_system git; then
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
@@ -39,15 +48,6 @@ function source_file() {
         source $1
     else
         echo "$1 is not a file" 
-    fi
-}
-
-
-function in_path() {
-    if [[ ":$PATH:" == *":$1:"* ]]; then
-        return 0
-    else
-        return 1
     fi
 }
 
