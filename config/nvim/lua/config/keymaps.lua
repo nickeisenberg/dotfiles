@@ -35,6 +35,9 @@ vim.api.nvim_set_keymap(
   { noremap = true, silent = true }
 )
 
+-- quick lazy repload
+vim.keymap.set("n", "<leader>R", ":Lazy reload ")
+
 -- Easier save key
 vim.keymap.set("n", "<leader>w", "<ESC>:w <CR>")
 
