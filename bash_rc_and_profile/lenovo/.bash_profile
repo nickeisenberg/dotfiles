@@ -42,10 +42,13 @@ xset r rate 250 30  # key press delay time
 #--------------------------------------------------
 # My utilities
 #--------------------------------------------------
+
 # From helpers.sh
 if [[ -d "$HOME/software" ]]; then
     source_file "$HOME/software/venv_manager/src/venv.sh"
     source_file "$HOME/software/tmux_ide/ide.sh"
+
+    create_directory_and_add_to_path "$HOME/.local/nicholas/bin" 1
     sym_link_file_as_bin "$HOME/software/timer/timer.py" "$HOME/.local/nicholas/bin"
 fi
 #--------------------------------------------------

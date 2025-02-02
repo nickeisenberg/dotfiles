@@ -69,7 +69,7 @@ function add_directory_to_path() {
     if [[ $# -eq 2 && $2 -ne 0 && $2 -ne 1 ]]; then
         echo "second arg should be 0 or 1"
         echo return 1
-    elif [[ $# -ge 2 ]]; then
+    elif [[ $# > 2 ]]; then
         echo "len of args needs to be 1 or 2. $# args inputed"
         echo return 1
     fi
@@ -94,27 +94,17 @@ function add_directory_to_path() {
 }
 
 
-function setup_home_dotlocal_nicholas_bin() {
-    local DIR="$HOME/.local/nicholas/bin"
-    
-    if [[ ! -d $DIR ]]; then
-        mkdir -p $DIR
-
-        if ! dir_exists $DIR; then
-            echo "$DIR was not successfully created"
+function create_directory_and_add_to_path() {
+    if [[ ! -d $1 ]]; then
+        mkdir -p $1
+        if ! dir_exists $1; then
+            echo "$1 was not successfully created"
             return 1
         fi
     fi
 
-    if ! in_path $DIR; then
-        add_directory_to_path $DIR
-
-        if ! in_path $DIR; then
-            echo "$DIR was not successfully added to PATH"
-            return 1
-        else
-            return 0
-        fi
+    if ! in_path $1; then
+        add_directory_to_path $1 $2
     fi
 }
 
