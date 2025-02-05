@@ -447,6 +447,14 @@ mybar_items += [
         padding=0,
         fontsize=20
     ),
+    widget.TextBox(
+        font='FontAwesome',
+        text=" WiFi:",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=16
+    ),
     widget.Wlan(
         interface="wlp0s20f3",
         font="FontAwesome",
