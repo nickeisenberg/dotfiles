@@ -19,7 +19,7 @@ style = "Regular"
 
 [terminal.shell]
 args = ["--login"]
-program = "/bin/bash"
+program = "/bin/zsh"
 
 [window]
 opacity = 1

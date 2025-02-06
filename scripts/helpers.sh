@@ -34,6 +34,19 @@ function in_path() {
 }
 
 
+function add_to_path() {
+    if ! in_path $1; then
+        if [[ $2  == 0 ]]; then
+            PATH=$1:$PATH
+        elif [[ $2 == 1 ]]; then
+            PATH=$PATH:$1
+        else
+            echo "ERROR: second arg must be 0 or 1"
+        fi
+    fi
+}
+
+
 function get_git_branch() {
     if is_on_system git; then
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
