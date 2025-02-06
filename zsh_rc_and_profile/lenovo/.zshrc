@@ -8,6 +8,10 @@ add_to_path $HOME/bin 0
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+if [[ ! -d $ZSH ]]; then
+    echo "~/.oh-my-zsh is not found. Cloning now."
+    git clone https://github.com/ohmyzsh/ohmyzsh.git $ZSH
+fi
 
 # See $HOME/.oh-my-zsh/themes
 ZSH_THEME="robbyrussell"
