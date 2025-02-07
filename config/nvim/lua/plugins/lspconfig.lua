@@ -42,7 +42,9 @@ return {
     local servers = {
       clangd = {},
       pyright = {},
-      bashls = {},
+      bashls = {
+        filetypes = { "sh", "zsh" }
+      },
       sqlls = {},
       texlab = {},
       marksman = {},
