@@ -3,6 +3,12 @@ source $HOME/.credentials/password.sh
 source $HOME/.credentials/keypairs/paths.sh
 
 #--------------------------------------------------
+# Settings
+#--------------------------------------------------
+xset r rate 250 30  # key press delay time 
+#--------------------------------------------------
+
+#--------------------------------------------------
 # Alias
 #--------------------------------------------------
 alias ipython='python3 -m IPython'
@@ -29,18 +35,8 @@ export PATH=$PATH:/home/nicholas/.spicetify
 
 # nvm paths
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-#--------------------------------------------------
-
-#--------------------------------------------------
-# Settings
-#--------------------------------------------------
-xset r rate 250 30  # key press delay time 
-#--------------------------------------------------
-
-#--------------------------------------------------
-# My utilities
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 #--------------------------------------------------
 
 # From helpers.sh

@@ -1,31 +1,22 @@
 #-------------------------------------------------- 
 # Some helpers
 #-------------------------------------------------- 
-for file in $HOME/dotfiles/scripts/*; do
-    source $file
-done
+source $HOME/dotfiles/scripts/helpers.sh
+source $HOME/dotfiles/scripts/dm.sh
 #-------------------------------------------------- 
 
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+# from helpers.sh
 add_to_path /usr/local/bin 0
 add_to_path $HOME/.local/bin 0
 add_to_path $HOME/bin 0
 
-
-# Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
-
 if [[ ! -d $ZSH ]]; then
     echo "~/.oh-my-zsh is not found. Cloning now."
     git clone https://github.com/ohmyzsh/ohmyzsh.git $ZSH
 fi
 
-# See $HOME/.oh-my-zsh/themes
 ZSH_THEME="robbyrussell"
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
 
 zstyle ':omz:update' mode disabled  # disable automatic updates
 
@@ -39,10 +30,6 @@ zstyle ':omz:update' mode disabled  # disable automatic updates
 
 HIST_STAMPS="yyyy-mm-dd"
 
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Standard plugins can be found in $ZSH/plugins/
 plugins=(git)
 
@@ -62,80 +49,74 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 #--------------------------------------------------
 # Lazy loading nvm, node and npm as it takes for ever on start.
 #--------------------------------------------------
-# Load NVM if it's not already loaded
 load_nvm() {
     export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 }
 
-lazy_load_nvm_on_call() {
-    local CMD=$1
-    shift
-    if [[ -z "$NVM_DIR" ]]; then  # Check if NVM is not loaded
-        load_nvm
-    fi
-
-    if [[ "$CMD" == "nvm" ]]; then
-        eval "$CMD" "$@"  # Use eval for nvm since it's a function
-    else
-        command "$CMD" "$@"  # Use command for node/npm
-    fi
-}
-
-# Override nvm, node, npm to use lazy loading
-nvm() {
-    lazy_load_nvm_on_call nvm "$@"
-}
-
-npm() {
-    lazy_load_nvm_on_call npm "$@"
-}
-
-node() {
-    lazy_load_nvm_on_call node "$@"
-}
+LAZY_LOAD_NVM=false
+if ! $LAZY_LOAD_NVM; then
+    load_nvm
+else
+    lazy_load_nvm_on_call() {
+        local CMD=$1
+        shift
+        if [[ -z "$NVM_DIR" ]]; then
+            load_nvm
+        fi
+    
+        if [[ "$CMD" == "nvm" ]]; then
+            eval "$CMD" "$@"
+        else
+            command "$CMD" "$@"
+        fi
+    }
+    
+    nvm() {
+        lazy_load_nvm_on_call nvm "$@"
+        unset -f nvm 
+    }
+    
+    npm() {
+        lazy_load_nvm_on_call npm "$@"
+        unset -f npm
+    }
+    
+    node() {
+        lazy_load_nvm_on_call node "$@"
+        unset -f node 
+    }
+fi
 #--------------------------------------------------
-
 
 #--------------------------------------------------
 # Settings
 #--------------------------------------------------
-xset r rate 250 30  # key press delay time 
+xset r rate 250 30
 #--------------------------------------------------
 
 #--------------------------------------------------
 # PATHS
 #--------------------------------------------------
-
-# Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
 else
   export EDITOR='nvim'
 fi
 
-
 export EDITOR='nvim'
 export SUDO_EDITOR="nvim"
 export PATH="$HOME/.local/bin:$PATH"
-
-# spicetify path
-export PATH=$PATH:/home/nicholas/.spicetify
-
 
 # cuda paths
 export PATH="/usr/local/cuda-12.1/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda-12.1/lib64:$LD_LIBRARY_PATH"
 
-
 # spicetify stuff
 export PATH=$PATH:/home/nicholas/.spicetify
 . "$HOME/.cargo/env"
-
-
 #--------------------------------------------------
-
 
 # From helpers.sh
 if [[ -d "$HOME/software" ]]; then
