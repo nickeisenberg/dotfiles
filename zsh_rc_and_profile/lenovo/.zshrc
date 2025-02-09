@@ -123,6 +123,8 @@ if [[ -d "$HOME/software" ]]; then
     create_directory_and_add_to_path "$HOME/.local/nicholas/bin" 1
     sym_link_file_as_bin "$HOME/software/timer/timer.py" "$HOME/.local/nicholas/bin"
 
+    VENVMAN_ROOT_DIR=$HOME/.venvman
+    VENVMAN_ENVS_DIR=$HOME/.venvman/envs
     source_file "$HOME/.venvman/venvman/src/venvman.sh"
     source_file "$HOME/.venvman/venvman/src/completion/completion.sh"
     source_file "$HOME/software/tmux_ide/ide.sh"
