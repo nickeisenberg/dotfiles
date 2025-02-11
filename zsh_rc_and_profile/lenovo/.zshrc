@@ -125,10 +125,10 @@ if [[ -d "$HOME/software" ]]; then
     sym_link_file_as_bin "$HOME/software/timer/timer.py" "$HOME/.local/nicholas/bin"
     
     venvman() {
+        unset -f venvman
         VENVMAN_ROOT_DIR=$HOME/.venvman
         VENVMAN_ENVS_DIR=$HOME/.venvman/envs
         source_file "$HOME/.venvman/venvman/src/main.sh"
-        unset -f venvman
         venvman
     }
 
