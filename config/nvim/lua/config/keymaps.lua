@@ -1,6 +1,8 @@
 -- close a buffer
 vim.keymap.set("n", "<leader>bd", vim.cmd.bd)
 
+vim.keymap.set("v", "<leader>\"", 'c""<Esc>P', { noremap = true, silent = true })
+
 -- Move to the bottom or top of the previous highlihgt
 vim.cmd([[nnoremap <leader>md `>]])
 vim.cmd([[nnoremap <leader>mu `<]])
