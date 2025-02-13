@@ -158,5 +158,5 @@ element-text {
 }
 element selected.normal {
     background-color:            var(selected);
-    text-color:                  var(background);
+    text-color:                  @foreground;
 }

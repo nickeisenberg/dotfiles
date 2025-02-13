@@ -69,7 +69,7 @@ inputbar {
 prompt {
     enabled:                     true;
     background-color:            inherit;
-    text-color:                  inherit;
+    text-color:                  @foreground;
 }
 textbox-prompt-colon {
     enabled:                     true;
@@ -81,10 +81,10 @@ textbox-prompt-colon {
 entry {
     enabled:                     true;
     background-color:            inherit;
-    text-color:                  inherit;
+    text-color:                  @foreground;
     cursor:                      text;
     placeholder:                 "Search...";
-    placeholder-color:           inherit;
+    placeholder-color:           @foreground;
 }
 
 /*****----- Listview -----*****/
