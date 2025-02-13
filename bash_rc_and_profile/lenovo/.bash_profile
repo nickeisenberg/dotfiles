@@ -46,8 +46,7 @@ if [[ -d "$HOME/software" ]]; then
     
     VENVMAN_ROOT_DIR=$HOME/.venvman
     VENVMAN_ENVS_DIR=$HOME/.venvman/envs
-    source_file "$HOME/.venvman/venvman/src/venvman.sh"
-    source_file "$HOME/.venvman/venvman/src/completion/completion.sh"
+    source_file "$HOME/.venvman/venvman/src/main.sh"
     source_file "$HOME/software/tmux_ide/ide.sh"
 fi
 #--------------------------------------------------
