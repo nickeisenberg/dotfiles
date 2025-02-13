@@ -76,11 +76,7 @@ keys = [
     Key([mod0], "f", lazy.window.toggle_fullscreen()),
     Key([mod0], "t", lazy.window.toggle_floating()),
     Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    Key(
-        [mod0], "b", 
-        lazy.spawn(f"{browser} --new-window https://google.com/"), 
-        desc=f"Launch {browser}"
-    ),
+    Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
     Key(
         [mod0], "h", 
         lazy.spawn(f"{browser} --new-window https://chat.openai.com/"), 
