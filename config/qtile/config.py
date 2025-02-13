@@ -19,7 +19,7 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window
 )
-from colors.rosepine import Colors
+from colors.vague import Colors
 
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
