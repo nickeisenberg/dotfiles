@@ -12,7 +12,10 @@ setxkbmap -option ctrl:nocaps &
 #----------
 
 # rosepint
-xsetroot -solid '#191724'
+# xsetroot -solid '#191724'
+
+# vague
+xsetroot -solid '#141415'
 
 # nvim default
 # xsetroot -solid "#14161b"

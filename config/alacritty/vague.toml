@@ -1,0 +1,48 @@
+[colors.bright]
+black = "0x606079"   # comment
+blue = "0x7e98e8"    # hint
+cyan = "0xb4d4cf"    # builtin
+green = "0x8cb66d"   # plus
+magenta = "0xbb9dbd" # parameter
+red = "0xdf6882"     # error
+white = "0xcdcdcd"   # fg
+yellow = "0xf3be7c"  # warning
+
+[colors.cursor]
+cursor = "0x878787"  # floatBorder
+text = "0xcdcdcd"    # fg
+
+[colors.hints.end]
+background = "#252530"  # line
+foreground = "#606079"  # comment
+
+[colors.hints.start]
+background = "#252530"  # line
+foreground = "#9bb4bc"  # type
+
+[colors.line_indicator]
+background = "None"
+foreground = "None"
+
+[colors.normal]
+black = "0x141415"   # bg
+blue = "0x7e98e8"    # hint
+cyan = "0xb4d4cf"    # builtin
+green = "0x8cb66d"   # plus
+magenta = "0xbb9dbd" # parameter
+red = "0xdf6882"     # error
+white = "0xcdcdcd"   # fg
+yellow = "0xf3be7c"  # warning
+
+[colors.primary]
+background = "0x141415"  # bg
+foreground = "0xcdcdcd"  # fg
+
+[colors.selection]
+background = "0x333738"  # visual
+text = "0xcdcdcd"        # fg
+
+[colors.vi_mode_cursor]
+cursor = "0x878787"  # floatBorder
+text = "0xcdcdcd"    # fg
+

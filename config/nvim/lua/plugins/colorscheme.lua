@@ -4,6 +4,13 @@ M.rosepine = {
   "rose-pine/neovim",
   name = "rose-pine",
   config = function()
+    require("rose-pine").setup({
+      palette = {
+        main = {
+          -- base = "#000000"
+        }
+      }
+    })
     vim.cmd("colorscheme rose-pine")
   end
 }
@@ -14,7 +21,9 @@ M.vague = {
     require("vague").setup({
       -- optional configuration here
     })
+  vim.cmd("colorscheme vague")
   end
 }
 
-return M.rosepine
+
+return M.vague

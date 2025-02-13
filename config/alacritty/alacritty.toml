@@ -25,6 +25,6 @@ program = "/bin/zsh"
 opacity = 1
 
 [general]
-import = ["~/.config/alacritty/rose-pine.toml"]
+import = ["~/.config/alacritty/vague.toml"]
 
 [terminal]
