@@ -88,14 +88,14 @@ keys = [
     Key(
         [mod0, "control"], "b", 
         lazy.spawn(
-            os.path.expanduser("~/.config/rofi/scripts/launcher_t2")
+            os.path.expanduser("~/.config/rofi/launcher.sh")
         ), 
         desc="Launch the Rofi file explorer"
     ),
     Key(
         [mod0, "control"], "q", 
         lazy.spawn(
-            os.path.expanduser("~/.config/rofi/scripts/powermenu_t1")
+            os.path.expanduser("~/.config/rofi/powermenu.sh")
         ), 
         desc="Launch the Rofi file explorer"
     ),
