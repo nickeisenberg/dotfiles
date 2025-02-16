@@ -1,6 +1,6 @@
 return {
   "akinsho/bufferline.nvim",
-  enabled = true,
+  enabled = false,
   event = "VeryLazy",
   dependencies = {
     "echasnovski/mini.bufremove"

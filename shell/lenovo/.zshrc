@@ -132,8 +132,6 @@ if [[ -d "$HOME/software" ]]; then
         source_file "$HOME/.venvman/venvman/src/main.sh"
         venvman $@
     }
-
-    source_file "$HOME/software/tmux_ide/ide.sh"
 fi
 #--------------------------------------------------
 # present=$(date +%s%5N)
