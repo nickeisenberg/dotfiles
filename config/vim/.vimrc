@@ -89,7 +89,6 @@ function! ToggleTerminal(split_type)
 endfunction
 
 
-
 " Key mappings
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
