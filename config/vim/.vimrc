@@ -34,6 +34,7 @@ nnoremap <leader>w :w<CR>
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
 
+
 function! ToggleTerminal(split_type)
   " Find an existing terminal buffer
   let term_buf = -1
@@ -43,6 +44,9 @@ function! ToggleTerminal(split_type)
       break
     endif
   endfor
+
+  " Get virtual environment path
+  let venv_path = $VIRTUAL_ENV
 
   if term_buf > 0
     " Check if the terminal is open in any window
@@ -59,15 +63,32 @@ function! ToggleTerminal(split_type)
       endif
     endif
   else
-    " No terminal exists, open a new one in specified split type
-    if a:split_type ==# 'vertical'
-      execute "vert botright term"
+    " Define shell script path
+    let shell_script = "/tmp/activate_venv.sh"
+
+    " Create the shell script that will activate the venv and start a shell
+    if !empty(venv_path)
+      call writefile([
+            \ "#!/bin/bash",
+            \ "source " . venv_path . "/bin/activate",
+            \ "exec " . &shell
+            \ ], shell_script)
+      call system("chmod +x " . shell_script)
     else
-      execute "botright term"
+      let shell_script = &shell  " If no venv is active, just use the default shell"
+    endif
+
+    " Open the terminal in the appropriate split type
+    if a:split_type ==# 'vertical'
+      execute "vert botright term ++shell=" . shellescape(shell_script)
+    else
+      execute "botright term ++shell=" . shellescape(shell_script)
     endif
     setlocal bufhidden=hide
   endif
 endfunction
+
+
 
 " Key mappings
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
