@@ -19,7 +19,7 @@ return {
         },
         repl_definition = {
           python = {
-            command = { "ipython", "--no-autoindent" } and OS == "Darwin" or { "python3" },
+            command = (OS == "Darwin") and { "ipython", "--no-autoindent" } or { "python3" },
             format = common.bracketed_paste_python,
             block_deviders = { "# %%", "#%%" },
           },
