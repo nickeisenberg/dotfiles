@@ -8,6 +8,7 @@ set shiftwidth=4
 set expandtab
 set autoindent
 set mouse=a
+set number
 
 "--------------------------------------------------
 " splits
@@ -77,7 +78,6 @@ nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 call plug#begin('~/.vim/plugged')
 
 Plug 'jpalardy/vim-slime'
-Plug 'tpope/vim-fugitive'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
