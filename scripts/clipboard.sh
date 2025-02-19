@@ -1,0 +1,3 @@
+clipboard() {
+    xclip -selection clipboard
+}
