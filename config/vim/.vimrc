@@ -1,8 +1,7 @@
 let mapleader = " "
 
-set background=dark
 colorscheme habamax
-highlight Normal ctermbg=NONE guibg=#141415
+autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
 
 set foldmethod=indent
 set tabstop=4
