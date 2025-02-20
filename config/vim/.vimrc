@@ -1,8 +1,13 @@
 let mapleader = " "
 
+
+" vague.nvim background color
+"--------------------------------------------------
 colorscheme habamax
 autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
 
+" settings 
+"--------------------------------------------------
 set foldmethod=indent
 set tabstop=4
 set shiftwidth=4
@@ -12,7 +17,6 @@ set mouse=a
 set number
 set updatetime=100
 
-"--------------------------------------------------
 " splits
 "--------------------------------------------------
 nnoremap <Leader>cs :close<CR>
@@ -22,16 +26,36 @@ nnoremap <Leader>k <C-w>k
 nnoremap <Leader>l <C-w>l
 nnoremap <Leader>sv :vsplit<CR>
 nnoremap <Leader>sh :split<CR>
-"--------------------------------------------------
 
+" easy clipboard
+"--------------------------------------------------
 nnoremap <leader>y "+y
 vnoremap <leader>y "+y
 nnoremap <leader>p "+p
 vnoremap <leader>p "+p
 
+" easy write 
+"--------------------------------------------------
 nnoremap <leader>w :w<CR>
 
+" Plugins
 "--------------------------------------------------
+call plug#begin('~/.vim/plugged')
+
+Plug 'jpalardy/vim-slime'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-vinegar'
+Plug 'mhinz/vim-signify'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
+call plug#end()
+
+" Plugin config
+"--------------------------------------------------
+
 " slime
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
@@ -72,7 +96,7 @@ function! ToggleTerminal(split_type)
             call writefile([
                         \ "#!/bin/bash",
                         \ "source " . venv_path . "/bin/activate",
-                        \ "exec " . &shell
+                        \ "exec " . &shell,
                         \ ], shell_script)
             call system("chmod +x " . shell_script)
         else
@@ -89,39 +113,18 @@ function! ToggleTerminal(split_type)
     endif
 endfunction
 
-" Key mappings
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
-"--------------------------------------------------
 
-"--------------------------------------------------
 " fzf
 "--------------------------------------------------
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fb :Buffers<CR>
 nnoremap <Leader>fg :Rg <CR>
 
-"--------------------------------------------------
-
-"--------------------------------------------------
 " airline
 "--------------------------------------------------
 set laststatus=2   " Always show the statusline
 set t_Co=256       " Enable 256 colors if not enabled
 let g:airline_powerline_fonts = 1  " Enable Powerline symbols
 let g:airline_theme='powerlineish'  " Other themes: molokai, base16, etc.
-"--------------------------------------------------
-
-
-call plug#begin('~/.vim/plugged')
-
-Plug 'jpalardy/vim-slime'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
-Plug 'tpope/vim-vinegar'
-Plug 'mhinz/vim-signify'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
-call plug#end()
