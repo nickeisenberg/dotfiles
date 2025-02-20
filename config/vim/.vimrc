@@ -95,9 +95,20 @@ nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 "--------------------------------------------------
 
 
+"--------------------------------------------------
+" fzf
+"--------------------------------------------------
+nnoremap <Leader>ff :Files<CR>
+nnoremap <Leader>fb :Buffers<CR>
+nnoremap <Leader>fg :Rg<CR>
+"--------------------------------------------------
+
 call plug#begin('~/.vim/plugged')
 
 Plug 'jpalardy/vim-slime'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-vinegar'
 
 call plug#end()
