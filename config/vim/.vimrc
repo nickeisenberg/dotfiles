@@ -9,6 +9,7 @@ set expandtab
 set autoindent
 set mouse=a
 set number
+set updatetime=100
 
 "--------------------------------------------------
 " splits
@@ -110,5 +111,6 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-vinegar'
+Plug 'mhinz/vim-signify'
 
 call plug#end()
