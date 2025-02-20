@@ -1,6 +1,8 @@
 let mapleader = " "
 
+set background=dark
 colorscheme habamax
+highlight Normal ctermbg=NONE guibg=#141415
 
 set foldmethod=indent
 set tabstop=4
@@ -98,7 +100,8 @@ nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 "--------------------------------------------------
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fb :Buffers<CR>
-nnoremap <Leader>fg :Rg<CR>
+nnoremap <Leader>fg :Rg <CR>
+
 "--------------------------------------------------
 
 "--------------------------------------------------
