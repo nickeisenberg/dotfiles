@@ -93,7 +93,7 @@ function! ToggleTerminal(split_type)
             if a:split_type ==# 'vertical'
                 execute "vert botright sbuffer " . term_buf
             else
-                execute "botright sbuffer " . term_buf
+                execute "rightbelow sbuffer " . term_buf
             endif
         endif
     else
@@ -116,7 +116,7 @@ function! ToggleTerminal(split_type)
         if a:split_type ==# 'vertical'
             execute "vert botright term ++shell=" . shellescape(shell_script)
         else
-            execute "botright term ++shell=" . shellescape(shell_script)
+            execute "rightbelow term ++shell=" . shellescape(shell_script)
         endif
         setlocal bufhidden=hide
     endif

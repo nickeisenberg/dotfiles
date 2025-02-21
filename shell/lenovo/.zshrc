@@ -127,14 +127,6 @@ if [[ -d "$HOME/software" ]]; then
     
     VENVMAN_ROOT_DIR="${HOME}/.venvman"
     source_file "$HOME/.venvman/venvman/src/main.sh"
-
-    # VENVMAN_ROOT_DIR="${HOME}/.venvman"
-    # source_file "$HOME/.venvman/venvman/src/completion/completion.sh"
-    # venvman() {
-    #     unset -f venvman
-    #     source_file "$HOME/.venvman/venvman/src/main.sh"
-    #     venvman $@
-    # }
 fi
 #--------------------------------------------------
 # present=$(date +%s%5N)
