@@ -54,13 +54,14 @@ Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-commentary'
 Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
 call plug#end()
 
-" Plugin config
+" Plugin configs
 "--------------------------------------------------
 
 " slime
@@ -137,7 +138,8 @@ nnoremap <Leader>fg :Rg <CR>
 
 " airline
 "--------------------------------------------------
-set laststatus=2   " Always show the statusline
-set t_Co=256       " Enable 256 colors if not enabled
-let g:airline_powerline_fonts = 1  " Enable Powerline symbols
-let g:airline_theme='powerlineish'  " Other themes: molokai, base16, etc.
+let g:airline_powerline_fonts = 1
+let g:airline_theme='base16' " Other themes: molokai, base16, etc.
+let g:airline_section_z = '%p%% %l:%c'
+let g:airline#extensions#default#layout = [ ['a', 'b', 'c'], ['x', 'y', 'z'] ]
+let g:airline#extensions#branch#enabled = 1
