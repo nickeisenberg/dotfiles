@@ -7,16 +7,16 @@ autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
 
 " settings and maps
 "--------------------------------------------------
-set foldmethod=indent
 set tabstop=4
 set shiftwidth=4
 set expandtab
+set foldmethod=indent
 set autoindent
 set mouse=a
 set number
 set updatetime=100
 
-" Move to the next/prev paragraph without opening folds
+" move to the next/prev paragraph without opening folds
 "--------------------------------------------------
 nnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
 vnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
@@ -40,16 +40,16 @@ vnoremap <leader>y "+y
 nnoremap <leader>p "+p
 vnoremap <leader>p "+p
 
-" easy write 
+" quick write 
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
 
-" Plugins
+" plugins
 "--------------------------------------------------
 call plug#begin('~/.vim/plugged')
 
-Plug 'jpalardy/vim-slime'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'jpalardy/vim-slime'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-vinegar'
@@ -61,7 +61,7 @@ Plug 'vim-airline/vim-airline-themes'
 
 call plug#end()
 
-" Plugin configs
+" plugin configs
 "--------------------------------------------------
 
 " slime
@@ -139,7 +139,7 @@ nnoremap <Leader>fg :Rg <CR>
 " airline
 "--------------------------------------------------
 let g:airline_powerline_fonts = 1
-let g:airline_theme='base16' " Other themes: molokai, base16, etc.
+let g:airline_theme='base16'
 let g:airline_section_z = '%p%% %l:%c'
 let g:airline#extensions#default#layout = [ ['a', 'b', 'c'], ['x', 'y', 'z'] ]
 let g:airline#extensions#branch#enabled = 1
