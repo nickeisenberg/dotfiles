@@ -49,6 +49,7 @@ nnoremap <leader>w :w<CR>
 call plug#begin('~/.vim/plugged')
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'rafamadriz/friendly-snippets'
 Plug 'jpalardy/vim-slime'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
