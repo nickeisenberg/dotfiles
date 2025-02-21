@@ -1,12 +1,11 @@
 let mapleader = " "
 
-
 " vague.nvim background color
 "--------------------------------------------------
 colorscheme habamax
 autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
 
-" settings 
+" settings and maps
 "--------------------------------------------------
 set foldmethod=indent
 set tabstop=4
@@ -16,6 +15,13 @@ set autoindent
 set mouse=a
 set number
 set updatetime=100
+
+" Move to the next/prev paragraph without opening folds
+"--------------------------------------------------
+nnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
+vnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
+nnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
+vnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
 
 " splits
 "--------------------------------------------------
@@ -116,11 +122,11 @@ endfunction
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 
-
 " coc
 "--------------------------------------------------
 nnoremap K :call CocActionAsync('doHover')<CR>
-
+nnoremap <Leader>gd :call CocAction('jumpDefinition')<CR>
+nnoremap <Leader>gr :call CocAction('jumpReferences')<CR>
 
 " fzf
 "--------------------------------------------------
