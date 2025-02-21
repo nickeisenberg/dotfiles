@@ -116,6 +116,12 @@ endfunction
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 
+
+" coc
+"--------------------------------------------------
+nnoremap K :call CocActionAsync('doHover')<CR>
+
+
 " fzf
 "--------------------------------------------------
 nnoremap <Leader>ff :Files<CR>
