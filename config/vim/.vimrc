@@ -90,7 +90,28 @@ else
   let g:floaterm_shell = $SHELL
 endif
 
-function! ToggleTerminal(where)
+function! BetterFloatermToggle()
+    let term_buf = -1
+    for buf in range(1, bufnr('$'))
+        if getbufvar(buf, '&buftype') ==# 'terminal'
+            let term_buf = buf
+            break
+        endif
+    endfor
+
+    if term_buf > 0
+        let win_id = bufwinnr(term_buf)
+        if win_id > 0
+            execute win_id . "FloatermHide"
+        else
+            execute "FloatermToggle"
+        endif
+    else
+        execute "FloatermToggle"
+    endif
+endfunction
+
+function! FormatFloaterm(where)
   if a:where ==# "horizontal"
     let g:floaterm_wintype = 'split'
     let g:floaterm_position = 'rightbelow'
@@ -110,9 +131,10 @@ function! ToggleTerminal(where)
   endif
 endfunction
 
-nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
-nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
-nnoremap <Leader>rf :call ToggleTerminal('float')<CR>
+nnoremap <leader>rr :call BetterFloatermToggle()<CR>
+nnoremap <Leader>rv :call FormatFloaterm('vertical')<CR>
+nnoremap <Leader>rh :call FormatFloaterm('horizontal')<CR>
+nnoremap <Leader>rf :call FormatFloaterm('float')<CR>
 
 " coc
 "--------------------------------------------------
