@@ -69,72 +69,46 @@ call plug#end()
 
 " vim-floaterm
 "--------------------------------------------------
-nnoremap <Leader>tt :FloatermToggle<CR>
-nnoremap <Leader>tk :FloatermKill<CR>
+nnoremap <Leader>rr :FloatermToggle<CR>
+nnoremap <Leader>rk :FloatermKill<CR>
 
-" vim-vinegar 
-"--------------------------------------------------
-nnoremap <Leader>O :Explore<CR>
+let g:floaterm_wintype = 'vsplit'
+let g:floaterm_position = 'botright'
+let g:floaterm_width = 0.4
 
-" slime
-"--------------------------------------------------
-let g:slime_target = "vimterminal"
+if exists('$VIRTUAL_ENV')
+  let g:floaterm_shell = $SHELL . ' -c "source $VIRTUAL_ENV/bin/activate && exec $SHELL"'
+else
+  let g:floaterm_shell = $SHELL
+endif
 
-function! ToggleTerminal(split_type)
-    " Find an existing terminal buffer
-    let term_buf = -1
-    for buf in range(1, bufnr('$'))
-        if getbufvar(buf, '&buftype') ==# 'terminal'
-            let term_buf = buf
-            break
-        endif
-    endfor
-
-    " Get virtual environment path
-    let venv_path = $VIRTUAL_ENV
-
-    if term_buf > 0
-        " Check if the terminal is open in any window
-        let win_id = bufwinnr(term_buf)
-        if win_id > 0
-            " Close the terminal if it's visible
-            execute win_id . "wincmd c"
-        else
-            " If terminal exists but is hidden, open it in specified split type
-            if a:split_type ==# 'vertical'
-                execute "vert botright sbuffer " . term_buf
-            else
-                execute "rightbelow sbuffer " . term_buf
-            endif
-        endif
-    else
-        " Define shell script path
-        let shell_script = "/tmp/activate_venv.sh"
-
-        " Create the shell script that will activate the venv and start a shell
-        if !empty(venv_path)
-            call writefile([
-                        \ "#!/bin/bash",
-                        \ "source " . venv_path . "/bin/activate",
-                        \ "exec " . &shell,
-                        \ ], shell_script)
-            call system("chmod +x " . shell_script)
-        else
-            let shell_script = &shell  " If no venv is active, just use the default shell"
-        endif
-
-        " Open the terminal in the appropriate split type
-        if a:split_type ==# 'vertical'
-            execute "vert botright term ++shell=" . shellescape(shell_script)
-        else
-            execute "rightbelow term ++shell=" . shellescape(shell_script)
-        endif
-        setlocal bufhidden=hide
-    endif
+function! ToggleTerminal(where)
+  if a:where ==# "horizontal"
+    let g:floaterm_wintype = 'split'
+    let g:floaterm_position = 'rightbelow'
+    let g:floaterm_height = 0.4
+    FloatermToggle
+  elseif a:where ==# "vertical"
+    let g:floaterm_wintype = 'vsplit'
+    let g:floaterm_position = 'botright'
+    let g:floaterm_width = 0.4
+    FloatermToggle
+  elseif a:where ==# "float"
+    let g:floaterm_wintype = 'float'
+    let g:floaterm_position = 'center'
+    let g:floaterm_width = 0.6
+    let g:floaterm_width = 0.6
+    FloatermToggle
+  endif
 endfunction
 
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
+nnoremap <Leader>rf :call ToggleTerminal('float')<CR>
+
+" slime
+"--------------------------------------------------
+let g:slime_target = "vimterminal"
 
 " coc
 "--------------------------------------------------
