@@ -1,4 +1,5 @@
-let mapleader = " "
+let mapleader = ' '
+
 
 " vague.nvim background color
 "--------------------------------------------------
@@ -59,11 +60,21 @@ Plug 'tpope/vim-commentary'
 Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'voldikss/vim-floaterm'
 
 call plug#end()
 
 " plugin configs
 "--------------------------------------------------
+
+" vim-floaterm
+"--------------------------------------------------
+nnoremap <Leader>tt :FloatermToggle<CR>
+nnoremap <Leader>tk :FloatermKill<CR>
+
+" vim-vinegar 
+"--------------------------------------------------
+nnoremap <Leader>O :Explore<CR>
 
 " slime
 "--------------------------------------------------
