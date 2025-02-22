@@ -75,22 +75,8 @@ nnoremap <Leader>O :NERDTreeToggle<CR>
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
 
-" vim-floaterm
-"--------------------------------------------------
-nnoremap <Leader>rr :FloatermToggle<CR>
-nnoremap <Leader>rk :FloatermKill<CR>
-
-let g:floaterm_wintype = 'vsplit'
-let g:floaterm_position = 'botright'
-let g:floaterm_width = 0.4
-
-if exists('$VIRTUAL_ENV')
-  let g:floaterm_shell = $SHELL . ' -c "source $VIRTUAL_ENV/bin/activate && exec $SHELL"'
-else
-  let g:floaterm_shell = $SHELL
-endif
-
-function! BetterFloatermToggle()
+function! ToggleTerminal(split_type)
+    " Find an existing terminal buffer
     let term_buf = -1
     for buf in range(1, bufnr('$'))
         if getbufvar(buf, '&buftype') ==# 'terminal'
@@ -99,42 +85,68 @@ function! BetterFloatermToggle()
         endif
     endfor
 
+    " Get virtual environment path
+    let venv_path = $VIRTUAL_ENV
+
+    if !exists("g:term_replcmd")
+        let g:term_replcmd = "vert botright"
+    endif
     if term_buf > 0
+        " Check if the terminal is open in any window
         let win_id = bufwinnr(term_buf)
         if win_id > 0
-            execute win_id . "FloatermHide"
+            " Close the terminal if it's visible
+            execute win_id . "wincmd c"
         else
-            execute "FloatermToggle"
+            " If terminal exists but is hidden, open it in specified split type
+            if a:split_type ==# 'vertical'
+                execute "vert botright sbuffer " . term_buf
+                let g:term_replcmd = "vert botright"
+            elseif a:split_type ==# 'horizontal'
+                execute "rightbelow sbuffer " . term_buf
+                let g:term_replcmd = "rightbelow"
+            elseif a:split_type ==# 'toggle'
+                execute g:term_replcmd . " sbuffer " . term_buf
+            endif
         endif
     else
-        execute "FloatermToggle"
+        " Define shell script path
+        let shell_script = "/tmp/activate_venv.sh"
+
+        " Create the shell script that will activate the venv and start a shell
+        if !empty(venv_path)
+            call writefile([
+                        \ "#!/bin/bash",
+                        \ "source " . venv_path . "/bin/activate",
+                        \ "exec " . &shell,
+                        \ ], shell_script)
+            call system("chmod +x " . shell_script)
+        else
+            let shell_script = &shell  " If no venv is active, just use the default shell"
+        endif
+
+        " Open the terminal in the appropriate split type
+        if a:split_type ==# 'vertical'
+            execute "vert botright term ++shell=" . shellescape(shell_script)
+            let g:term_replcmd = "vert botright"
+        elseif a:split_type ==# 'horizontal'
+            execute "rightbelow term ++shell=" . shellescape(shell_script)
+            let g:term_replcmd = "rightbelow"
+        elseif a:split_type ==# 'toggle'
+            execute g:term_replcmd . " term ++shell=" . shellescape(shell_script)
+        endif
+        setlocal bufhidden=hide
     endif
 endfunction
+ 
+nnoremap <Leader>rr :call ToggleTerminal('toggle')<CR>
+nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
+nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 
-function! FormatFloaterm(where)
-  if a:where ==# "horizontal"
-    let g:floaterm_wintype = 'split'
-    let g:floaterm_position = 'rightbelow'
-    let g:floaterm_height = 0.4
-    FloatermToggle
-  elseif a:where ==# "vertical"
-    let g:floaterm_wintype = 'vsplit'
-    let g:floaterm_position = 'botright'
-    let g:floaterm_width = 0.4
-    FloatermToggle
-  elseif a:where ==# "float"
-    let g:floaterm_wintype = 'float'
-    let g:floaterm_position = 'center'
-    let g:floaterm_width = 0.6
-    let g:floaterm_width = 0.6
-    FloatermToggle
-  endif
-endfunction
-
-nnoremap <leader>rr :call BetterFloatermToggle()<CR>
-nnoremap <Leader>rv :call FormatFloaterm('vertical')<CR>
-nnoremap <Leader>rh :call FormatFloaterm('horizontal')<CR>
-nnoremap <Leader>rf :call FormatFloaterm('float')<CR>
+" vim-floaterm
+"--------------------------------------------------
+nnoremap <Leader>tt :FloatermToggle<CR>
+nnoremap <Leader>tk :FloatermKill<CR>
 
 " coc
 "--------------------------------------------------
