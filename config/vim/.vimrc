@@ -54,18 +54,26 @@ Plug 'rafamadriz/friendly-snippets'
 Plug 'jpalardy/vim-slime'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
-Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'voldikss/vim-floaterm'
+Plug 'preservim/nerdtree'
 
 call plug#end()
 
 " plugin configs
 "--------------------------------------------------
+
+" NERDTree
+"--------------------------------------------------
+nnoremap <Leader>O :NERDTreeToggle<CR>
+
+" slime
+"--------------------------------------------------
+let g:slime_target = "vimterminal"
 
 " vim-floaterm
 "--------------------------------------------------
@@ -105,10 +113,6 @@ endfunction
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 nnoremap <Leader>rf :call ToggleTerminal('float')<CR>
-
-" slime
-"--------------------------------------------------
-let g:slime_target = "vimterminal"
 
 " coc
 "--------------------------------------------------
