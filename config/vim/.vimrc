@@ -75,7 +75,11 @@ nnoremap <Leader>O :NERDTreeToggle<CR>
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
 
-function! ToggleTerminal(split_type)
+let g:slime_extras_repl_df = {
+  \ 'sh': 'bash -l',
+  \}
+
+function! ToggleRepl(split_type)
   if !exists("g:slime_extras_term_bufs")
     let g:slime_extras_term_bufs = []
   endif
@@ -104,35 +108,49 @@ function! ToggleTerminal(split_type)
     endif
   endfunction
 
+  let current_win_id = win_getid()
+  let ft = &filetype
+
   if term_buf > 0
     let win_id = bufwinnr(term_buf)
     if win_id > 0
       execute win_id . "wincmd c"
+
     else
       call s:ConfigureSplit(a:split_type)
       execute g:slime_extras_term_open_cmd . " sbuffer " . term_buf
       execute g:slime_extras_term_open_size
+      call win_gotoid(current_win_id)
     endif
+
   else
     call s:ConfigureSplit(a:split_type)
-
     execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(&shell)
     execute g:slime_extras_term_open_size
     let term_buf = bufnr('$')
-
     call add(g:slime_extras_term_bufs, term_buf)
 
     if !empty($VIRTUAL_ENV)
-      call term_sendkeys(term_buf, "source " . $VIRTUAL_ENV . "/bin/activate && clear\n")
+      call term_sendkeys(
+        \ term_buf, 
+        \ "source " . $VIRTUAL_ENV . "/bin/activate && clear && " . g:slime_extras_repl_df['python'] . "\n"
+        \)
+    else
+      if has_key(g:slime_extras_repl_df, ft)
+        call term_sendkeys(term_buf, g:slime_extras_repl_df[ft] . "\n")
+      else
+        call term_sendkeys(term_buf, ft . "\n")
+      endif
     endif
 
     setlocal bufhidden=hide
+    call win_gotoid(current_win_id)
   endif
 endfunction
  
-nnoremap <Leader>rr :call ToggleTerminal('toggle')<CR>
-nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
-nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
+nnoremap <Leader>rr :call ToggleRepl('toggle')<CR>
+nnoremap <Leader>rv :call ToggleRepl('vertical')<CR>
+nnoremap <Leader>rh :call ToggleRepl('horizontal')<CR>
 nnoremap <leader>sl :SlimeSendCurrentLine<CR>
 nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
 vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
