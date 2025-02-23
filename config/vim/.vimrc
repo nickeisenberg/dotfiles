@@ -88,24 +88,7 @@ let g:slime_extras_repl_df = {
 \}
 
 function! ToggleRepl(split_type)
-  if !exists("g:slime_extras_term_bufs")
-    let g:slime_extras_term_bufs = []
-  endif
-
-  " Initial values
-  if !exists("g:slime_extras_term_open_cmd")
-    let g:slime_extras_term_open_cmd = "vert botright"
-    let g:slime_extras_term_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
-  endif
-
-  let term_buf = -1
-  for buf in g:slime_extras_term_bufs
-    if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
-      let term_buf = buf
-      break
-    endif
-  endfor
-
+  " helper function
   function! s:ConfigureSplit(split_type)
     if a:split_type ==# 'vertical'
       let g:slime_extras_term_open_cmd = "vert botright"
@@ -116,17 +99,35 @@ function! ToggleRepl(split_type)
     endif
   endfunction
 
+  if !exists("g:slime_extras_term_bufs")
+    let g:slime_extras_term_bufs = []
+  endif
+
+  " Initial values
+  if !exists("g:slime_extras_term_open_cmd")
+    let g:slime_extras_term_open_cmd = "vert botright"
+    let g:slime_extras_term_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+  endif
+
+  let g:slime_extras_term_buf = -1
+  for buf in g:slime_extras_term_bufs
+    if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
+      let g:slime_extras_term_buf = buf
+      break
+    endif
+  endfor
+
   let current_win_id = win_getid()
   let ft = &filetype
 
-  if term_buf > 0
-    let win_id = bufwinnr(term_buf)
+  if g:slime_extras_term_buf > 0
+    let win_id = bufwinnr(g:slime_extras_term_buf)
     if win_id > 0
       execute win_id . "wincmd c"
 
     else
       call s:ConfigureSplit(a:split_type)
-      execute g:slime_extras_term_open_cmd . " sbuffer " . term_buf
+      execute g:slime_extras_term_open_cmd . " sbuffer " . g:slime_extras_term_buf
       execute g:slime_extras_term_size
       call win_gotoid(current_win_id)
     endif
@@ -135,19 +136,24 @@ function! ToggleRepl(split_type)
     call s:ConfigureSplit(a:split_type)
     execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(&shell)
     execute g:slime_extras_term_size
-    let term_buf = bufnr('$')
-    call add(g:slime_extras_term_bufs, term_buf)
+    let g:slime_extras_term_buf = bufnr('$')
+    call add(g:slime_extras_term_bufs, g:slime_extras_term_buf)
 
     if has_key(g:slime_extras_repl_df, ft)
-      call term_sendkeys(term_buf, g:slime_extras_repl_df[ft] . "\n")
+      call term_sendkeys(g:slime_extras_term_buf, g:slime_extras_repl_df[ft] . "\n")
     else
-      call term_sendkeys(term_buf, ft . "\n")
+      call term_sendkeys(g:slime_extras_term_buf, ft . "\n")
     endif
 
     setlocal bufhidden=hide
+
+    " kills terminal on :q so this does not need to be done manually
+    autocmd QuitPre * execute ':bd! ' . g:slime_extras_term_buf
+
     call win_gotoid(current_win_id)
   endif
 endfunction
+
  
 nnoremap <Leader>rr :call ToggleRepl('toggle')<CR>
 nnoremap <Leader>rv :call ToggleRepl('vertical')<CR>
