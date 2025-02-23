@@ -76,25 +76,28 @@ nnoremap <Leader>O :NERDTreeToggle<CR>
 let g:slime_target = "vimterminal"
 
 function! ToggleTerminal(split_type)
-  let term_buf = -1
-  for buf in range(1, bufnr('$'))
-    if getbufvar(buf, '&buftype') ==# 'terminal'
-      let term_buf = buf
-      break
-    endif
-  endfor
-  
+  if !exists("g:slime_extras_term_bufs")
+    let g:slime_extras_term_bufs = []
+  endif
+
   " Initial values
   if !exists("g:slime_extras_term_open_cmd")
     let g:slime_extras_term_open_cmd = "vert botright"
     let g:slime_extras_term_open_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
   endif
 
+  let term_buf = -1
+  for buf in g:slime_extras_term_bufs
+    if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
+      let term_buf = buf
+      break
+    endif
+  endfor
+
   function! s:ConfigureSplit(split_type)
     if a:split_type ==# 'vertical'
       let g:slime_extras_term_open_cmd = "vert botright"
       let g:slime_extras_term_open_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
-
     elseif a:split_type ==# 'horizontal'
       let g:slime_extras_term_open_cmd = "rightbelow"
       let g:slime_extras_term_open_size = "resize " . float2nr(winheight(0) * 0.25)
@@ -105,23 +108,24 @@ function! ToggleTerminal(split_type)
     let win_id = bufwinnr(term_buf)
     if win_id > 0
       execute win_id . "wincmd c"
-
     else
       call s:ConfigureSplit(a:split_type)
       execute g:slime_extras_term_open_cmd . " sbuffer " . term_buf
       execute g:slime_extras_term_open_size
     endif
-
   else
+    call s:ConfigureSplit(a:split_type)
+
+    execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(&shell)
+    execute g:slime_extras_term_open_size
+    let term_buf = bufnr('$')
+
+    call add(g:slime_extras_term_bufs, term_buf)
+
     if !empty($VIRTUAL_ENV)
-      let shell_cmd = "bash -c 'source " . $VIRTUAL_ENV . "/bin/activate && exec " . &shell . "'"
-    else
-      let shell_cmd = &shell
+      call term_sendkeys(term_buf, "source " . $VIRTUAL_ENV . "/bin/activate && clear\n")
     endif
 
-    call s:ConfigureSplit(a:split_type)
-    execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(shell_cmd)
-    execute g:slime_extras_term_open_size
     setlocal bufhidden=hide
   endif
 endfunction
@@ -131,7 +135,7 @@ nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
 nnoremap <leader>sl :SlimeSendCurrentLine<CR>
 nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
-xnoremap <leader>sp <Plug>SlimeRegionSend<CR>
+vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 
 " vim-floaterm
 "--------------------------------------------------
