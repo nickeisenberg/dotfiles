@@ -75,9 +75,18 @@ nnoremap <Leader>O :NERDTreeToggle<CR>
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
 
+if !empty($VIRTUAL_ENV)
+  let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && python3" 
+else
+  let python_def = "python3" 
+endif
+
 let g:slime_extras_repl_df = {
   \ 'sh': 'bash -l',
-  \}
+  \ 'vim': 'bash -l',
+  \ 'python': python_def,
+\}
+
 
 function! ToggleRepl(split_type)
   if !exists("g:slime_extras_term_bufs")
@@ -130,17 +139,10 @@ function! ToggleRepl(split_type)
     let term_buf = bufnr('$')
     call add(g:slime_extras_term_bufs, term_buf)
 
-    if !empty($VIRTUAL_ENV)
-      call term_sendkeys(
-        \ term_buf, 
-        \ "source " . $VIRTUAL_ENV . "/bin/activate && clear && " . g:slime_extras_repl_df['python'] . "\n"
-        \)
+    if has_key(g:slime_extras_repl_df, ft)
+      call term_sendkeys(term_buf, g:slime_extras_repl_df[ft] . "\n")
     else
-      if has_key(g:slime_extras_repl_df, ft)
-        call term_sendkeys(term_buf, g:slime_extras_repl_df[ft] . "\n")
-      else
-        call term_sendkeys(term_buf, ft . "\n")
-      endif
+      call term_sendkeys(term_buf, ft . "\n")
     endif
 
     setlocal bufhidden=hide
