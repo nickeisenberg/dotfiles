@@ -1,0 +1,9 @@
+{
+    "snippets.ultisnips.pythonPrompt": false,
+    "pyright.inlayHints.functionReturnTypes": false,
+    "pyright.inlayHints.variableTypes": false,
+    "pyright.inlayHints.parameterTypes": false,
+    "diagnostic.virtualText": false,
+    "diagnostic.checkCurrentLine": true,   
+    "diagnostic.signs": false
+}
