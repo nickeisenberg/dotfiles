@@ -71,77 +71,67 @@ call plug#end()
 "--------------------------------------------------
 nnoremap <Leader>O :NERDTreeToggle<CR>
 
-" slime
+" slime iron.nvim emulator
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
 
 function! ToggleTerminal(split_type)
-    " Find an existing terminal buffer
-    let term_buf = -1
-    for buf in range(1, bufnr('$'))
-        if getbufvar(buf, '&buftype') ==# 'terminal'
-            let term_buf = buf
-            break
-        endif
-    endfor
-
-    " Get virtual environment path
-    let venv_path = $VIRTUAL_ENV
-
-    if !exists("g:term_replcmd")
-        let g:term_replcmd = "vert botright"
+  let term_buf = -1
+  for buf in range(1, bufnr('$'))
+    if getbufvar(buf, '&buftype') ==# 'terminal'
+      let term_buf = buf
+      break
     endif
-    if term_buf > 0
-        " Check if the terminal is open in any window
-        let win_id = bufwinnr(term_buf)
-        if win_id > 0
-            " Close the terminal if it's visible
-            execute win_id . "wincmd c"
-        else
-            " If terminal exists but is hidden, open it in specified split type
-            if a:split_type ==# 'vertical'
-                execute "vert botright sbuffer " . term_buf
-                let g:term_replcmd = "vert botright"
-            elseif a:split_type ==# 'horizontal'
-                execute "rightbelow sbuffer " . term_buf
-                let g:term_replcmd = "rightbelow"
-            elseif a:split_type ==# 'toggle'
-                execute g:term_replcmd . " sbuffer " . term_buf
-            endif
-        endif
+  endfor
+  
+  " Initial values
+  if !exists("g:slime_extras_term_open_cmd")
+    let g:slime_extras_term_open_cmd = "vert botright"
+    let g:slime_extras_term_open_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+  endif
+
+  function! s:ConfigureSplit(split_type)
+    if a:split_type ==# 'vertical'
+      let g:slime_extras_term_open_cmd = "vert botright"
+      let g:slime_extras_term_open_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+
+    elseif a:split_type ==# 'horizontal'
+      let g:slime_extras_term_open_cmd = "rightbelow"
+      let g:slime_extras_term_open_size = "resize " . float2nr(winheight(0) * 0.25)
+    endif
+  endfunction
+
+  if term_buf > 0
+    let win_id = bufwinnr(term_buf)
+    if win_id > 0
+      execute win_id . "wincmd c"
+
     else
-        " Define shell script path
-        let shell_script = "/tmp/activate_venv.sh"
-
-        " Create the shell script that will activate the venv and start a shell
-        if !empty(venv_path)
-            call writefile([
-                        \ "#!/bin/bash",
-                        \ "source " . venv_path . "/bin/activate",
-                        \ "exec " . &shell,
-                        \ ], shell_script)
-            call system("chmod +x " . shell_script)
-        else
-            let shell_script = &shell  " If no venv is active, just use the default shell"
-        endif
-
-        " Open the terminal in the appropriate split type
-        if a:split_type ==# 'vertical'
-            execute "vert botright term ++shell=" . shellescape(shell_script)
-            let g:term_replcmd = "vert botright"
-        elseif a:split_type ==# 'horizontal'
-            execute "rightbelow term ++shell=" . shellescape(shell_script)
-            let g:term_replcmd = "rightbelow"
-        elseif a:split_type ==# 'toggle'
-            execute g:term_replcmd . " term ++shell=" . shellescape(shell_script)
-        endif
-        setlocal bufhidden=hide
+      call s:ConfigureSplit(a:split_type)
+      execute g:slime_extras_term_open_cmd . " sbuffer " . term_buf
+      execute g:slime_extras_term_open_size
     endif
+
+  else
+    if !empty($VIRTUAL_ENV)
+      let shell_cmd = "bash -c 'source " . $VIRTUAL_ENV . "/bin/activate && exec " . &shell . "'"
+    else
+      let shell_cmd = &shell
+    endif
+
+    call s:ConfigureSplit(a:split_type)
+    execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(shell_cmd)
+    execute g:slime_extras_term_open_size
+    setlocal bufhidden=hide
+  endif
 endfunction
  
 nnoremap <Leader>rr :call ToggleTerminal('toggle')<CR>
 nnoremap <Leader>rv :call ToggleTerminal('vertical')<CR>
 nnoremap <Leader>rh :call ToggleTerminal('horizontal')<CR>
+nnoremap <leader>sl :SlimeSendCurrentLine<CR>
+nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
+xnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 
 " vim-floaterm
 "--------------------------------------------------
