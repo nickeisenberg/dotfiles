@@ -87,7 +87,6 @@ let g:slime_extras_repl_df = {
   \ 'python': python_def,
 \}
 
-
 function! ToggleRepl(split_type)
   if !exists("g:slime_extras_term_bufs")
     let g:slime_extras_term_bufs = []
@@ -96,7 +95,7 @@ function! ToggleRepl(split_type)
   " Initial values
   if !exists("g:slime_extras_term_open_cmd")
     let g:slime_extras_term_open_cmd = "vert botright"
-    let g:slime_extras_term_open_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+    let g:slime_extras_term_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
   endif
 
   let term_buf = -1
@@ -110,10 +109,10 @@ function! ToggleRepl(split_type)
   function! s:ConfigureSplit(split_type)
     if a:split_type ==# 'vertical'
       let g:slime_extras_term_open_cmd = "vert botright"
-      let g:slime_extras_term_open_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+      let g:slime_extras_term_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
     elseif a:split_type ==# 'horizontal'
       let g:slime_extras_term_open_cmd = "rightbelow"
-      let g:slime_extras_term_open_size = "resize " . float2nr(winheight(0) * 0.25)
+      let g:slime_extras_term_size = "resize " . float2nr(winheight(0) * 0.25)
     endif
   endfunction
 
@@ -128,14 +127,14 @@ function! ToggleRepl(split_type)
     else
       call s:ConfigureSplit(a:split_type)
       execute g:slime_extras_term_open_cmd . " sbuffer " . term_buf
-      execute g:slime_extras_term_open_size
+      execute g:slime_extras_term_size
       call win_gotoid(current_win_id)
     endif
 
   else
     call s:ConfigureSplit(a:split_type)
     execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(&shell)
-    execute g:slime_extras_term_open_size
+    execute g:slime_extras_term_size
     let term_buf = bufnr('$')
     call add(g:slime_extras_term_bufs, term_buf)
 
