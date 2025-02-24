@@ -48,8 +48,11 @@ nnoremap <leader>w :w<CR>
 " plugins
 "--------------------------------------------------
 call plug#begin('~/.vim/plugged')
+ 
+if system("hostname") != "B340119\n"
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+endif
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'rafamadriz/friendly-snippets'
 Plug 'jpalardy/vim-slime'
 Plug 'junegunn/fzf'
@@ -146,7 +149,11 @@ function! ToggleRepl(split_type)
 
   else
     call s:ConfigureSplit(a:split_type)
-    execute g:_term_open_cmd . " term ++shell=" . shellescape(&shell)
+    if system("hostname") == "B340119\n"
+      execute g:_term_open_cmd . " term"
+    else
+      execute g:_term_open_cmd . " term ++shell=" . shellescape(&shell)
+    endif
     execute g:_term_size
     let g:_repl_buf = bufnr('$')
     call add(g:_repl_bufs, g:_repl_buf)
