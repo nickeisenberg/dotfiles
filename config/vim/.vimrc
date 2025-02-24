@@ -81,38 +81,50 @@ else
   let python_def = "python3" 
 endif
 
-let g:slime_extras_repl_df = {
+let g:slime_extras_repl_def = {
   \ 'sh': 'bash -l',
   \ 'vim': 'bash -l',
   \ 'python': python_def,
+\}
+
+let g:slime_extras_repl_open_cmd = {
+  \ 'vertical': 'vert botright',
+  \ 'horizontal': 'rightbelow',
+\}
+
+let g:slime_extras_repl_size = {
+  \ 'vertical': 0.4,
+  \ 'horizontal': 0.25,
 \}
 
 function! ToggleRepl(split_type)
   " helper function
   function! s:ConfigureSplit(split_type)
     if a:split_type ==# 'vertical'
-      let g:slime_extras_term_open_cmd = "vert botright"
-      let g:slime_extras_term_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+      let g:_term_open_cmd = g:slime_extras_repl_open_cmd["vertical"]
+      let _term_size = float2nr(winwidth(0) * g:slime_extras_repl_size["vertical"])
+      let g:_term_size = "vertical resize " . _term_size
+
     elseif a:split_type ==# 'horizontal'
-      let g:slime_extras_term_open_cmd = "rightbelow"
-      let g:slime_extras_term_size = "resize " . float2nr(winheight(0) * 0.25)
+      let g:_term_open_cmd = g:slime_extras_repl_open_cmd["horizontal"]
+      let _term_size = float2nr(winheight(0) * g:slime_extras_repl_size["horizontal"])
+      let g:_term_size =  "resize " . _term_size
     endif
   endfunction
 
-  if !exists("g:slime_extras_term_bufs")
-    let g:slime_extras_term_bufs = []
+  if !exists("g:_repl_bufs")
+    let g:_repl_bufs = []
   endif
 
   " Initial values
-  if !exists("g:slime_extras_term_open_cmd")
-    let g:slime_extras_term_open_cmd = "vert botright"
-    let g:slime_extras_term_size = "vertical resize " . float2nr(winwidth(0) * 0.4)
+  if !exists("g:_term_open_cmd")
+    call s:ConfigureSplit("vertical")
   endif
 
-  let g:slime_extras_term_buf = -1
-  for buf in g:slime_extras_term_bufs
+  let g:_repl_buf = -1
+  for buf in g:_repl_bufs
     if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
-      let g:slime_extras_term_buf = buf
+      let g:_repl_buf = buf
       break
     endif
   endfor
@@ -120,35 +132,35 @@ function! ToggleRepl(split_type)
   let current_win_id = win_getid()
   let ft = &filetype
 
-  if g:slime_extras_term_buf > 0
-    let win_id = bufwinnr(g:slime_extras_term_buf)
+  if g:_repl_buf > 0
+    let win_id = bufwinnr(g:_repl_buf)
     if win_id > 0
       execute win_id . "wincmd c"
 
     else
       call s:ConfigureSplit(a:split_type)
-      execute g:slime_extras_term_open_cmd . " sbuffer " . g:slime_extras_term_buf
-      execute g:slime_extras_term_size
+      execute g:_term_open_cmd . " sbuffer " . g:_repl_buf
+      execute g:_term_size
       call win_gotoid(current_win_id)
     endif
 
   else
     call s:ConfigureSplit(a:split_type)
-    execute g:slime_extras_term_open_cmd . " term ++shell=" . shellescape(&shell)
-    execute g:slime_extras_term_size
-    let g:slime_extras_term_buf = bufnr('$')
-    call add(g:slime_extras_term_bufs, g:slime_extras_term_buf)
+    execute g:_term_open_cmd . " term ++shell=" . shellescape(&shell)
+    execute g:_term_size
+    let g:_repl_buf = bufnr('$')
+    call add(g:_repl_bufs, g:_repl_buf)
 
-    if has_key(g:slime_extras_repl_df, ft)
-      call term_sendkeys(g:slime_extras_term_buf, g:slime_extras_repl_df[ft] . "\n")
+    if has_key(g:slime_extras_repl_def, ft)
+      call term_sendkeys(g:_repl_buf, g:slime_extras_repl_def[ft] . "\n")
     else
-      call term_sendkeys(g:slime_extras_term_buf, ft . "\n")
+      call term_sendkeys(g:_repl_buf, ft . "\n")
     endif
 
     setlocal bufhidden=hide
 
     " kills terminal on :q so this does not need to be done manually
-    autocmd QuitPre * execute ':bd! ' . g:slime_extras_term_buf
+    autocmd QuitPre * execute ':bd! ' . g:_repl_buf
 
     call win_gotoid(current_win_id)
   endif
@@ -156,8 +168,10 @@ endfunction
 
  
 nnoremap <Leader>rr :call ToggleRepl('toggle')<CR>
+
 nnoremap <Leader>rv :call ToggleRepl('vertical')<CR>
 nnoremap <Leader>rh :call ToggleRepl('horizontal')<CR>
+
 nnoremap <leader>sl :SlimeSendCurrentLine<CR>
 nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
 vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
