@@ -125,7 +125,6 @@ if [[ -d "$HOME/software" ]]; then
     create_directory_and_add_to_path "$HOME/.local/nicholas/bin" 1
     sym_link_file_as_bin "$HOME/software/timer/timer.py" "$HOME/.local/nicholas/bin"
     
-    VENVMAN_ROOT_DIR="${HOME}/.venvman"
     source_file "$HOME/.venvman/venvman/src/main.sh"
 fi
 #--------------------------------------------------
