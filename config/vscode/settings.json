@@ -1,0 +1,110 @@
+{
+    "http.proxyAuthorization": null,
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "workbench.panel.defaultLocation": "right",
+    "http.proxySupport": "on",
+    "terminal.integrated.inheritEnv": false,
+    "git.openRepositoryInParentFolders": "never",
+    "editor.rulers": [
+       80, 120 
+    ],
+    "editor.minimap.enabled": false,
+    "security.workspace.trust.untrustedFiles": "open",
+    "jupyter.widgetScriptSources": [
+        "jsdelivr.com",
+        "unpkg.com"
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "jupyter.interactiveWindow.textEditor.executeSelection": true,
+    // venv path
+    "python.venvPath": "/Users/eisenbnt/.venvman/envs/",
+
+    "python.terminal.launchArgs": [
+        "-m",
+        "IPython",
+        "--no-autoindent"
+     ],
+
+    // vim
+    "vim.leader": "<space>",
+    "vim.normalModeKeyBindingsNonRecursive": [
+        // Saving
+        {
+            "before": ["<leader>", "w"],
+            "commands": ["workbench.action.files.save"]
+        },
+
+        // Navigatiion
+        {
+            "before": ["<leader>", "q"],
+            "commands": ["workbench.action.closeActiveEditor"]
+        },
+        {
+            "before": ["<leader>", "e"],
+            "commands": ["workbench.action.toggleSidebarVisibility"]
+        },
+        {
+            "before": ["<leader>", "s", "h"],
+            "commands": ["workbench.action.splitEditorDown"]
+        },
+        {
+            "before": ["<leader>", "v", "s"],
+            "commands": ["workbench.action.splitEditorRight"]
+        },
+        {
+            "before": ["<leader>", "c", "s"],
+            "commands": ["workbench.action.closeActiveEditor"]
+        },
+        {
+            "before": ["<leader>", "h"],
+            "commands": ["workbench.action.focusLeftGroup"]
+        },
+        {
+            "before": ["<leader>", "l"],
+            "commands": ["workbench.action.focusRightGroup"]
+        },
+        {
+            "before": ["<leader>", "j"],
+            "commands": ["workbench.action.focusBelowGroup"]
+        },
+        {
+            "before": ["<leader>", "k"],
+            "commands": ["workbench.action.focusAboveGroup"]
+        },
+        {
+            "before": ["<S-h>"],
+            "commands": ["workbench.action.previousEditor"]
+        },
+        {
+            "before": ["<S-l>"],
+            "commands": ["workbench.action.nextEditor"]
+        },
+
+        // REPL
+        {
+            "before": ["<leader>", "r", "r"],
+            "commands": ["workbench.action.togglePanel"]
+        },
+        {
+            "before": ["<leader>", "s", "p"],
+            "commands": ["python.execSelectionInTerminal"]
+        },
+        {
+            "before": ["<S-k>"],
+            "commands": ["editor.action.showHover"]
+        }
+
+    ],
+    "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": ["<leader>", "s", "p"],
+            "commands": ["python.execSelectionInTerminal"]
+        }
+    ],
+    "workbench.editor.enablePreview": false,
+    "workbench.colorTheme": "habamix"
+}
+

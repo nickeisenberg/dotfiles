@@ -1,11 +1,5 @@
 let mapleader = ' '
 
-
-" vague.nvim background color
-"--------------------------------------------------
-colorscheme habamax
-autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
-
 " settings and maps
 "--------------------------------------------------
 set tabstop=4
@@ -49,10 +43,7 @@ nnoremap <leader>w :w<CR>
 "--------------------------------------------------
 call plug#begin('~/.vim/plugged')
  
-if system("hostname") != "B340119\n"
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
-endif
-
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'rafamadriz/friendly-snippets'
 Plug 'jpalardy/vim-slime'
 Plug 'junegunn/fzf'
@@ -64,11 +55,19 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'voldikss/vim-floaterm'
 Plug 'preservim/nerdtree'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'rose-pine/vim'
 
 call plug#end()
 
 " plugin configs
 "--------------------------------------------------
+
+" vague.nvim background color
+"--------------------------------------------------
+set background=dark
+colorscheme rosepine
+autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
 
 " NERDTree
 "--------------------------------------------------
