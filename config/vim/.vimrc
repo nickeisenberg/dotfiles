@@ -10,6 +10,8 @@ set autoindent
 set mouse=a
 set number
 set updatetime=100
+set colorcolumn=80
+set wrap
 
 " move to the next/prev paragraph without opening folds
 "--------------------------------------------------
