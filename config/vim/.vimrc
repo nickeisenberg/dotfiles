@@ -189,24 +189,23 @@ vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 
 " vim-floaterm
 "--------------------------------------------------
-if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
-  let shell_script = "/tmp/activate_venv.sh"
-  let venv_path = $VIRTUAL_ENV . "/bin/activate"
+let g:floaterm_shell = "/usr/bin/env bash -l"
+let g:_floaterm = -1
 
-  call writefile([
-        \ "#!/bin/bash -l",
-        \ "source " . venv_path,
-        \ "exec " . &shell
-        \ ], shell_script)
+function! _FloatermToggle()
+  if g:_floaterm == -1 || !bufexists(g:_repl_buf)
+    execute "FloatermNew --name=repl --autoclose=0"
+    let g:_floaterm = bufnr('%')
 
-  call system("chmod +x " . shell_script)
-else
-  let shell_script = &shell  " If no venv is active, use the default shell"
-endif
+    if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
+      call term_sendkeys(g:_floaterm, "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n")
+    endif
+  else
+    execute "FloatermToggle repl"
+  endif
+endfunction
 
-let g:floaterm_shell = shell_script
-
-nnoremap <Leader>tt :FloatermToggle<CR>
+nnoremap <Leader>tt :call _FloatermToggle()<CR>
 nnoremap <Leader>tk :FloatermKill<CR>
 
 autocmd QuitPre * silent! execute 'FloatermKill!'
