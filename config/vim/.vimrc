@@ -190,22 +190,30 @@ vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 " vim-floaterm
 "--------------------------------------------------
 let g:floaterm_shell = "/usr/bin/env bash -l"
-let g:_floaterm = -1
+
+let g:_floaterm_init = -1
+
+function! _FloatermNew()
+  execute "FloatermNew --name=repl --autoclose=0"
+  let g:_floaterm = bufnr('$')
+  if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
+    call term_sendkeys(g:_floaterm, "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n")
+  endif
+endfunction
 
 function! _FloatermToggle()
-  if g:_floaterm == -1 || !bufexists(g:_repl_buf)
-    execute "FloatermNew --name=repl --autoclose=0"
-    let g:_floaterm = bufnr('%')
-
-    if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
-      call term_sendkeys(g:_floaterm, "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n")
-    endif
+  if g:_floaterm_init == -1
+    let g:_floaterm_init = 1
+    call _FloatermNew()
   else
     execute "FloatermToggle repl"
   endif
 endfunction
 
 nnoremap <Leader>tt :call _FloatermToggle()<CR>
+nnoremap <Leader>tN :call _FloatermNew()<CR>
+nnoremap <Leader>tn :FloatermNext<CR>
+nnoremap <Leader>tp :FloatermPrev<CR>
 nnoremap <Leader>tk :FloatermKill<CR>
 
 autocmd QuitPre * silent! execute 'FloatermKill!'
