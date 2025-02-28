@@ -49,7 +49,6 @@ call plug#begin('~/.vim/plugged')
  
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'rafamadriz/friendly-snippets'
-Plug 'jpalardy/vim-slime'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
@@ -57,11 +56,13 @@ Plug 'tpope/vim-commentary'
 Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'voldikss/vim-floaterm'
 Plug 'preservim/nerdtree'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-Plug 'rose-pine/vim'
 Plug 'sheerun/vim-polyglot'
+Plug 'rose-pine/vim'
+
+Plug 'voldikss/vim-floaterm'
+Plug 'jpalardy/vim-slime'
 
 call plug#end()
 
@@ -108,14 +109,14 @@ function! ToggleRepl(split_type)
   " helper function
   function! s:ConfigureSplit(split_type)
     if a:split_type ==# 'vertical'
-      let g:_term_open_cmd = g:slime_extras_repl_open_cmd["vertical"]
-      let _term_size = float2nr(winwidth(0) * g:slime_extras_repl_size["vertical"])
-      let g:_term_size = "vertical resize " . _term_size
+      let g:_repl_open_cmd = g:slime_extras_repl_open_cmd["vertical"]
+      let _repl_size = float2nr(winwidth(0) * g:slime_extras_repl_size["vertical"])
+      let g:_repl_size = "vertical resize " . _repl_size
 
     elseif a:split_type ==# 'horizontal'
-      let g:_term_open_cmd = g:slime_extras_repl_open_cmd["horizontal"]
-      let _term_size = float2nr(winheight(0) * g:slime_extras_repl_size["horizontal"])
-      let g:_term_size =  "resize " . _term_size
+      let g:_repl_open_cmd = g:slime_extras_repl_open_cmd["horizontal"]
+      let _repl_size = float2nr(winheight(0) * g:slime_extras_repl_size["horizontal"])
+      let g:_repl_size =  "resize " . _repl_size
     endif
   endfunction
 
@@ -124,7 +125,7 @@ function! ToggleRepl(split_type)
   endif
 
   " Initial values
-  if !exists("g:_term_open_cmd")
+  if !exists("g:_repl_open_cmd")
     call s:ConfigureSplit("vertical")
   endif
 
@@ -146,19 +147,19 @@ function! ToggleRepl(split_type)
 
     else
       call s:ConfigureSplit(a:split_type)
-      execute g:_term_open_cmd . " sbuffer " . g:_repl_buf
-      execute g:_term_size
+      execute g:_repl_open_cmd . " sbuffer " . g:_repl_buf
+      execute g:_repl_size
       call win_gotoid(current_win_id)
     endif
 
   else
     call s:ConfigureSplit(a:split_type)
     if system("hostname") == "B340119\n"
-      execute g:_term_open_cmd . " term"
+      execute g:_repl_open_cmd . " term"
     else
-      execute g:_term_open_cmd . " term ++shell=" . shellescape(&shell)
+      execute g:_repl_open_cmd . " term ++shell=" . shellescape(&shell)
     endif
-    execute g:_term_size
+    execute g:_repl_size
     let g:_repl_buf = bufnr('$')
     call add(g:_repl_bufs, g:_repl_buf)
 
