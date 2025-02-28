@@ -4,7 +4,7 @@ let mapleader = ' '
 "--------------------------------------------------
 set tabstop=4
 set shiftwidth=4
-set expandtab
+" set expandtab
 set foldmethod=indent
 set autoindent
 set mouse=a
@@ -43,6 +43,8 @@ nnoremap <leader>w :w<CR>
 
 " plugins
 "--------------------------------------------------
+set nocompatible
+
 call plug#begin('~/.vim/plugged')
  
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -59,6 +61,7 @@ Plug 'voldikss/vim-floaterm'
 Plug 'preservim/nerdtree'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'rose-pine/vim'
+Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
@@ -80,9 +83,9 @@ nnoremap <Leader>O :NERDTreeToggle<CR>
 let g:slime_target = "vimterminal"
 
 if !empty($VIRTUAL_ENV)
-  let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && python3" 
+  let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && ipython --no-autoindent" 
 else
-  let python_def = "python3" 
+  let python_def = "ipython --no-autoindent" 
 endif
 
 let g:slime_extras_repl_def = {
@@ -186,8 +189,27 @@ vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 
 " vim-floaterm
 "--------------------------------------------------
+if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
+  let shell_script = "/tmp/activate_venv.sh"
+  let venv_path = $VIRTUAL_ENV . "/bin/activate"
+
+  call writefile([
+        \ "#!/bin/bash -l",
+        \ "source " . venv_path,
+        \ "exec " . &shell
+        \ ], shell_script)
+
+  call system("chmod +x " . shell_script)
+else
+  let shell_script = &shell  " If no venv is active, use the default shell"
+endif
+
+let g:floaterm_shell = shell_script
+
 nnoremap <Leader>tt :FloatermToggle<CR>
 nnoremap <Leader>tk :FloatermKill<CR>
+
+autocmd QuitPre * silent! execute 'FloatermKill!'
 
 " coc
 "--------------------------------------------------
