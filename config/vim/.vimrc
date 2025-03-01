@@ -56,8 +56,8 @@ function! ToggleFloatTerminal()
     return
   endif
 
-  let width = float2nr(winwidth(0) * 0.6)
-  let height = float2nr(winheight(0) * 0.6)
+  let width = float2nr(winwidth(0) * 0.75)
+  let height = float2nr(winheight(0) * 0.75)
 
   let row = (&lines - height) / 2
   let col = (&columns - width) / 2
