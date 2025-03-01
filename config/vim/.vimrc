@@ -219,6 +219,11 @@ nnoremap <Leader>tk :FloatermKill<CR>
 
 autocmd QuitPre * silent! execute 'FloatermKill!'
 
+" vim-signify
+"--------------------------------------------------
+nnoremap <Leader>sd :SignifyDiff<CR>
+nnoremap <Leader>sh :SignifyHunkDiff<CR>
+
 " coc
 "--------------------------------------------------
 nnoremap K :call CocActionAsync('doHover')<CR>
