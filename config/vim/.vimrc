@@ -1,8 +1,5 @@
 let mapleader = ' '
 
-" Map to call the function
-nnoremap <leader>ft :call ToggleFloatTerminal()<CR>
-
 " settings and maps
 "--------------------------------------------------
 set tabstop=4
