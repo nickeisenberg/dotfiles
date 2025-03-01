@@ -1,10 +1,12 @@
 let mapleader = ' '
 
+" Map to call the function
+nnoremap <leader>ft :call ToggleFloatTerminal()<CR>
+
 " settings and maps
 "--------------------------------------------------
 set tabstop=4
 set shiftwidth=4
-" set expandtab
 set foldmethod=indent
 set autoindent
 set mouse=a
@@ -41,6 +43,53 @@ vnoremap <leader>p "+p
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
 
+
+" quick floaterm
+"--------------------------------------------------
+let g:float_term_win_id = -1
+let g:float_term_buf_id = -1
+
+function! ToggleFloatTerminal()
+  if g:float_term_win_id != -1
+    call popup_close(g:float_term_win_id)
+    let g:float_term_win_id = -1
+    return
+  endif
+
+  let width = float2nr(winwidth(0) * 0.6)
+  let height = float2nr(winheight(0) * 0.6)
+
+  let row = (&lines - height) / 2
+  let col = (&columns - width) / 2
+
+  " Reuse buffer if it exists; otherwise, create a new one
+  if g:float_term_buf_id == -1 || !bufexists(g:float_term_buf_id)
+    let g:float_term_buf_id = term_start(&shell, {'hidden': 1})
+
+    if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
+      call term_sendkeys(
+        \ g:float_term_buf_id, "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n"
+      \)
+    endif
+
+  endif
+
+  " Create floating window with the existing terminal buffer
+  let g:float_term_win_id = popup_create(g:float_term_buf_id, {
+        \ 'line': row,
+        \ 'col': col,
+        \ 'minwidth': width,
+        \ 'minheight': height,
+        \ 'border': [],
+        \ 'wrap': 0,
+        \ 'mapping': 0
+        \ })
+
+  autocmd QuitPre * execute ':bd! ' . g:float_term_buf_id
+endfunction
+
+nnoremap <leader>tt :call ToggleFloatTerminal()<CR>
+
 " plugins
 "--------------------------------------------------
 set nocompatible
@@ -61,7 +110,6 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'sheerun/vim-polyglot'
 Plug 'rose-pine/vim'
 
-Plug 'voldikss/vim-floaterm'
 Plug 'jpalardy/vim-slime'
 
 call plug#end()
@@ -84,9 +132,17 @@ nnoremap <Leader>O :NERDTreeToggle<CR>
 let g:slime_target = "vimterminal"
 
 if !empty($VIRTUAL_ENV)
-  let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && ipython --no-autoindent" 
+  if trim(system("uname")) == "Linux"
+    let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && python" 
+  else
+    let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && ipython --no-autoindent" 
+  endif
 else
-  let python_def = "ipython --no-autoindent" 
+  if trim(system("uname")) == "Linux"
+    let python_def = "python" 
+  else
+    let python_def = "ipython --no-autoindent" 
+  endif
 endif
 
 let g:slime_extras_repl_def = {
@@ -187,37 +243,6 @@ nnoremap <Leader>rh :call ToggleRepl('horizontal')<CR>
 nnoremap <leader>sl :SlimeSendCurrentLine<CR>
 nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
 vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
-
-" vim-floaterm
-"--------------------------------------------------
-let g:floaterm_shell = "/usr/bin/env bash -l"
-
-let g:_floaterm_init = -1
-
-function! _FloatermNew()
-  execute "FloatermNew --name=repl --autoclose=0"
-  let g:_floaterm = bufnr('$')
-  if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
-    call term_sendkeys(g:_floaterm, "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n")
-  endif
-endfunction
-
-function! _FloatermToggle()
-  if g:_floaterm_init == -1
-    let g:_floaterm_init = 1
-    call _FloatermNew()
-  else
-    execute "FloatermToggle repl"
-  endif
-endfunction
-
-nnoremap <Leader>tt :call _FloatermToggle()<CR>
-nnoremap <Leader>tN :call _FloatermNew()<CR>
-nnoremap <Leader>tn :FloatermNext<CR>
-nnoremap <Leader>tp :FloatermPrev<CR>
-nnoremap <Leader>tk :FloatermKill<CR>
-
-autocmd QuitPre * silent! execute 'FloatermKill!'
 
 " vim-signify
 "--------------------------------------------------
