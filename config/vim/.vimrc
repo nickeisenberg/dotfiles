@@ -64,11 +64,12 @@ function! ToggleFloatTerminal()
 
   " Reuse buffer if it exists; otherwise, create a new one
   if g:float_term_buf_id == -1 || !bufexists(g:float_term_buf_id)
-    let g:float_term_buf_id = term_start(&shell, {'hidden': 1})
+    let g:float_term_buf_id = term_start(&shell . " -l", {'hidden': 1})
 
     if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
       call term_sendkeys(
-        \ g:float_term_buf_id, "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n"
+        \ g:float_term_buf_id, 
+        \ "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n"
       \)
     endif
 
@@ -246,8 +247,8 @@ vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 
 " vim-signify
 "--------------------------------------------------
-nnoremap <Leader>sd :SignifyDiff<CR>
-nnoremap <Leader>sh :SignifyHunkDiff<CR>
+nnoremap <Leader>Sd :SignifyDiff<CR>
+nnoremap <Leader>Sh :SignifyHunkDiff<CR>
 
 " coc
 "--------------------------------------------------
