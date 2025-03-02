@@ -40,40 +40,34 @@ vnoremap <leader>p "+p
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
 
-
 " quick floaterm
 "--------------------------------------------------
 let g:float_term_win_id = -1
-let g:float_term_buf_id = -1
+let g:float_term_buf_ids = []
+let g:float_term_latest_buf_id = -1
 
-function! ToggleFloatTerminal()
+function! NewFloatTerminal()
   if g:float_term_win_id != -1
     call popup_close(g:float_term_win_id)
     let g:float_term_win_id = -1
-    return
+  endif
+
+  let g:float_term_latest_buf_id = term_start(&shell . " -l", {'hidden': 1})
+  call add(g:float_term_buf_ids, g:float_term_latest_buf_id)
+
+  if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
+    call term_sendkeys(
+      \ g:float_term_latest_buf_id, 
+      \ "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n"
+    \)
   endif
 
   let width = float2nr(winwidth(0) * 0.75)
   let height = float2nr(winheight(0) * 0.75)
-
   let row = (&lines - height) / 2
   let col = (&columns - width) / 2
-
-  " Reuse buffer if it exists; otherwise, create a new one
-  if g:float_term_buf_id == -1 || !bufexists(g:float_term_buf_id)
-    let g:float_term_buf_id = term_start(&shell . " -l", {'hidden': 1})
-
-    if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
-      call term_sendkeys(
-        \ g:float_term_buf_id, 
-        \ "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n"
-      \)
-    endif
-
-  endif
-
-  " Create floating window with the existing terminal buffer
-  let g:float_term_win_id = popup_create(g:float_term_buf_id, {
+  
+  let g:float_term_win_id = popup_create(g:float_term_latest_buf_id, {
         \ 'line': row,
         \ 'col': col,
         \ 'minwidth': width,
@@ -82,11 +76,116 @@ function! ToggleFloatTerminal()
         \ 'wrap': 0,
         \ 'mapping': 0
         \ })
-
-  autocmd QuitPre * execute ':bd! ' . g:float_term_buf_id
 endfunction
 
+function! ToggleFloatTerminal()
+  if g:float_term_win_id != -1
+    call popup_close(g:float_term_win_id)
+    let g:float_term_win_id = -1
+    return
+  endif
+
+  if g:float_term_latest_buf_id == -1
+    call NewFloatTerminal()
+    return
+  endif
+
+  let width = float2nr(winwidth(0) * 0.75)
+  let height = float2nr(winheight(0) * 0.75)
+  let row = (&lines - height) / 2
+  let col = (&columns - width) / 2
+
+  let g:float_term_win_id = popup_create(g:float_term_latest_buf_id, {
+        \ 'line': row,
+        \ 'col': col,
+        \ 'minwidth': width,
+        \ 'minheight': height,
+        \ 'border': [],
+        \ 'wrap': 0,
+        \ 'mapping': 0
+        \ })
+endfunction
+
+function! CycleFloatTerminal(direction)
+  if g:float_term_latest_buf_id == -1
+    call NewFloatTerminal()
+    return
+  endif
+
+  if g:float_term_win_id != -1
+    call ToggleFloatTerminal()
+  endif
+
+  if len(g:float_term_buf_ids) == 1
+    call ToggleFloatTerminal()
+    return
+  endif
+  
+  let idx = index(g:float_term_buf_ids, g:float_term_latest_buf_id)
+
+  if a:direction == "next"
+    let new_idx = (idx + 1) % len(g:float_term_buf_ids)
+  elseif a:direction == "prev"
+    let new_idx = (idx - 1) % len(g:float_term_buf_ids)
+  endif
+
+  let g:float_term_latest_buf_id = g:float_term_buf_ids[new_idx]
+
+  call ToggleFloatTerminal()
+endfunction
+
+function! KillFloatTerminal(how)
+  if len(g:float_term_buf_ids) == 0
+    return
+  endif
+
+  if g:float_term_win_id != -1
+    call ToggleFloatTerminal()
+  endif
+
+  if a:how == "current"
+    let idx = index(g:float_term_buf_ids, g:float_term_latest_buf_id)
+    let delete_this_buf_id = remove(g:float_term_buf_ids, idx)
+
+    if delete_this_buf_id != g:float_term_latest_buf_id
+      throw "Error killing current"
+      return
+    endif
+
+    if len(g:float_term_buf_ids) == 0
+      let g:float_term_latest_buf_id = -1
+
+    else
+      if idx == len(g:float_term_buf_ids)
+        let g:float_term_latest_buf_id = g:float_term_buf_ids[idx - 1]
+
+      elseif idx < len(g:float_term_buf_ids)
+        let g:float_term_latest_buf_id = g:float_term_buf_ids[idx]
+
+      else
+        throw "Error killing"
+        return
+      endif
+    endif
+
+    execute ':bd! ' . delete_this_buf_id
+
+  elseif a:how == "all"
+    for buf_id in g:float_term_buf_ids
+      execute ':bd! ' . buf_id
+    endfor
+
+    let g:float_term_latest_buf_id = -1
+  endif
+endfunction
+
+autocmd QuitPre * call KillFloatTerminal("all")
+
 nnoremap <leader>tt :call ToggleFloatTerminal()<CR>
+nnoremap <leader>tn :call NewFloatTerminal()<CR>
+nnoremap <leader>th :call CycleFloatTerminal("prev")<CR>
+nnoremap <leader>tl :call CycleFloatTerminal("next")<CR>
+nnoremap <leader>tk :call KillFloatTerminal("current")<CR>
 
 " plugins
 "--------------------------------------------------
