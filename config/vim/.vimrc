@@ -43,10 +43,8 @@ nnoremap <leader>w :w<CR>
 " quick floaterm
 "--------------------------------------------------
 let g:float_term_win_id = -1
-
 let g:float_term_current_buf_idx = -1
 let g:float_term_buf_ids = []
-let g:float_term_buf_titles = []
 
 function! NewFloatTerminal()
   if g:float_term_win_id != -1
@@ -56,12 +54,6 @@ function! NewFloatTerminal()
 
   let new_buf_id = term_start(&shell . " -l", {'hidden': 1})
   call add(g:float_term_buf_ids, new_buf_id)
-  
-  if len(g:float_term_buf_titles) > 0
-    call add(g:float_term_buf_titles, g:float_term_buf_titles[-1] + 1)
-  else
-    call add(g:float_term_buf_titles, 0)
-  endif
 
   let g:float_term_current_buf_idx = len(g:float_term_buf_ids) - 1
 
@@ -78,15 +70,15 @@ function! NewFloatTerminal()
   let col = (&columns - width) / 2
   
   let g:float_term_win_id = popup_create(g:float_term_buf_ids[-1], {
-        \ 'line': row,
-        \ 'col': col,
-        \ 'title': "term_" . g:float_term_buf_titles[-1],
-        \ 'minwidth': width,
-        \ 'minheight': height,
-        \ 'border': [],
-        \ 'wrap': 0,
-        \ 'mapping': 0
-        \ })
+    \ 'line': row,
+    \ 'col': col,
+    \ 'title': (g:float_term_current_buf_idx + 1) . "/" . len(g:float_term_buf_ids),
+    \ 'minwidth': width,
+    \ 'minheight': height,
+    \ 'border': [],
+    \ 'wrap': 0,
+    \ 'mapping': 0
+    \ })
 endfunction
 
 function! ToggleFloatTerminal()
@@ -110,7 +102,7 @@ function! ToggleFloatTerminal()
     \ {
     \ 'line': row,
     \ 'col': col,
-    \ 'title': "term_" . g:float_term_buf_titles[g:float_term_current_buf_idx],
+    \ 'title': (g:float_term_current_buf_idx + 1) . "/" . len(g:float_term_buf_ids),
     \ 'minwidth': width,
     \ 'minheight': height,
     \ 'border': [],
@@ -157,7 +149,6 @@ function! KillFloatTerminal(how)
   if a:how == "current"
 
     let delete_this_buf_id = remove(g:float_term_buf_ids, g:float_term_current_buf_idx)
-    call remove(g:float_term_buf_titles, g:float_term_current_buf_idx)
 
     if len(g:float_term_buf_ids) == 0
       let g:float_term_current_buf_idx = -1
@@ -174,7 +165,6 @@ function! KillFloatTerminal(how)
     for buf_id in g:float_term_buf_ids
       execute ':bd! ' . buf_id
     endfor
-    let g:float_term_buf_titles = []
     let g:float_term_current_buf_idx = -1
   endif
 endfunction
