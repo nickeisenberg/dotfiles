@@ -214,9 +214,10 @@ autocmd VimEnter * highlight Normal ctermbg=NONE guibg=#141415
 "--------------------------------------------------
 nnoremap <Leader>O :NERDTreeToggle<CR>
 
-" slime iron.nvim emulator
+" slime iron.nvim emulator (iron.vim)
 "--------------------------------------------------
 let g:slime_target = "vimterminal"
+let g:slime_bracketed_paste = 1
 
 if !empty($VIRTUAL_ENV)
   if trim(system("uname")) == "Linux"
@@ -232,96 +233,71 @@ else
   endif
 endif
 
-let g:slime_extras_repl_def = {
+let g:iron_repl_def = {
   \ 'sh': 'bash -l',
   \ 'vim': 'bash -l',
   \ 'python': python_def,
 \}
 
-let g:slime_extras_repl_open_cmd = {
+let g:iron_repl_open_cmd = {
   \ 'vertical': 'vert botright',
   \ 'horizontal': 'rightbelow',
 \}
 
-let g:slime_extras_repl_size = {
+let g:iron_repl_size = {
   \ 'vertical': 0.4,
   \ 'horizontal': 0.25,
 \}
 
-function! ToggleRepl(split_type)
-  " helper function
-  function! s:ConfigureSplit(split_type)
-    if a:split_type ==# 'vertical'
-      let g:_repl_open_cmd = g:slime_extras_repl_open_cmd["vertical"]
-      let _repl_size = float2nr(winwidth(0) * g:slime_extras_repl_size["vertical"])
-      let g:_repl_size = "vertical resize " . _repl_size
+let g:iron_repl_buf_id = -1
+let g:iron_repl_split_type = "vertical"
 
-    elseif a:split_type ==# 'horizontal'
-      let g:_repl_open_cmd = g:slime_extras_repl_open_cmd["horizontal"]
-      let _repl_size = float2nr(winheight(0) * g:slime_extras_repl_size["horizontal"])
-      let g:_repl_size =  "resize " . _repl_size
-    endif
-  endfunction
-
-  if !exists("g:_repl_bufs")
-    let g:_repl_bufs = []
+function! IronRepl(split_type)
+  if a:split_type != "toggle"
+    let g:iron_repl_split_type = a:split_type
   endif
 
-  " Initial values
-  if !exists("g:_repl_open_cmd")
-    call s:ConfigureSplit("vertical")
-  endif
-
-  let g:_repl_buf = -1
-  for buf in g:_repl_bufs
-    if bufexists(buf) && getbufvar(buf, '&buftype') ==# 'terminal'
-      let g:_repl_buf = buf
-      break
-    endif
-  endfor
+  let g:iron_repl_size_cmd = {
+    \ 'vertical': 'vertical resize ' . float2nr(winwidth(0) * g:iron_repl_size["vertical"]),
+    \ 'horizontal': 'resize ' . float2nr(winheight(0) * g:iron_repl_size["horizontal"]),
+  \}
 
   let current_win_id = win_getid()
   let ft = &filetype
 
-  if g:_repl_buf > 0
-    let win_id = bufwinnr(g:_repl_buf)
+  if g:iron_repl_buf_id > 0
+    let win_id = bufwinnr(g:iron_repl_buf_id)
+
     if win_id > 0
       execute win_id . "wincmd c"
+      return
 
     else
-      call s:ConfigureSplit(a:split_type)
-      execute g:_repl_open_cmd . " sbuffer " . g:_repl_buf
-      execute g:_repl_size
-      call win_gotoid(current_win_id)
+      execute g:iron_repl_open_cmd[g:iron_repl_split_type] . " sbuffer " . g:iron_repl_buf_id 
+      execute g:iron_repl_size_cmd[g:iron_repl_split_type]
     endif
 
   else
-    call s:ConfigureSplit(a:split_type)
-    execute g:_repl_open_cmd . " term"
-    execute g:_repl_size
-    let g:_repl_buf = bufnr('$')
-    call add(g:_repl_bufs, g:_repl_buf)
+    execute g:iron_repl_open_cmd[g:iron_repl_split_type] . " term"
+    execute g:iron_repl_size_cmd[g:iron_repl_split_type]
+    let g:iron_repl_buf_id = bufnr('%')
 
-    if has_key(g:slime_extras_repl_def, ft)
-      call term_sendkeys(g:_repl_buf, g:slime_extras_repl_def[ft] . "\n")
+    if has_key(g:iron_repl_def, ft)
+      call term_sendkeys(g:iron_repl_buf_id, g:iron_repl_def[ft] . "\n")
     else
-      call term_sendkeys(g:_repl_buf, ft . "\n")
+      call term_sendkeys(g:iron_repl_buf_id, ft . "\n")
     endif
+ 
+    autocmd ExitPre * execute ':bd! ' . g:iron_repl_buf_id
 
-    setlocal bufhidden=hide
-
-    " kills terminal on :q so this does not need to be done manually
-    autocmd ExitPre * execute ':bd! ' . g:_repl_buf
-
-    call win_gotoid(current_win_id)
   endif
+
+  call win_gotoid(current_win_id)
 endfunction
 
- 
-nnoremap <Leader>rr :call ToggleRepl('toggle')<CR>
-
-nnoremap <Leader>rv :call ToggleRepl('vertical')<CR>
-nnoremap <Leader>rh :call ToggleRepl('horizontal')<CR>
+nnoremap <Leader>rr :call IronRepl('toggle')<CR>
+nnoremap <Leader>rv :call IronRepl('vertical')<CR>
+nnoremap <Leader>rh :call IronRepl('horizontal')<CR>
 
 nnoremap <leader>sl :SlimeSend<CR>
 nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
