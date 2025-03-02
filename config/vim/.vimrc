@@ -288,6 +288,7 @@ function! IronRepl(split_type)
       call term_sendkeys(g:iron_repl_buf_id, ft . "\n")
     endif
  
+    setlocal bufhidden=hide
     autocmd ExitPre * execute ':bd! ' . g:iron_repl_buf_id
 
   endif
