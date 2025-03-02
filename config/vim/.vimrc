@@ -238,7 +238,7 @@ nnoremap <Leader>rr :call ToggleRepl('toggle')<CR>
 nnoremap <Leader>rv :call ToggleRepl('vertical')<CR>
 nnoremap <Leader>rh :call ToggleRepl('horizontal')<CR>
 
-nnoremap <leader>sl :SlimeSendCurrentLine<CR>
+nnoremap <leader>sl :SlimeSend<CR>
 nnoremap <leader>sp <Plug>SlimeParagraphSend<CR>
 vnoremap <leader>sp <Plug>SlimeRegionSend<CR>
 
