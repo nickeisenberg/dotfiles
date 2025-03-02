@@ -162,14 +162,14 @@ function! KillFloatTerminal(how)
     execute ':bd! ' . delete_this_buf_id
 
   elseif a:how == "all"
-    for buf_id in g:float_term_buf_ids
-      execute ':bd! ' . buf_id
+    for idx in range(len(g:float_term_buf_ids))
+      execute ':bd! ' . remove(g:float_term_buf_ids, idx)
     endfor
     let g:float_term_current_buf_idx = -1
   endif
 endfunction
 
-autocmd QuitPre * call KillFloatTerminal("all")
+autocmd ExitPre * call KillFloatTerminal("all")
 
 nnoremap <leader>tt :call ToggleFloatTerminal()<CR>
 nnoremap <leader>tn :call NewFloatTerminal()<CR>
@@ -297,11 +297,7 @@ function! ToggleRepl(split_type)
 
   else
     call s:ConfigureSplit(a:split_type)
-    if system("hostname") == "B340119\n"
-      execute g:_repl_open_cmd . " term"
-    else
-      execute g:_repl_open_cmd . " term ++shell=" . shellescape(&shell)
-    endif
+    execute g:_repl_open_cmd . " term"
     execute g:_repl_size
     let g:_repl_buf = bufnr('$')
     call add(g:_repl_bufs, g:_repl_buf)
@@ -315,7 +311,7 @@ function! ToggleRepl(split_type)
     setlocal bufhidden=hide
 
     " kills terminal on :q so this does not need to be done manually
-    autocmd QuitPre * execute ':bd! ' . g:_repl_buf
+    autocmd ExitPre * execute ':bd! ' . g:_repl_buf
 
     call win_gotoid(current_win_id)
   endif
