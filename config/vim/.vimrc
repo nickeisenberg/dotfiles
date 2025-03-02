@@ -43,8 +43,10 @@ nnoremap <leader>w :w<CR>
 " quick floaterm
 "--------------------------------------------------
 let g:float_term_win_id = -1
+
+let g:float_term_current_buf_idx = -1
 let g:float_term_buf_ids = []
-let g:float_term_latest_buf_id = -1
+let g:float_term_buf_titles = []
 
 function! NewFloatTerminal()
   if g:float_term_win_id != -1
@@ -52,12 +54,20 @@ function! NewFloatTerminal()
     let g:float_term_win_id = -1
   endif
 
-  let g:float_term_latest_buf_id = term_start(&shell . " -l", {'hidden': 1})
-  call add(g:float_term_buf_ids, g:float_term_latest_buf_id)
+  let new_buf_id = term_start(&shell . " -l", {'hidden': 1})
+  call add(g:float_term_buf_ids, new_buf_id)
+  
+  if len(g:float_term_buf_titles) > 0
+    call add(g:float_term_buf_titles, g:float_term_buf_titles[-1] + 1)
+  else
+    call add(g:float_term_buf_titles, 0)
+  endif
+
+  let g:float_term_current_buf_idx = len(g:float_term_buf_ids) - 1
 
   if exists('$VIRTUAL_ENV') && !empty($VIRTUAL_ENV)
     call term_sendkeys(
-      \ g:float_term_latest_buf_id, 
+      \ g:float_term_buf_ids[-1], 
       \ "source " . $VIRTUAL_ENV . "/bin/activate && clear" . "\n"
     \)
   endif
@@ -67,9 +77,10 @@ function! NewFloatTerminal()
   let row = (&lines - height) / 2
   let col = (&columns - width) / 2
   
-  let g:float_term_win_id = popup_create(g:float_term_latest_buf_id, {
+  let g:float_term_win_id = popup_create(g:float_term_buf_ids[-1], {
         \ 'line': row,
         \ 'col': col,
+        \ 'title': "term_" . g:float_term_buf_titles[-1],
         \ 'minwidth': width,
         \ 'minheight': height,
         \ 'border': [],
@@ -85,7 +96,7 @@ function! ToggleFloatTerminal()
     return
   endif
 
-  if g:float_term_latest_buf_id == -1
+  if len(g:float_term_buf_ids) == 0
     call NewFloatTerminal()
     return
   endif
@@ -95,19 +106,21 @@ function! ToggleFloatTerminal()
   let row = (&lines - height) / 2
   let col = (&columns - width) / 2
 
-  let g:float_term_win_id = popup_create(g:float_term_latest_buf_id, {
-        \ 'line': row,
-        \ 'col': col,
-        \ 'minwidth': width,
-        \ 'minheight': height,
-        \ 'border': [],
-        \ 'wrap': 0,
-        \ 'mapping': 0
-        \ })
+  let g:float_term_win_id = popup_create(g:float_term_buf_ids[g:float_term_current_buf_idx], 
+    \ {
+    \ 'line': row,
+    \ 'col': col,
+    \ 'title': "term_" . g:float_term_buf_titles[g:float_term_current_buf_idx],
+    \ 'minwidth': width,
+    \ 'minheight': height,
+    \ 'border': [],
+    \ 'wrap': 0,
+    \ 'mapping': 0
+    \ })
 endfunction
 
 function! CycleFloatTerminal(direction)
-  if g:float_term_latest_buf_id == -1
+  if len(g:float_term_buf_ids) == 0
     call NewFloatTerminal()
     return
   endif
@@ -120,16 +133,14 @@ function! CycleFloatTerminal(direction)
     call ToggleFloatTerminal()
     return
   endif
-  
-  let idx = index(g:float_term_buf_ids, g:float_term_latest_buf_id)
 
   if a:direction == "next"
-    let new_idx = (idx + 1) % len(g:float_term_buf_ids)
+    let g:float_term_current_buf_idx += 1
   elseif a:direction == "prev"
-    let new_idx = (idx - 1) % len(g:float_term_buf_ids)
+    let g:float_term_current_buf_idx -= 1
   endif
 
-  let g:float_term_latest_buf_id = g:float_term_buf_ids[new_idx]
+  let g:float_term_current_buf_idx = g:float_term_current_buf_idx % len(g:float_term_buf_ids)
 
   call ToggleFloatTerminal()
 endfunction
@@ -142,29 +153,18 @@ function! KillFloatTerminal(how)
   if g:float_term_win_id != -1
     call ToggleFloatTerminal()
   endif
-
+  
   if a:how == "current"
-    let idx = index(g:float_term_buf_ids, g:float_term_latest_buf_id)
-    let delete_this_buf_id = remove(g:float_term_buf_ids, idx)
 
-    if delete_this_buf_id != g:float_term_latest_buf_id
-      throw "Error killing current"
-      return
-    endif
+    let delete_this_buf_id = remove(g:float_term_buf_ids, g:float_term_current_buf_idx)
+    call remove(g:float_term_buf_titles, g:float_term_current_buf_idx)
 
     if len(g:float_term_buf_ids) == 0
-      let g:float_term_latest_buf_id = -1
+      let g:float_term_current_buf_idx = -1
 
     else
-      if idx == len(g:float_term_buf_ids)
-        let g:float_term_latest_buf_id = g:float_term_buf_ids[idx - 1]
-
-      elseif idx < len(g:float_term_buf_ids)
-        let g:float_term_latest_buf_id = g:float_term_buf_ids[idx]
-
-      else
-        throw "Error killing"
-        return
+      if g:float_term_current_buf_idx == len(g:float_term_buf_ids)
+        let g:float_term_current_buf_idx -= 1
       endif
     endif
 
@@ -174,8 +174,8 @@ function! KillFloatTerminal(how)
     for buf_id in g:float_term_buf_ids
       execute ':bd! ' . buf_id
     endfor
-
-    let g:float_term_latest_buf_id = -1
+    let g:float_term_buf_titles = []
+    let g:float_term_current_buf_idx = -1
   endif
 endfunction
 
