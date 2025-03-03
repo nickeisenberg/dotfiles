@@ -44,6 +44,12 @@ nnoremap <leader>w :w<CR>
 " plugins
 "--------------------------------------------------
 
+" These are redunant if vim plug is active. But needed if only packadd is used
+syntax on
+filetype on
+filetype plugin on
+"--------------------------------------------------
+
 packadd iron.vim
 packadd float-term.vim
 
@@ -64,13 +70,14 @@ Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
-" plugin configs
-"--------------------------------------------------
-
-" .vim/colors/rosepine.vim
+" .vim/colors/rosepine.vimV
 "--------------------------------------------------
 colorscheme rosepine
 highlight Normal ctermbg=NONE guibg=#141415
+
+"--------------------------------------------------
+" plugin configs
+"--------------------------------------------------
 
 " NERDTree
 "--------------------------------------------------
