@@ -11,7 +11,7 @@ set number
 set updatetime=100
 set colorcolumn=80
 set wrap
-" set nocompatible                                                       
+set nocompatible                                                       
 
 " move to the next/prev paragraph without opening folds
 "--------------------------------------------------
