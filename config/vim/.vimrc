@@ -11,7 +11,9 @@ set number
 set updatetime=100
 set colorcolumn=80
 set wrap
-set nocompatible                                                       
+set nocompatible
+
+let &shell = &shell . ' --login'
 
 " move to the next/prev paragraph without opening folds
 "--------------------------------------------------
@@ -23,10 +25,6 @@ vnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
 " splits
 "--------------------------------------------------
 nnoremap <Leader>cs :close<CR>
-nnoremap <Leader>h <C-w>h
-nnoremap <Leader>j <C-w>j
-nnoremap <Leader>k <C-w>k
-nnoremap <Leader>l <C-w>l
 nnoremap <Leader>sv :vsplit<CR>
 nnoremap <Leader>sh :split<CR>
 
@@ -81,7 +79,9 @@ highlight Normal ctermbg=NONE guibg=#141415
 
 " NERDTree
 "--------------------------------------------------
-nnoremap <Leader>O :NERDTreeToggle<CR>
+let g:NERDTreeMapActivateNode = ''
+let g:NERDTreeMapOpenInTab = 'o'
+nnoremap <Leader>O :NERDTreeExplore<CR>
 
 " vim-signify
 "--------------------------------------------------
