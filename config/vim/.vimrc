@@ -48,9 +48,6 @@ filetype on
 filetype plugin on
 "--------------------------------------------------
 
-packadd iron.vim
-packadd float-term.vim
-
 call plug#begin('~/.vim/plugged')
  
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -68,7 +65,7 @@ Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 
-" .vim/colors/rosepine.vimV
+" .vim/colors/rosepine.vim
 "--------------------------------------------------
 colorscheme rosepine
 highlight Normal ctermbg=NONE guibg=#141415
@@ -76,6 +73,21 @@ highlight Normal ctermbg=NONE guibg=#141415
 "--------------------------------------------------
 " plugin configs
 "--------------------------------------------------
+
+" iron.vim
+"---------"-----------------------------------------
+if !empty($VIRTUAL_ENV)
+  let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && ipython --no-autoindent"
+else
+  let python_def = "ipython --no-autoindent"
+endif
+
+let g:iron_repl_def = {
+  \'sh': 'bash -l',
+  \'vim': 'bash -l',
+  \'python': python_def,
+  \}
+
 
 " NERDTree
 "--------------------------------------------------
