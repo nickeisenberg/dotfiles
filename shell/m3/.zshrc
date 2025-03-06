@@ -17,7 +17,8 @@ parse_git_branch() {
 }
 
 set_prompt() {
-    PROMPT="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
+    # PROMPT="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
+    PROMPT="%{$fg_bold[green]%}nick@mac%{$reset_color%}:%{$fg_bold[blue]%}%~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
     if [ -n "$VIRTUAL_ENV_PROMPT" ]; then
         PROMPT="${VIRTUAL_ENV_PROMPT} ${PROMPT}"
     fi
