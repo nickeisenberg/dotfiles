@@ -13,7 +13,11 @@ set colorcolumn=80
 set wrap
 set nocompatible
 
-let &shell = &shell . ' --login'
+syntax on
+filetype on
+filetype plugin on
+
+let &shell = &shell . " --login"
 
 " move to the next/prev paragraph without opening folds
 "--------------------------------------------------
@@ -35,17 +39,17 @@ vnoremap <leader>y "+y
 nnoremap <leader>p "+p
 vnoremap <leader>p "+p
 
+" Explorer
+"--------------------------------------------------
+nnoremap <leader>O :Ex<CR>
+
 " quick write 
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
 
-" plugins
 "--------------------------------------------------
 
-" These are redunant if vim plug is active. But needed if only packadd is used
-syntax on
-filetype on
-filetype plugin on
+" plugins
 "--------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
@@ -59,41 +63,24 @@ Plug 'tpope/vim-commentary'
 Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'preservim/nerdtree'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-Plug 'sheerun/vim-polyglot'
+
+" syntax highlighting
+Plug 'vim-python/python-syntax'
 
 call plug#end()
 
 " .vim/colors/rosepine.vim
 "--------------------------------------------------
-colorscheme rosepine
-highlight Normal ctermbg=NONE guibg=#141415
+colorscheme rosepine 
+
+" syntax highlighting
+"--------------------------------------------------
+let g:python_highlight_all = 1
 
 "--------------------------------------------------
 " plugin configs
 "--------------------------------------------------
-
-" iron.vim
-"---------"-----------------------------------------
-if !empty($VIRTUAL_ENV)
-  let python_def = "source $VIRTUAL_ENV/bin/activate && clear && which python3 && ipython --no-autoindent"
-else
-  let python_def = "ipython --no-autoindent"
-endif
-
-let g:iron_repl_def = {
-  \'sh': 'bash -l',
-  \'vim': 'bash -l',
-  \'python': python_def,
-  \}
-
-
-" NERDTree
-"--------------------------------------------------
-let g:NERDTreeMapActivateNode = ''
-let g:NERDTreeMapOpenInTab = 'o'
-nnoremap <Leader>O :NERDTreeExplore<CR>
 
 " vim-signify
 "--------------------------------------------------
