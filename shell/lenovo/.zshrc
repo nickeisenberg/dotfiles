@@ -50,45 +50,15 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 #--------------------------------------------------
 # Lazy loading nvm, node and npm as it takes for ever on start.
 #--------------------------------------------------
-load_nvm() {
+nvm() {
+	unset -f nvm
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+	nvm $@
 }
 
-LAZY_LOAD_NVM=false
-if ! $LAZY_LOAD_NVM; then
-    load_nvm
-else
-    lazy_load_nvm_on_call() {
-        local CMD=$1
-        shift
-        if [[ -z "$NVM_DIR" ]]; then
-            load_nvm
-        fi
-    
-        if [[ "$CMD" == "nvm" ]]; then
-            eval "$CMD" "$@"
-        else
-            command "$CMD" "$@"
-        fi
-    }
-    
-    nvm() {
-        lazy_load_nvm_on_call nvm "$@"
-        unset -f nvm 
-    }
-    
-    npm() {
-        lazy_load_nvm_on_call npm "$@"
-        unset -f npm
-    }
-    
-    node() {
-        lazy_load_nvm_on_call node "$@"
-        unset -f node 
-    }
-fi
+PATH="/home/nicholas/.nvm/versions/node/v20.6.1/bin:${PATH}"
 #--------------------------------------------------
 
 #--------------------------------------------------
