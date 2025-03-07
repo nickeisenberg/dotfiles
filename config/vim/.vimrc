@@ -70,9 +70,8 @@ Plug 'vim-python/python-syntax'
 
 call plug#end()
 
-" .vim/colors/rosepine.vim
-"--------------------------------------------------
-colorscheme rosepine 
+colorscheme habamax
+highlight Normal ctermbg=16
 
 " syntax highlighting
 "--------------------------------------------------
