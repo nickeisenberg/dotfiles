@@ -23,7 +23,7 @@ return {
             format = common.bracketed_paste_python,
             block_deviders = { "# %%", "#%%" },
           },
-          sh = { command = { "bash", "-l" } }
+          sh = { command = { vim.o.shell } }
         },
         repl_filetype = function(_, ft)
           return ft

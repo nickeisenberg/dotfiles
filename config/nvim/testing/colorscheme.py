@@ -3,12 +3,11 @@ Text to see how the color scheme looks
 """
 import numpy as np
 
-def f(x, y, z):
-    pass
+def f(x: int, y: np.ndarray, z: float):
+    """asdf"""
+    return x, y ,z
 
 x, y, z = 0, 0, 0
-
-# here is a comment
 
 class Foo:
     """

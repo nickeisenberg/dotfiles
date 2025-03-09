@@ -7,7 +7,8 @@ M.rosepine = {
     require("rose-pine").setup({
       palette = {
         main = {
-          base = "#121212"
+          base = "#121212",
+		      surface = "#121212",
         }
       }
     })
@@ -26,4 +27,4 @@ M.vague = {
 }
 
 
-return M.vague
+return M.rosepine
