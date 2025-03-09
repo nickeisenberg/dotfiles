@@ -12,6 +12,8 @@ set updatetime=100
 set colorcolumn=80
 set wrap
 set nocompatible
+set cursorline
+set cursorcolumn 
 
 syntax on
 filetype on
@@ -71,8 +73,8 @@ Plug 'Vimjas/vim-python-pep8-indent'
 
 call plug#end()
 
-colorscheme habamax
-highlight Normal ctermbg=16
+colorscheme rosepine 
+highlight Normal ctermbg=233
 
 " syntax highlighting
 "--------------------------------------------------
