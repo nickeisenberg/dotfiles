@@ -48,12 +48,6 @@ vim.keymap.set("n", "<leader>sv", ":vsplit <CR>")
 vim.keymap.set("n", "<leader>sh", ":split <CR>")
 vim.keymap.set("n", "<leader>cs", ":close <CR>")
 
--- navigate splits
-vim.keymap.set("n", "<leader>l", ":wincmd l <CR>")
-vim.keymap.set("n", "<leader>h", ":wincmd h <CR>")
-vim.keymap.set("n", "<leader>j", ":wincmd j <CR>")
-vim.keymap.set("n", "<leader>k", ":wincmd k <CR>")
-
 --  Fugitive keymap
 vim.keymap.set("n", "<leader>vf", ":G ")
 

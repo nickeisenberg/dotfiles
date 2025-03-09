@@ -7,7 +7,7 @@ M.rosepine = {
     require("rose-pine").setup({
       palette = {
         main = {
-          -- base = "#000000"
+          base = "#121212"
         }
       }
     })
