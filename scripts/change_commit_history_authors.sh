@@ -51,7 +51,7 @@ change_commit_history_authors() {
 
     if [ -n "$where_email" ] && [ -n "$where" ]; then
         where="${where} and commit.author_email == b\"${where_email}\""
-    else
+	elif [ -n "$where_email" ]; then
         where="commit.author_email == \"${where_email}\""
     fi
 
@@ -68,6 +68,8 @@ change_commit_history_authors() {
         to="${to}\n\tcommit.committer_email = b\"${to_email}\""
     fi
 
-    CMD="${CMD}${to}"
+    CMD="${CMD}${to}\n'"
     echo $CMD
 }
+
+change_commit_history_authors --where --name Nick --to --name nick
