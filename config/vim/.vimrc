@@ -76,13 +76,19 @@ call plug#end()
 colorscheme rosepine 
 highlight Normal ctermbg=233
 
+"--------------------------------------------------
+" plugin configs
+"--------------------------------------------------
+
 " syntax highlighting
 "--------------------------------------------------
 let g:python_highlight_all = 1
 
+" iron.vim
 "--------------------------------------------------
-" plugin configs
-"--------------------------------------------------
+if system("uname") == "Darwin\n"
+  let g:iron_term_wait = 5
+endif
 
 " vim-signify
 "--------------------------------------------------
