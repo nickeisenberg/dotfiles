@@ -71,9 +71,8 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 
-Plug 'nickeisenberg/iron.vim', { 'branch': 'dev' }
+Plug 'nickeisenberg/iron.vim', { 'branch': 'master' }
 " Plug '~/gitrepos/iron.vim'
-
 call plug#end()
 
 colorscheme rosepine 
