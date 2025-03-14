@@ -5,5 +5,5 @@
     "pyright.inlayHints.parameterTypes": false,
     "diagnostic.virtualText": false,
     "diagnostic.checkCurrentLine": true,   
-    "diagnostic.signs": false,
+    "diagnostic.signs": false
 }
