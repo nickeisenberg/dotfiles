@@ -1,3 +1,4 @@
 return {
-  "tpope/vim-fugitive",
+  "junegunn/gv.vim",
+  dependencies = { "tpope/vim-fugitive" }
 }
