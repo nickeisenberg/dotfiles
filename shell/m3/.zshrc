@@ -17,7 +17,17 @@ parse_git_branch() {
 }
 
 set_prompt() {
-    PROMPT="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
+	PROMPT="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
+	# PROMPT_NO_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
+	# PROMPT_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} (x) \$ "
+
+	# STATUS=$(git status --short 2> /dev/null)
+	# if [ -n "$STATUS" ]; then
+	#   PROMPT=$PROMPT_STATUS
+	# else
+	#   PROMPT=$PROMPT_NO_STATUS
+	# fi
+
     if [ -n "$VIRTUAL_ENV_PROMPT" ]; then
         PROMPT="${VIRTUAL_ENV_PROMPT} ${PROMPT}"
     fi
