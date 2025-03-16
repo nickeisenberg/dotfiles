@@ -67,13 +67,14 @@ Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'vifm/vifm.vim'
 
 " python syntax 
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 
-Plug 'nickeisenberg/iron.vim', { 'branch': 'master' }
-" Plug '~/gitrepos/iron.vim'
+" Plug 'nickeisenberg/iron.vim', { 'branch': 'master' }
+Plug '~/gitrepos/vigemus/iron.vim'
 call plug#end()
 
 colorscheme rosepine 
@@ -91,6 +92,8 @@ let g:python_highlight_all = 1
 "--------------------------------------------------
 if system("uname") == "Darwin\n"
   let g:iron_term_wait = 5
+else
+  let g:iron_term_wait = 1
 endif
 
 let g:iron_repl_open_cmd = {

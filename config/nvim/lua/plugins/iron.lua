@@ -1,6 +1,6 @@
 return {
   -- "Vigemus/iron.nvim",
-  dir = "~/gitrepos/iron.nvim/iron.nvim",
+  dir = "~/gitrepos/vigemus/iron.nvim",
   -- dir = "~\\GitRepos\\iron.nvim",
   -- "nickeisenberg/iron.nvim",
   -- branch = "master",
