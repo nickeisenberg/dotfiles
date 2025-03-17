@@ -126,6 +126,8 @@ nnoremap <Leader>Sh :SignifyHunkDiff<CR>
 nnoremap K :call CocActionAsync('doHover')<CR>
 nnoremap <Leader>gd :call CocAction('jumpDefinition')<CR>
 nnoremap <Leader>gr :call CocAction('jumpReferences')<CR>
+nnoremap <silent> ]d <Plug>(coc-diagnostic-prev)
+nnoremap <silent> [d <Plug>(coc-diagnostic-next)
 
 " fzf
 "--------------------------------------------------
