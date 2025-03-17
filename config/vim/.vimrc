@@ -133,7 +133,7 @@ nnoremap <silent> [d <Plug>(coc-diagnostic-next)
 "--------------------------------------------------
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fb :Buffers<CR>
-nnoremap <Leader>fg :Rg <CR>
+nnoremap <Leader>fg :RG <CR>
 
 " airline
 "--------------------------------------------------
