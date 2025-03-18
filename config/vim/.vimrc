@@ -74,8 +74,8 @@ Plug 'vifm/vifm.vim'
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 
-" Plug 'nickeisenberg/iron.vim', { 'branch': 'master' }
-Plug '~/gitrepos/vigemus/iron.vim'
+Plug 'Vigemus/iron.vim', { 'branch': 'master' }
+" Plug '~/gitrepos/vigemus/iron.vim'
 call plug#end()
 
 colorscheme rosepine 
@@ -127,12 +127,14 @@ nnoremap <Leader>Sh :SignifyHunkDiff<CR>
 nnoremap K :call CocActionAsync('doHover')<CR>
 nnoremap <Leader>gd :call CocAction('jumpDefinition')<CR>
 nnoremap <Leader>gr :call CocAction('jumpReferences')<CR>
+nnoremap <silent> ]d <Plug>(coc-diagnostic-prev)
+nnoremap <silent> [d <Plug>(coc-diagnostic-next)
 
 " fzf
 "--------------------------------------------------
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fb :Buffers<CR>
-nnoremap <Leader>fg :Rg <CR>
+nnoremap <Leader>fg :RG <CR>
 
 " airline
 "--------------------------------------------------

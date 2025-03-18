@@ -22,9 +22,8 @@ M.vague = {
     require("vague").setup({
       -- optional configuration here
     })
-  vim.cmd("colorscheme vague")
+    vim.cmd("colorscheme vague")
   end
 }
 
-
-return M.rosepine
+return M.vague
