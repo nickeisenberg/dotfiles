@@ -17,16 +17,20 @@ parse_git_branch() {
 }
 
 set_prompt() {
-	PROMPT="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
-	# PROMPT_NO_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
-	# PROMPT_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} (x) \$ "
+	FANCY=true
+	
+	PROMPT_NO_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
+	PROMPT_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} (x) \$ "
+	
+	if $FANCY; then
+		STATUS=$(git status --short 2> /dev/null)
+	fi
 
-	# STATUS=$(git status --short 2> /dev/null)
-	# if [ -n "$STATUS" ]; then
-	#   PROMPT=$PROMPT_STATUS
-	# else
-	#   PROMPT=$PROMPT_NO_STATUS
-	# fi
+	if [ -n "$STATUS" ]; then
+	  PROMPT=$PROMPT_STATUS
+	else
+	  PROMPT=$PROMPT_NO_STATUS
+	fi
 
     if [ -n "$VIRTUAL_ENV_PROMPT" ]; then
         PROMPT="${VIRTUAL_ENV_PROMPT} ${PROMPT}"
@@ -52,10 +56,10 @@ if [[ -d "$HOME/software" ]]; then
 fi
 #--------------------------------------------------
 
-PATH="${PATH}:${HOME}/.homebrew/bin"
-PATH="${PATH}:/Users/eisenbnt/.nvm/versions/node/v22.14.0/bin"
 PATH="/Users/eisenbnt/Library/Python/3.11/bin:${PATH}"
 
+PATH="${PATH}:${HOME}/.homebrew/bin"
+PATH="${PATH}:/Users/eisenbnt/.nvm/versions/node/v22.14.0/bin"
 nvm() {
     unset -f nvm
     export NVM_DIR="$HOME/.nvm"

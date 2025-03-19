@@ -14,6 +14,7 @@ set wrap
 set nocompatible
 set cursorline
 set cursorcolumn 
+set noswapfile
 
 syntax on
 filetype on
