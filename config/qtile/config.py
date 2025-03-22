@@ -45,6 +45,8 @@ colors = Colors()
 barcolor = colors.barcolor
 widget_background = colors.widget_background
 widget_text_color = colors.widget_text_color
+widget_font = "ComicShannsMonoNerdFont"
+widget_fontsize = 22
 urgent = colors.urgent
 muted_urgent = colors.muted_urgent
 selected = colors.selected
@@ -205,7 +207,8 @@ dualgroups = [
 groups = maingroups + dualgroups
 
 main_group_box = widget.GroupBox(
-    fontsize=20,
+    font=widget_font,
+    fontsize=widget_fontsize,
     highlight_method="default",
     visible_groups=['1', '2', '3', '4', '5', '6'],
     background=widget_background,
@@ -215,7 +218,7 @@ main_group_box = widget.GroupBox(
     this_current_screen_border=muted_urgent,
     this_screen_border=urgent,
     blockwidth=2,
-    margin_y=3,
+    margin_y=4,
 )
 
 dual_group_box = widget.GroupBox(
@@ -355,15 +358,15 @@ mybar_items += [
          text="", 
          foreground=widget_text_color,
          background=widget_background,
-         padding=0,
-         fontsize=20
+         padding=5,
+         fontsize=24
     ),
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.Clock(
+        font=widget_font,
+        fontsize=widget_fontsize,
         foreground=widget_text_color,
-        # background=background,
         background=widget_background,
-        fontsize=20,
         format='%A, %b %d %I:%M %p ',
     ),
     widget.Spacer(),
@@ -376,29 +379,30 @@ mybar_items += [
         scale=.5
     ),
     widget.CurrentLayout(
-        fontsize=20,
+        font=widget_font,
+        fontsize=widget_fontsize,
         foreground=widget_text_color,
         background=widget_background,
     ),
     widget.Spacer(),
     widget.TextBox(
-        font='FontAwesome',
+        font=widget_font,
         text="VRAM:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
-        fontsize=16
+        fontsize=widget_fontsize
     ),
     NvidiaSensors2(
+        font=widget_font,
         sensors=["memory.used"],
         format="{memory_used}",
-        fontsize=18,
+        fontsize=widget_fontsize,
         padding=5,
         background=widget_background,
         foreground=widget_text_color
     ),
     widget.TextBox(
-        font='FontAwesome',
         text="\u2502",
         foreground=widget_text_color,
         background=widget_background,
@@ -406,21 +410,21 @@ mybar_items += [
         fontsize=20
     ),
     widget.TextBox(
-        font='FontAwesome',
+        font=widget_font,
+        fontsize=widget_fontsize,
         text=" RAM:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
-        fontsize=16
     ),
     widget.Memory(
+        font=widget_font,
         foreground=widget_text_color,
         background=widget_background,
-        fontsize=18,
+        fontsize=widget_fontsize,
         format='{MemUsed:.0f} MiB',
     ),
     widget.TextBox(
-        font='FontAwesome',
         text="\u2502",
         foreground=widget_text_color,
         background=widget_background,
@@ -428,22 +432,20 @@ mybar_items += [
         fontsize=20
     ),
     widget.TextBox(
-        font='FontAwesome',
-        # text="  ",
-        text=" Vol:",
+        font=widget_font,
+        fontsize=widget_fontsize,
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
-        fontsize=16
     ),
     widget.PulseVolume(
-        fontsize=18,
+        font=widget_font,
+        fontsize=widget_fontsize,
         padding=5,
         background=widget_background,
         foreground=widget_text_color,
     ),
     widget.TextBox(
-        font='FontAwesome',
         text="\u2502",
         foreground=widget_text_color,
         background=widget_background,
@@ -451,17 +453,17 @@ mybar_items += [
         fontsize=20
     ),
     widget.TextBox(
-        font='FontAwesome',
+        font=widget_font,
+        fontsize=widget_fontsize,
         text=" WiFi:",
         foreground=widget_text_color,
         background=widget_background,
         padding=0,
-        fontsize=16
     ),
     widget.Wlan(
+        font=widget_font,
+        fontsize=widget_fontsize,
         interface="wlp0s20f3",
-        font="FontAwesome",
-        fontsize=16,
         foreground=widget_text_color,
         background=widget_background,
         format='{essid} {percent:2.0%}'
@@ -475,11 +477,11 @@ mybar_items += [
         fontsize=20
     ),
     widget.Battery(
+        font=widget_font,
+        fontsize=widget_fontsize,
         battery="BAT0",
-        font='FontAwesome',
         foreground=widget_text_color,
         background=widget_background,
-        fontsize=16,
         low_percentage=0.2,
         low_foreground=widget_text_color,
         update_interval=1,
@@ -519,13 +521,12 @@ mybar_dual_items = [
     widget.Spacer()
 ]
 
-
 mybar = bar.Bar(
     mybar_items,
-    25,
+    size=widget_fontsize * 2,
     background=barcolor,
     margin=[0, 0, 0, 0],
-    border_width=[8, 0, 8, 0],
+    border_width=[0, 0, 0, 0],
     border_color=barcolor,
 ) 
 
@@ -542,7 +543,7 @@ mybar_dual = bar.Bar(
 # wallpaper now set in autostart.sh
 screens = [
     Screen(
-        top=mybar
+        top=mybar,
     ),
     Screen(
         top=mybar_dual
