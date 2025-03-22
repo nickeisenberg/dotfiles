@@ -23,9 +23,20 @@ from colors.vague import Colors
 
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
-terminal = 'alacritty'
-browser = "firefox"
 
+
+alacrity_terminal = subprocess.run(
+    f"which alacritty", 
+    shell=True, 
+    stdout=subprocess.PIPE
+).stdout
+
+if alacrity_terminal:
+    terminal = 'alacritty'
+else:
+    terminal = 'gnome-terminal'
+
+browser = "firefox"
 #--------------------------------------------------
 # color setup
 #--------------------------------------------------

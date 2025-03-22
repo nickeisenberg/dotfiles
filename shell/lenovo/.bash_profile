@@ -42,7 +42,9 @@ export PATH="/usr/local/cuda-12.6/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH"
 
 # nvm paths
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$HOME/.local/src/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 #--------------------------------------------------
+
+. "$HOME/.cargo/env"
