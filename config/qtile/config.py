@@ -97,56 +97,56 @@ keys = [
     ),
     Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod0], "q", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload config"),
     Key(
         [mod0, "control"], "b", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/rofi/launcher.sh")
-        ), 
+        lazy.spawn(os.path.expanduser("~/.config/rofi/launcher.sh")), 
         desc="Launch the Rofi file explorer"
     ),
     Key(
         [mod0, "control"], "q", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/rofi/powermenu.sh")
-        ), 
+        lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")), 
         desc="Launch the Rofi file explorer"
     ),
-
     Key(
         [mod1, "shift"], "3", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh full")
-        ),
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/screenshot.sh full"
+        )),
         desc="full screen screenshot"
     ),
     Key(
         [mod1, "shift"], "4", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh select")
-        ),
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/screenshot.sh select"
+        )),
         desc="screenshot of selected area"
     ),
     Key(
         [mod1, "shift"], "5", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/screenshot.sh window")
-        ),
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/screenshot.sh window"
+        )),
         desc="screen shot of active window"
     ),
-
     Key(
-        [], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
+        [], "XF86AudioRaiseVolume", 
+        lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
     ),
     Key(
-        [], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
+        [], "XF86AudioLowerVolume", 
+        lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
     ),
-    Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")),
-
+    Key(
+        [], "XF86AudioMute", 
+        lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
+    ),
     Key([], "XF86MonBrightnessUp", 
-        lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/adjust_brightness.sh up"
-        )), 
+        lazy.spawn(
+            os.path.expanduser(
+                "~/.config/qtile/scripts/adjust_brightness.sh up"
+            )
+        ), 
         desc="Raise screen brightness"
     ),
     Key([], "XF86MonBrightnessDown", 
@@ -157,32 +157,32 @@ keys = [
     ),
 
     Key([mod1], "XF86MonBrightnessUp", 
-        lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/inc_dualbrightness.sh")
-        ), 
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/inc_dualbrightness.sh"
+        )), 
         desc="Raise Bright by 5%"
     ),
     Key([mod1], "XF86MonBrightnessDown", 
         lazy.spawn(
-            os.path.expanduser("~/.config/qtile/scripts/dec_dualbrightness.sh")
-        ), 
+            "/home/nicholas/.config/qtile/scripts/dec_dualbrightness.sh"
+        ),
         desc="Lower Bright by 5"
     ),
 
     Key([mod0], "XF86MonBrightnessUp", 
         lazy.spawn(
-            os.path.expanduser("sudo ~/.config/qtile/scripts/adjust_keylight.sh up"),
-            shell=True   
+            "/home/nicholas/.config/qtile/scripts/increment-keylight 1"
         ), 
         desc="Raise keylight brightness"
     ),
+
     Key([mod0], "XF86MonBrightnessDown", 
-        lazy.spawn(
-            os.path.expanduser("sudo ~/.config/qtile/scripts/adjust_keylight.sh down"),
-            shell=True
-        ), 
-        desc="Lower keylight brightness"
+        lazy.spawn(os.path.expanduser(
+            "~/.config/qtile/scripts/increment-keylight -1"
+        )), 
+        desc="Raise keylight brightness"
     ),
+
 ]
 
 #--------------------------------------------------
@@ -432,6 +432,7 @@ mybar_items += [
         fontsize=20
     ),
     widget.TextBox(
+        text="Vol:",
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
@@ -572,5 +573,4 @@ wmname = "qtile"
 
 @hook.subscribe.startup_once
 def autostart():
-    home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
-    subprocess.Popen([home])
+    subprocess.Popen('${HOME}/.config/qtile/scripts/autostart.sh', shell=True)

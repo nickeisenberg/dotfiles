@@ -1,7 +1,6 @@
 #!/bin/bash
 
 dec_dualbrightness(){
-
     local val=$(xrandr --verbose | awk '/Bright/ {print $2}' | tail -1)
     echo $val
     local inv_val=-.1
