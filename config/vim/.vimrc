@@ -76,6 +76,7 @@ Plug 'Vimjas/vim-python-pep8-indent'
 
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
 " Plug '~/gitrepos/vigemus/iron.vim'
+Plug 'nickeisenberg/float-term.vim'
 call plug#end()
 
 colorscheme rosepine 
