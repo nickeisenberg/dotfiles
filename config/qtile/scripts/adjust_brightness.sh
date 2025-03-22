@@ -27,4 +27,3 @@ if [ $# -eq 0 ]; then
 fi
 
 adjust_brightness $1
-
