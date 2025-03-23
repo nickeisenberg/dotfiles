@@ -79,7 +79,7 @@ Plug 'Vigemus/iron.vim', { 'branch': 'master' }
 Plug 'nickeisenberg/float-term.vim'
 call plug#end()
 
-colorscheme rosepine 
+colorscheme habamax 
 highlight Normal ctermbg=233
 
 "--------------------------------------------------

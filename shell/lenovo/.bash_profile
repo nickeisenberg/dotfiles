@@ -48,3 +48,5 @@ export NVM_DIR="$HOME/.local/src/nvm"
 #--------------------------------------------------
 
 . "$HOME/.cargo/env"
+
+source /home/nicholas/.venvman/venvman/src/main.sh

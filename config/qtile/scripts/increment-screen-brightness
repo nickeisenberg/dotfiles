@@ -1,8 +1,38 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import subprocess
 
+
+brightness = float(subprocess.run(
+    'echo $(xrandr --verbose | grep Brightness) | awk "{print \$ 2}"',
+    shell=True,
+    stdout=subprocess.PIPE
+).stdout.decode().strip())
+
+verbose = subprocess.run(
+    "xrandr --verbose", 
+    shell=True, 
+    stdout=subprocess.PIPE
+).stdout.decode()
+
+monitors = {
+    int(m.group(1)): m.group(2)
+    for m in map(
+        lambda x: re.match(r"^(\d+):.*\s(\S+)$", x),
+        [
+            x.strip() for x in subprocess.run(
+            "xrandr --listmonitors",
+            shell=True,
+            stdout=subprocess.PIPE
+            ).stdout.decode().split("\n")
+        ]
+    )
+    if m
+}
+
+monitors
 
 class ScreenBrightness:
     def __init__(self):
@@ -16,7 +46,7 @@ class ScreenBrightness:
         self._host = None
         self._max_brightness = None
         self._current_brightness = None
-    
+
     @property
     def host(self):
         if self._host is not None:
@@ -24,7 +54,7 @@ class ScreenBrightness:
         # TODO: fix this
         self._host = "thinkpad"
         return self._host
-    
+
     @property
     def max_brightness(self):
         if self._max_brightness is not None:
