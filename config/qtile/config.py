@@ -26,8 +26,8 @@ mod1 = "mod4"  # super
 
 
 alacrity_terminal = subprocess.run(
-    f"which alacritty", 
-    shell=True, 
+    f"which alacritty",
+    shell=True,
     stdout=subprocess.PIPE
 ).stdout
 
@@ -123,63 +123,64 @@ keys = [
         desc="screenshot of selected area"
     ),
     Key(
-        [mod1, "shift"], "5", 
+        [mod1, "shift"], "5",
         lazy.spawn(os.path.expanduser(
             "~/.config/qtile/scripts/screenshot.sh window"
         )),
         desc="screen shot of active window"
     ),
     Key(
-        [], "XF86AudioRaiseVolume", 
+        [], "XF86AudioRaiseVolume",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
     ),
     Key(
-        [], "XF86AudioLowerVolume", 
+        [], "XF86AudioLowerVolume",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
     ),
     Key(
-        [], "XF86AudioMute", 
+        [], "XF86AudioMute",
         lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
     ),
-    Key([], "XF86MonBrightnessUp", 
+
+    Key([], "XF86MonBrightnessUp",
         lazy.spawn(
             os.path.expanduser(
-                "~/.config/qtile/scripts/adjust_brightness.sh up"
+                "~/.config/qtile/scripts/increment-screen-brightness up 5"
             )
-        ), 
+        ),
         desc="Raise screen brightness"
     ),
-    Key([], "XF86MonBrightnessDown", 
+    Key([], "XF86MonBrightnessDown",
         lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/adjust_brightness.sh down"
-        )), 
+            "~/.config/qtile/scripts/increment-screen-brightness down 5"
+        )),
         desc="Lower screen brightness"
     ),
 
-    Key([mod1], "XF86MonBrightnessUp", 
+    Key([mod1], "XF86MonBrightnessUp",
         lazy.spawn(os.path.expanduser(
             "~/.config/qtile/scripts/inc_dualbrightness.sh"
-        )), 
+        )),
         desc="Raise Bright by 5%"
     ),
-    Key([mod1], "XF86MonBrightnessDown", 
+    Key([mod1], "XF86MonBrightnessDown",
         lazy.spawn(
             "/home/nicholas/.config/qtile/scripts/dec_dualbrightness.sh"
         ),
         desc="Lower Bright by 5"
     ),
 
-    Key([mod0], "XF86MonBrightnessUp", 
+    Key([mod0], "XF86MonBrightnessUp",
         lazy.spawn(
             "/home/nicholas/.config/qtile/scripts/increment-keylight 1"
-        ), 
+        ),
         desc="Raise keylight brightness"
     ),
 
-    Key([mod0], "XF86MonBrightnessDown", 
+    Key([mod0], "XF86MonBrightnessDown",
         lazy.spawn(os.path.expanduser(
             "~/.config/qtile/scripts/increment-keylight -1"
-        )), 
+        )),
         desc="Raise keylight brightness"
     ),
 
@@ -264,33 +265,33 @@ groups.append(
         "scratchpad",
         [
             DropDown(
-                "sp1", 
-                "alacritty", 
+                "sp1",
+                terminal,
                 opacity=0.8,
-                x=0.1, 
-                y=0.1, 
-                width=.8, 
-                height=.8, 
+                x=0.1,
+                y=0.1,
+                width=.8,
+                height=.8,
                 on_focus_lost_hide=True
             ),
             DropDown(
-                "sp2", 
-                "alacritty", 
+                "sp2",
+                terminal,
                 opacity=0.8,
-                x=0.1, 
-                y=0.1, 
-                width=.8, 
-                height=.8, 
+                x=0.1,
+                y=0.1,
+                width=.8,
+                height=.8,
                 on_focus_lost_hide=True
             ),
             DropDown(
-                "sp3", 
-                "alacritty", 
+                "sp3",
+                terminal,
                 opacity=0.8,
-                x=0.1, 
-                y=0.1, 
-                width=.8, 
-                height=.8, 
+                x=0.1,
+                y=0.1,
+                width=.8,
+                height=.8,
                 on_focus_lost_hide=True
             ),
         ]
@@ -306,7 +307,7 @@ keys += [
 
 
 # To get wm_class, etc info, run xprop in a terminal and click on the window
-floating_layout_theme = { 
+floating_layout_theme = {
     "border_width": 2,
     "border_focus": selected,
     "border_normal": widget_background,
@@ -318,7 +319,7 @@ floating_layout_theme = {
 
 floating_layout = Floating(**floating_layout_theme)
 
-layout_theme = { 
+layout_theme = {
     "border_width": 2,
     "border_focus": selected,
     "border_normal": widget_background,
@@ -338,11 +339,11 @@ layouts = [
 #--------------------------------------------------
 mouse = [
     Drag(
-        [mod0], "Button1", lazy.window.set_position_floating(), 
+        [mod0], "Button1", lazy.window.set_position_floating(),
         start=lazy.window.get_position()
     ),
     Drag(
-        [mod0], "Button3", lazy.window.set_size_floating(), 
+        [mod0], "Button3", lazy.window.set_size_floating(),
         start=lazy.window.get_size()
     ),
     Click([mod0], "Button2", lazy.window.bring_to_front()),
@@ -355,7 +356,7 @@ mybar_items += [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.TextBox(
          font='FontAwesome',
-         text="", 
+         text="",
          foreground=widget_text_color,
          background=widget_background,
          padding=5,
@@ -506,8 +507,8 @@ mybar_dual_items = [
         fontsize=20,
         format='%A, %b %d %I:%M %p ',
     ),
-    widget.Spacer(), 
-    dual_group_box, 
+    widget.Spacer(),
+    dual_group_box,
     widget.CurrentLayoutIcon(
         foreground=widget_text_color,
         background=widget_background,
@@ -529,7 +530,7 @@ mybar = bar.Bar(
     margin=[0, 0, 0, 0],
     border_width=[0, 0, 0, 0],
     border_color=barcolor,
-) 
+)
 
 mybar_dual = bar.Bar(
     mybar_dual_items,
@@ -538,7 +539,7 @@ mybar_dual = bar.Bar(
     margin=[0, 0, 0, 0],
     border_width=[8, 0, 8, 0],
     border_color=barcolor,
-) 
+)
 
 
 # wallpaper now set in autostart.sh

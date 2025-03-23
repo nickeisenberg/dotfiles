@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+from collections import defaultdict
+import re
+import subprocess
+from typing import Any, Literal
+
+
+class ScreenBrightness:
+    def __init__(self):
+        pass
+
+    @property
+    def monitors(self):
+        d = xrandr_verbose("dict")
+        if isinstance(d, dict):
+            return {k: d[k] for k in d.keys() if d[k]["connected"]}
+        else:
+            raise TypeError()
+
+
+def xrandr_verbose(return_type: Literal["raw", "list", "dict"]):
+    verbose = subprocess.run(
+        "xrandr --verbose",
+        shell=True,
+        stdout=subprocess.PIPE
+    ).stdout.decode()
+    if return_type == "dict":
+        d = defaultdict(dict[str, Any])
+        current_monitor = None
+        for line in xrandr_verbose("list"):
+            monitor = re.match(r'^([a-zA-Z][a-zA-Z0-9-]*)\s+(connected|disconnected).*' , line)
+            if monitor is not None:
+                current_monitor = monitor.group(1)
+                d[current_monitor] = {
+                    "connected": monitor.group(2) == "connected"
+                }
+                if re.search(".*(primary).*", line):
+                    d[current_monitor]["primary"] = True
+                else:
+                    d[current_monitor]["primary"] = False
+            elif current_monitor is not None:
+                brightness = re.match(r'^\s*(Brightness:)\s*([0-9]*\.[0-9]*).*' , line)
+                if brightness is not None:
+                    d[current_monitor]["brightness"] = float(brightness.group(2))
+                elif brightness is None and "brightness" not in d[current_monitor]:
+                    d[current_monitor]["brightness"] = -1
+        return dict(d)
+    else:
+        return return_formatter(verbose, return_type)
+
+
+def return_formatter(raw_output: str, return_type: Literal["raw", "list"]):
+    if return_type == "raw":
+        return raw_output
+    if return_type == "list":
+        return [x for x in raw_output.split("\n") if len(x) > 0]

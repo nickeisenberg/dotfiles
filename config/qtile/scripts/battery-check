@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+first=false
+second=false
+
+get_battery_percent() {
+    upower -i "$(upower -e | grep 'BAT')" | grep -E "percentage" | awk '{print $2}' | tr -d '%'
+}
+
+while true; do
+    percent=$(get_battery_percent)
+
+    if [ "$percent" -lt 15 ] && [ "$first" = false ]; then
+        notify-send "Low Battery" "Your battery is below 15%."
+        first=true
+    fi
+
+    if [ "$percent" -lt 5 ] && [ "$second" = false ]; then
+        notify-send "Low Battery" "Your battery is below 5%."
+        second=true
+    fi
+
+    # Break the loop if both warnings have been sent
+    if [ "$first" = true ] && [ "$second" = true ]; then
+        break
+    fi
+
+    sleep 60
+done

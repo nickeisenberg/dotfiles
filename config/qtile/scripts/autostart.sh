@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #----------
 # capslock to control
@@ -21,7 +21,7 @@ xsetroot -solid '#141415'
 # xsetroot -solid "#14161b"
 #----------
 
-python3 ~/.config/qtile/scripts/battery_check.py &
+${HOME}/.config/qtile/scripts/battery-check &
 
 # natural scrolling
 xinput set-prop 11 "libinput Natural Scrolling Enabled" 1
