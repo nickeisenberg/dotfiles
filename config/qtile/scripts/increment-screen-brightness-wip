@@ -55,3 +55,6 @@ def return_formatter(raw_output: str, return_type: Literal["raw", "list"]):
         return raw_output
     if return_type == "list":
         return [x for x in raw_output.split("\n") if len(x) > 0]
+
+
+xrandr_verbose("dict")["HDMI-1-0"]
