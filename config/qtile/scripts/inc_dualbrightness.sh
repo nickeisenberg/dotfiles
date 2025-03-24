@@ -1,7 +1,6 @@
 #!/bin/bash
 
-dec_dualbrightness(){
-
+inc_dualbrightness(){
     local val=$(xrandr --verbose | awk '/Bright/ {print $2}' | tail -1)
     echo $val
     local inv_val=.1
@@ -9,4 +8,4 @@ dec_dualbrightness(){
     xrandr --output HDMI-1-0 --brightness $newval
 };
 
-dec_dualbrightness
+inc_dualbrightness

@@ -157,18 +157,18 @@ keys = [
         desc="Lower screen brightness"
     ),
 
-    Key([mod1], "XF86MonBrightnessUp",
-        lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/inc_dualbrightness.sh"
-        )),
-        desc="Raise Bright by 5%"
-    ),
-    Key([mod1], "XF86MonBrightnessDown",
-        lazy.spawn(
-            "/home/nicholas/.config/qtile/scripts/dec_dualbrightness.sh"
-        ),
-        desc="Lower Bright by 5"
-    ),
+    # Key([mod1], "XF86MonBrightnessUp",
+    #     lazy.spawn(os.path.expanduser(
+    #         "~/.config/qtile/scripts/inc_dualbrightness.sh"
+    #     )),
+    #     desc="Raise Bright by 5%"
+    # ),
+    # Key([mod1], "XF86MonBrightnessDown",
+    #     lazy.spawn(
+    #         "/home/nicholas/.config/qtile/scripts/dec_dualbrightness.sh"
+    #     ),
+    #     desc="Lower Bright by 5"
+    # ),
 
     Key([mod0], "XF86MonBrightnessUp",
         lazy.spawn(
