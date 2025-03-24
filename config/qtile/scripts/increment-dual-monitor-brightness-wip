@@ -135,5 +135,5 @@ class DualMonitorBrightness:
 
 x = DualMonitorBrightness()
 x.dual_monitors
-x.set(50, 1)
+x.set(25, 1)
 x._refresh_dual_monitors()

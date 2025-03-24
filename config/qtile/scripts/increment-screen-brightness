@@ -6,18 +6,16 @@
 # `nicholas ALL=(ALL) NOPASSWD: /usr/bin/light` into the file
 # /etc/sudoers.d/sudo_no_password
 
-# Check if an argument is provided
-if [ $# -eq 0 ]; then
-    echo "No arguments provided. Please use 'up' to increase or 'down' to decrease brightness."
-    exit 1
-fi
+echo "$(xrandr --verbose)" | grep Bright
 
 case $1 in
-    up)
-        sudo light -A $2
+    primary)
+		sudo light -S $(echo "$(light)" + "$2" | bc)
         ;;
-    down)
-        sudo light -U $2
+    dual)
+    	_val=$(xrandr --verbose | awk '/Bright/ {print $2}' | tail -1)
+    	_newval=$(echo "$_val + $2" | bc)
+    	xrandr --output HDMI-1-0 --brightness $_newval
         ;;
     *)
         echo "Usage: $0 {up|down}"

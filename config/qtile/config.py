@@ -24,7 +24,6 @@ from colors.vague import Colors
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-
 alacrity_terminal = subprocess.run(
     f"which alacritty",
     shell=True,
@@ -60,63 +59,64 @@ keys = [
     Key(['control'], "l", lazy.layout.right(), desc="focus to right"),
     Key(['control'], "j", lazy.layout.down(), desc="focus down"),
     Key(['control'], "k", lazy.layout.up(), desc="focus up"),
-    Key(
-        [mod0, "control"], "h", lazy.layout.shuffle_left(), 
-        desc="Move window to the left"
-    ),
-    Key(
-        [mod0, "control"], "l", lazy.layout.shuffle_right(), 
-        desc="Move window to the right"
-    ),
-    Key(
-        [mod0, "control"], "j", lazy.layout.shuffle_down(), 
-        desc="Move window down"
-    ),
+
+    Key([mod0, "control"], "h", lazy.layout.shuffle_left(), desc="Move window left"),
+    Key([mod0, "control"], "l", lazy.layout.shuffle_right(), desc="Move window right"),
+    Key([mod0, "control"], "j", lazy.layout.shuffle_down(),desc="Move window down"),
     Key([mod0, "control"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-    Key([mod0, "shift"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod0, "shift"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+
+    Key([mod0, "shift"], "h", lazy.layout.grow_left(), desc="Grow window left"),
+    Key([mod0, "shift"], "l", lazy.layout.grow_right(), desc="Grow window right"),
     Key([mod0, "shift"], "j", lazy.layout.grow_down(), desc="Grow window down"),
     Key([mod0, "shift"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod0], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-    Key([mod0], "l", grow_right_floating_window(width=15), desc='grow floating to right'),
-    Key([mod0], "h", grow_left_floating_window(width=15), desc='grow floating to left'), 
-    Key([mod0], "k", grow_up_floating_window(height=15), desc='grow floating to up'), 
-    Key([mod0], "j", grow_down_floating_window(height=15), desc='grow floating to down'),
-    Key([mod0, mod1], "h", grow_right_floating_window(width=-15)),
-    Key([mod0, mod1], "l", grow_left_floating_window(width=-15)), 
-    Key([mod0, mod1], "j", grow_up_floating_window(height=-15)), 
-    Key([mod0, mod1], "k", grow_down_floating_window(height=-15)),
+
     Key([mod0], "f", lazy.window.toggle_fullscreen()),
     Key([mod0], "t", lazy.window.toggle_floating()),
+
+    Key([mod0], "l", grow_right_floating_window(width=15), desc='grow floating to right'),
+    Key([mod0], "h", grow_left_floating_window(width=15), desc='grow floating to left'),
+    Key([mod0], "k", grow_up_floating_window(height=15), desc='grow floating to up'),
+    Key([mod0], "j", grow_down_floating_window(height=15), desc='grow floating to down'),
+    Key([mod0, mod1], "h", grow_right_floating_window(width=-15)),
+    Key([mod0, mod1], "l", grow_left_floating_window(width=-15)),
+    Key([mod0, mod1], "j", grow_up_floating_window(height=-15)),
+    Key([mod0, mod1], "k", grow_down_floating_window(height=-15)),
+
     Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
     Key(
-        [mod0], "h", 
-        lazy.spawn(f"{browser} --new-window https://chat.openai.com/"), 
+        [mod0], "h",
+        lazy.spawn(f"{browser} --new-window https://chat.openai.com/"),
         desc=f"Launch ChatGPT"
     ),
+
     Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+
     Key([mod0], "q", lazy.window.kill(), desc="Kill focused window"),
+
     Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload config"),
+
     Key(
-        [mod0, "control"], "b", 
-        lazy.spawn(os.path.expanduser("~/.config/rofi/launcher.sh")), 
+        [mod0, "control"], "b",
+        lazy.spawn(os.path.expanduser("~/.config/rofi/launcher.sh")),
         desc="Launch the Rofi file explorer"
     ),
     Key(
-        [mod0, "control"], "q", 
-        lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")), 
+        [mod0, "control"], "q",
+        lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")),
         desc="Launch the Rofi file explorer"
     ),
+
     Key(
-        [mod1, "shift"], "3", 
+        [mod1, "shift"], "3",
         lazy.spawn(os.path.expanduser(
             "~/.config/qtile/scripts/screenshot.sh full"
         )),
         desc="full screen screenshot"
     ),
     Key(
-        [mod1, "shift"], "4", 
+        [mod1, "shift"], "4",
         lazy.spawn(os.path.expanduser(
             "~/.config/qtile/scripts/screenshot.sh select"
         )),
@@ -129,6 +129,7 @@ keys = [
         )),
         desc="screen shot of active window"
     ),
+
     Key(
         [], "XF86AudioRaiseVolume",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
@@ -145,30 +146,30 @@ keys = [
     Key([], "XF86MonBrightnessUp",
         lazy.spawn(
             os.path.expanduser(
-                "~/.config/qtile/scripts/increment-screen-brightness up 5"
+                "~/.config/qtile/scripts/increment-screen-brightness primary 5"
             )
         ),
         desc="Raise screen brightness"
     ),
     Key([], "XF86MonBrightnessDown",
         lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/increment-screen-brightness down 5"
+            '~/.config/qtile/scripts/increment-screen-brightness primary -5'
         )),
         desc="Lower screen brightness"
     ),
 
-    # Key([mod1], "XF86MonBrightnessUp",
-    #     lazy.spawn(os.path.expanduser(
-    #         "~/.config/qtile/scripts/inc_dualbrightness.sh"
-    #     )),
-    #     desc="Raise Bright by 5%"
-    # ),
-    # Key([mod1], "XF86MonBrightnessDown",
-    #     lazy.spawn(
-    #         "/home/nicholas/.config/qtile/scripts/dec_dualbrightness.sh"
-    #     ),
-    #     desc="Lower Bright by 5"
-    # ),
+    Key([mod1], "XF86MonBrightnessUp",
+        lazy.spawn(os.path.expanduser(
+            '~/.config/qtile/scripts/increment-screen-brightness dual .1'
+        )),
+        desc="Raise Bright by 5%"
+    ),
+    Key([mod1], "XF86MonBrightnessDown",
+        lazy.spawn(os.path.expanduser(
+            '~/.config/qtile/scripts/increment-screen-brightness dual -.1'
+        )),
+        desc="Lower Bright by 5"
+    ),
 
     Key([mod0], "XF86MonBrightnessUp",
         lazy.spawn(
@@ -497,7 +498,6 @@ mybar_items += [
     widget.Sep(background=barcolor, padding=20, linewidth=0),
 ]
 
-
 mybar_dual_items = [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.Clock(
@@ -541,7 +541,6 @@ mybar_dual = bar.Bar(
     border_color=barcolor,
 )
 
-
 # wallpaper now set in autostart.sh
 screens = [
     Screen(
@@ -551,7 +550,6 @@ screens = [
         top=mybar_dual
     ),
 ]
-
 
 #--------------------------------------------------
 # from qtile default
