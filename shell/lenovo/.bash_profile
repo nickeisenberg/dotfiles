@@ -7,6 +7,9 @@ source $HOME/dotfiles/scripts/helpers.sh
 source $HOME/dotfiles/scripts/dm.sh
 #-------------------------------------------------- 
 
+alias ll='ls -alF --group-directories-first'
+alias l='ls -l --group-directories-first'
+
 # From helpers.sh
 color_prompt=yes
 if [ "$color_prompt" = yes ]; then
