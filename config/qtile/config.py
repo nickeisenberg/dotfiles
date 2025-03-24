@@ -146,41 +146,41 @@ keys = [
     Key([], "XF86MonBrightnessUp",
         lazy.spawn(
             os.path.expanduser(
-                "~/.config/qtile/scripts/increment-screen-brightness primary 5"
+                '~/.config/qtile/scripts/screen-brightness --which primary --value 5'
             )
         ),
         desc="Raise screen brightness"
     ),
     Key([], "XF86MonBrightnessDown",
         lazy.spawn(os.path.expanduser(
-            '~/.config/qtile/scripts/increment-screen-brightness primary -5'
+            '~/.config/qtile/scripts/screen-brightness --which primary --value -5'
         )),
         desc="Lower screen brightness"
     ),
 
     Key([mod1], "XF86MonBrightnessUp",
         lazy.spawn(os.path.expanduser(
-            '~/.config/qtile/scripts/increment-screen-brightness dual .1'
+            '~/.config/qtile/scripts/screen-brightness --which dual --value .1'
         )),
         desc="Raise Bright by 5%"
     ),
     Key([mod1], "XF86MonBrightnessDown",
         lazy.spawn(os.path.expanduser(
-            '~/.config/qtile/scripts/increment-screen-brightness dual -.1'
+            '~/.config/qtile/scripts/screen-brightness --which dual --value -.1'
         )),
         desc="Lower Bright by 5"
     ),
 
     Key([mod0], "XF86MonBrightnessUp",
         lazy.spawn(
-            "/home/nicholas/.config/qtile/scripts/increment-keylight 1"
+            "/home/nicholas/.config/qtile/scripts/keylight 1"
         ),
         desc="Raise keylight brightness"
     ),
 
     Key([mod0], "XF86MonBrightnessDown",
         lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/increment-keylight -1"
+            "~/.config/qtile/scripts/keylight -1"
         )),
         desc="Raise keylight brightness"
     ),
