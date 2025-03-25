@@ -13,7 +13,7 @@ set colorcolumn=80
 set wrap
 set nocompatible
 set cursorline
-set cursorcolumn 
+set cursorcolumn
 set noswapfile
 set background=dark
 
@@ -57,17 +57,25 @@ nnoremap <leader>w :w<CR>
 "--------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
-
+" autocompletion
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'rafamadriz/friendly-snippets'
+
+" file exploring
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
-Plug 'tpope/vim-fugitive'
+Plug 'vifm/vifm.vim'
+
+" git
 Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
 Plug 'mhinz/vim-signify'
+
+" status line
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+
+" markdown
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'vifm/vifm.vim'
 Plug 'ntpeters/vim-better-whitespace'
@@ -76,9 +84,11 @@ Plug 'ntpeters/vim-better-whitespace'
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 
+" repl
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
 " Plug '~/gitrepos/vigemus/iron.vim'
 Plug 'nickeisenberg/float-term.vim'
+
 call plug#end()
 
 colorscheme rosepine
@@ -141,8 +151,6 @@ nnoremap <Leader>fg :RG <CR>
 
 " airline
 "--------------------------------------------------
-let g:airline_powerline_fonts = 1
-let g:airline_theme='base16'
 let g:airline_section_z = '%p%% %l:%c'
 let g:airline#extensions#default#layout = [ ['a', 'b', 'c'], ['x', 'y', 'z'] ]
 let g:airline#extensions#branch#enabled = 1
