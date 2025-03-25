@@ -15,6 +15,7 @@ set nocompatible
 set cursorline
 set cursorcolumn 
 set noswapfile
+set background=dark
 
 syntax on
 filetype on
@@ -56,7 +57,7 @@ nnoremap <leader>w :w<CR>
 "--------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
- 
+
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'rafamadriz/friendly-snippets'
 Plug 'junegunn/fzf'
@@ -69,8 +70,9 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'vifm/vifm.vim'
+Plug 'ntpeters/vim-better-whitespace'
 
-" python syntax 
+" python syntax
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 
@@ -79,7 +81,7 @@ Plug 'Vigemus/iron.vim', { 'branch': 'master' }
 Plug 'nickeisenberg/float-term.vim'
 call plug#end()
 
-colorscheme habamax 
+colorscheme rosepine
 highlight Normal ctermbg=233
 
 "--------------------------------------------------

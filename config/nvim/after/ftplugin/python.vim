@@ -1,9 +1,3 @@
-"vim.cmd(
-"  [[
-"  set colorcolumn=80
-"  hi ColorColumn ctermbg=lightred guibg=red
-"  ]]
-")
-"
-set colorcolumn=80
-" hi ColorColumn guibg=#7aa2f7
+setlocal tabstop=4
+setlocal shiftwidth=4
+setlocal expandtab

@@ -1,9 +1,10 @@
 """
 Text to see how the color scheme looks
 """
-import numpy as np
 
-def f(x: int, y: np.ndarray, z: float):
+import os
+
+def f(x: int, y: str, z: float):
     """asdf"""
     return x, y ,z
 
@@ -16,6 +17,7 @@ class Foo:
 
     def __init__(self):
         self.x = 2
+        self.sep = os.sep
 
     # text text
     @property
@@ -27,4 +29,5 @@ class Foo:
             _ = self.x
         except:
             _ = False
+
         return None

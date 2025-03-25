@@ -36,8 +36,6 @@ vim.diagnostic.config({
   severity_sort = false,
 })
 
-vim.keymap.set("n", "<leader>id", vim.diagnostic.open_float)
-
 if vim.fn.has('wsl') == 1 then
     vim.g.clipboard = {
         name = 'WslClipboard',

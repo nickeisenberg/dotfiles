@@ -1,11 +1,11 @@
 source $HOME/.bashrc
 
-#-------------------------------------------------- 
+#--------------------------------------------------
 # Some helpers
-#-------------------------------------------------- 
+#--------------------------------------------------
 source $HOME/dotfiles/scripts/helpers.sh
 source $HOME/dotfiles/scripts/dm.sh
-#-------------------------------------------------- 
+#--------------------------------------------------
 
 alias ll='ls -alF --group-directories-first'
 alias l='ls -l --group-directories-first'
@@ -26,7 +26,7 @@ fi
 #--------------------------------------------------
 # Settings
 #--------------------------------------------------
-xset r rate 250 30  # key press delay time 
+xset r rate 250 30  # key press delay time
 setxkbmap -option ctrl:nocaps
 #--------------------------------------------------
 

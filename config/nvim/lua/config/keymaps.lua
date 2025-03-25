@@ -17,6 +17,9 @@ vim.cmd([[nnoremap <leader>P "+P]])
 vim.cmd([[vnoremap <leader>p "+p]])
 vim.cmd([[vnoremap <leader>P "+P]])
 
+-- diagnotics
+vim.keymap.set("n", "<leader>id", vim.diagnostic.open_float)
+
 -- Move to the next paragraph without opening folds
 vim.api.nvim_set_keymap(
   'n', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
