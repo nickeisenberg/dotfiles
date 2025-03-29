@@ -1,5 +1,5 @@
 let mapleader = ' '
- 
+
 " settings and maps
 "--------------------------------------------------
 set tabstop=4
@@ -47,7 +47,7 @@ vnoremap <leader>p "+p
 "--------------------------------------------------
 nnoremap <leader>O :Ex<CR>
 
-" quick write 
+" quick write
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
 
@@ -74,6 +74,7 @@ Plug 'mhinz/vim-signify'
 
 " status line
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 
 " markdown
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
@@ -151,6 +152,8 @@ nnoremap <Leader>fg :RG <CR>
 
 " airline
 "--------------------------------------------------
+let g:airline_powerline_fonts = 1
+let g:airline_theme='base16'
 let g:airline_section_z = '%p%% %l:%c'
 let g:airline#extensions#default#layout = [ ['a', 'b', 'c'], ['x', 'y', 'z'] ]
 let g:airline#extensions#branch#enabled = 1

@@ -57,12 +57,13 @@ fi
 #--------------------------------------------------
 
 PATH="/Users/eisenbnt/Library/Python/3.11/bin:${PATH}"
+PATH="${HOME}/.local/bin:${PATH}"
+PATH="${HOME}/.local/src/brew/bin:${PATH}"
+PATH="${HOME}/.local/src/nvm/versions/node/v22.14.0/bin/npm:${PATH}"
 
-PATH="${PATH}:${HOME}/.homebrew/bin"
-PATH="${PATH}:/Users/eisenbnt/.nvm/versions/node/v22.14.0/bin"
 nvm() {
     unset -f nvm
-    export NVM_DIR="$HOME/.nvm"
+    export NVM_DIR="$HOME/.local/src/nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     nvm $@
