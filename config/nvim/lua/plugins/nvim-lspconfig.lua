@@ -4,10 +4,9 @@ return {
   dependencies = {
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
-    { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
-    'folke/neodev.nvim',
+    'folke/lazydev.nvim',
   },
-  config = function ()
+  config = function()
     local on_attach = function(_, bufnr)
       vim.keymap.set(
         'n', '<leader>gd', require('telescope.builtin').lsp_definitions,
@@ -37,7 +36,7 @@ return {
         { buffer = bufnr, desc = '[D]ocument [S]ymbols' }
       )
     end
-    
+
     local mason = require("mason")
     local mason_lspconfig = require('mason-lspconfig')
     local lspconfig = require("lspconfig")
@@ -62,9 +61,9 @@ return {
         },
       },
     }
-    
+
     -- vim api lsp support
-    require("neodev").setup()
+    require("lazydev").setup()
 
     local capabilities = require('cmp_nvim_lsp').default_capabilities(
       vim.lsp.protocol.make_client_capabilities()
