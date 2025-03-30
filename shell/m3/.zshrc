@@ -18,10 +18,10 @@ parse_git_branch() {
 
 set_prompt() {
 	FANCY=false
-	
+
 	PROMPT_NO_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
 	PROMPT_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} (x) \$ "
-	
+
 	if $FANCY; then
 		STATUS=$(git status --short 2> /dev/null)
 	fi
@@ -59,7 +59,7 @@ fi
 PATH="/Users/eisenbnt/Library/Python/3.11/bin:${PATH}"
 PATH="${HOME}/.local/bin:${PATH}"
 PATH="${HOME}/.local/src/brew/bin:${PATH}"
-PATH="${HOME}/.local/src/nvm/versions/node/v22.14.0/bin/npm:${PATH}"
+PATH="${HOME}/.local/src/nvm/versions/node/v22.14.0/bin:${PATH}"
 
 nvm() {
     unset -f nvm

@@ -40,6 +40,8 @@ alias python='python3'
 #--------------------------------------------------
 # PATHS
 #--------------------------------------------------
+export PATH="/home/nicholas/.venvman/envs/3.12/system/bin:${PATH}"
+
 # cuda paths
 export PATH="/usr/local/cuda-12.6/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH"

@@ -4,8 +4,14 @@
     "pyright.inlayHints.variableTypes": false,
     "pyright.inlayHints.parameterTypes": false,
     "diagnostic.virtualText": false,
-    "diagnostic.checkCurrentLine": true,   
+    "diagnostic.checkCurrentLine": true,
     "diagnostic.signs": false,
 	"suggest.enablePreselect": false,
-	"suggest.noselect": true 
+	"suggest.noselect": true,
+    "ruff.enable": true,
+    "ruff.nativeServer": true,
+    "ruff.disableDocumentFormatting": false,
+    "ruff.client.codeAction.showDocumantaion.enable": true,
+    "ruff.trace.server": "verbose",
+    "coc.preferences.formatOnSaveFiletypes": ["python"]
 }

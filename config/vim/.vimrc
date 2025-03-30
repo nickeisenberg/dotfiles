@@ -42,6 +42,8 @@ nnoremap <leader>y "+y
 vnoremap <leader>y "+y
 nnoremap <leader>p "+p
 vnoremap <leader>p "+p
+nnoremap <leader>P "+P
+vnoremap <leader>P "+P
 
 " Explorer
 "--------------------------------------------------
@@ -58,8 +60,21 @@ nnoremap <leader>w :w<CR>
 
 call plug#begin('~/.vim/plugged')
 " autocompletion
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'rafamadriz/friendly-snippets'
+
+Plug 'prabirshrestha/vim-lsp'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prabirshrestha/asyncomplete-file.vim'
+
+if has('python3')
+  Plug 'SirVer/ultisnips'
+  Plug 'honza/vim-snippets'
+  Plug 'prabirshrestha/asyncomplete-ultisnips.vim'
+else
+  Plug 'Shougo/neosnippet.vim'
+  Plug 'Shougo/neosnippet-snippets'
+  Plug 'prabirshrestha/asyncomplete-neosnippet.vim'
+endif
 
 " file exploring
 Plug 'junegunn/fzf'
@@ -78,10 +93,9 @@ Plug 'vim-airline/vim-airline-themes'
 
 " markdown
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-Plug 'vifm/vifm.vim'
-Plug 'ntpeters/vim-better-whitespace'
 
-" python syntax
+" syntax
+Plug 'ntpeters/vim-better-whitespace'
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 
@@ -98,6 +112,105 @@ highlight Normal ctermbg=233
 "--------------------------------------------------
 " plugin configs
 "--------------------------------------------------
+
+" LSP
+"--------------------------------------------------
+let g:lsp_diagnostics_virtual_text_enabled = 1
+let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
+let g:lsp_diagnostics_virtual_text_align = "right"
+let g:lsp_diagnostics_virtual_text_delay = 0
+
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  setlocal signcolumn=yes
+  if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+  nmap <buffer> <leader>gd <plug>(lsp-definition)
+  nmap <buffer> <leader>gr <plug>(lsp-references)
+  nmap <buffer> <leader>gi <plug>(lsp-implementation)
+  nmap <buffer> <leader>gt <plug>(lsp-type-definition)
+  nmap <buffer> <leader>rn <plug>(lsp-rename)
+  nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+  nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+  nmap <buffer> K <plug>(lsp-hover)
+  nnoremap <buffer> <expr><c-n> lsp#scroll(+4)
+  nnoremap <buffer> <expr><c-p> lsp#scroll(-4)
+
+  autocmd User lsp_buffer_enabled
+    \ autocmd! BufWritePre <buffer>
+    \ call execute('LspDocumentFormatSync')
+endfunction
+
+augroup lsp_install
+  au!
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
+au User asyncomplete_setup call asyncomplete#register_source(
+  \ asyncomplete#sources#file#get_source_options({
+    \ 'name': 'file',
+    \ 'allowlist': ['*'],
+    \ 'priority': 10,
+    \ 'completor': function('asyncomplete#sources#file#completor')
+  \ })
+\ )
+
+if executable('pyright')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pyright',
+        \ 'cmd': {server_info->['pyright-langserver', '--stdio']},
+        \ 'allowlist': ['python'],
+        \ })
+endif
+
+if executable('bash-language-server')
+  au User lsp_setup call lsp#register_server({
+    \ 'name': 'bash-language-server',
+    \ 'cmd': {server_info->['bash-language-server', 'start']},
+    \ 'allowlist': ['sh'],
+    \ })
+endif
+
+if executable('vim-language-server')
+  au User lsp_setup call lsp#register_server({
+    \ 'name': 'vimls',
+    \ 'cmd': {server_info->['vim-language-server', '--stdio']},
+    \ 'allowlist': ['vim'],
+    \ })
+endif
+
+if executable('ruff')
+  au User lsp_setup call lsp#register_server({
+    \ 'name': 'ruff',
+    \ 'cmd': {server_info->['ruff', 'server', '--preview']},
+    \ 'allowlist': ['python'],
+    \ })
+endif
+
+if &filetype ==# 'python'
+    command! -buffer RuffFix execute 'write'
+        \ | silent execute '!ruff check --fix %'
+        \ | silent edit!
+        \ | call execute('LspDocumentFormatSync')
+endif
+
+if has('python3')
+  let g:UltiSnipsExpandTrigger="<c-y>"
+  call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
+    \ 'name': 'ultisnips',
+    \ 'allowlist': ['*'],
+    \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
+    \ }))
+else
+  imap <C-y>     <Plug>(neosnippet_expand_or_jump)
+  smap <C-y>     <Plug>(neosnippet_expand_or_jump)
+  xmap <C-y>     <Plug>(neosnippet_expand_target)
+  call asyncomplete#register_source(asyncomplete#sources#neosnippet#get_source_options({
+     \ 'name': 'neosnippet',
+     \ 'allowlist': ['*'],
+     \ 'completor': function('asyncomplete#sources#neosnippet#completor'),
+     \ }))
+endif
+
 
 " syntax highlighting
 "--------------------------------------------------
@@ -136,14 +249,6 @@ let g:iron_keymaps = {
 nnoremap <Leader>Sd :SignifyDiff<CR>
 nnoremap <Leader>Sh :SignifyHunkDiff<CR>
 
-" coc
-"--------------------------------------------------
-nnoremap K :call CocActionAsync('doHover')<CR>
-nnoremap <Leader>gd :call CocAction('jumpDefinition')<CR>
-nnoremap <Leader>gr :call CocAction('jumpReferences')<CR>
-nnoremap <silent> ]d <Plug>(coc-diagnostic-prev)
-nnoremap <silent> [d <Plug>(coc-diagnostic-next)
-
 " fzf
 "--------------------------------------------------
 nnoremap <Leader>ff :Files<CR>
@@ -152,8 +257,7 @@ nnoremap <Leader>fg :RG <CR>
 
 " airline
 "--------------------------------------------------
-let g:airline_powerline_fonts = 1
-let g:airline_theme='base16'
 let g:airline_section_z = '%p%% %l:%c'
 let g:airline#extensions#default#layout = [ ['a', 'b', 'c'], ['x', 'y', 'z'] ]
 let g:airline#extensions#branch#enabled = 1
+let g:airline_theme='base16'
