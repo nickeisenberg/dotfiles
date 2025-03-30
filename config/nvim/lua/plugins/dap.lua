@@ -42,7 +42,7 @@ return {
     "mfussenegger/nvim-dap-python",
     dependencies = "mfussenegger/nvim-dap",
     config = function()
-      function isWindowsOS()
+      local function isWindowsOS()
           return package.config:sub(1,1) == '\\'
       end
       local debugpyPythonPath

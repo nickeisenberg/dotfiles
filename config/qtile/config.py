@@ -109,25 +109,11 @@ keys = [
     ),
 
     Key(
-        [mod1, "shift"], "3",
-        lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/screenshot.sh full"
-        )),
-        desc="full screen screenshot"
-    ),
-    Key(
         [mod1, "shift"], "4",
         lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/screenshot.sh select"
+            "~/.config/qtile/scripts/screenshot"
         )),
         desc="screenshot of selected area"
-    ),
-    Key(
-        [mod1, "shift"], "5",
-        lazy.spawn(os.path.expanduser(
-            "~/.config/qtile/scripts/screenshot.sh window"
-        )),
-        desc="screen shot of active window"
     ),
 
     Key(

@@ -19,9 +19,6 @@ require("lazy").setup({
   spec = {
     { import = "plugins" },
   },
-  install = {
-    colorscheme = { "tokyonight" }
-  },
 })
 
 -- requrie my config folder

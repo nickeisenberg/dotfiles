@@ -7,7 +7,28 @@ return {
     'folke/lazydev.nvim',
   },
   config = function()
-    local on_attach = function(_, bufnr)
+    local on_attach = function(client, bufnr)
+      if client.name == "ruff" then
+        vim.api.nvim_buf_create_user_command(bufnr, "Format", function()
+          vim.lsp.buf.code_action {
+            context = {
+              only = { 'source.fixAll.ruff' }
+            },
+            apply = true,
+          }
+          vim.lsp.buf.format()
+        end, { desc = "Ruff: Apply all autofixable fixes" })
+      else
+        vim.api.nvim_buf_create_user_command(
+          bufnr,
+          'Format',
+          function(_)
+            vim.lsp.buf.format()
+          end,
+          { desc = 'Format current buffer with LSP' }
+        )
+      end
+
       vim.keymap.set(
         'n', '<leader>gd', require('telescope.builtin').lsp_definitions,
         { buffer = bufnr, desc = '[G]oto [D]efinition' }
@@ -22,19 +43,6 @@ return {
         'n', '<leader>gs', require('telescope.builtin').lsp_document_symbols,
         { buffer = bufnr, desc = '[D]ocument [S]ymbols' }
       )
-
-      vim.api.nvim_buf_create_user_command(
-        bufnr,
-        'Format',
-        function(_)
-          vim.lsp.buf.format()
-        end,
-        { desc = 'Format current buffer with LSP' }
-      )
-      vim.keymap.set(
-        'n', '<leader>F', ":Format<cr>",
-        { buffer = bufnr, desc = '[D]ocument [S]ymbols' }
-      )
     end
 
     local mason = require("mason")
@@ -47,6 +55,8 @@ return {
     local servers = {
       clangd = {},
       pyright = {},
+      ruff = {
+      },
       bashls = {
         filetypes = { "sh", "zsh" }
       },

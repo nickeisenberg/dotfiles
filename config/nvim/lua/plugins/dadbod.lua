@@ -29,7 +29,7 @@ return {
     local function _DBConfigSaveRoot(newSaveLocation)
       vim.cmd("let g:db_ui_save_location = '" .. newSaveLocation .. "'")
     end
-    
+
     vim.api.nvim_create_user_command('DBConfigSaveLocation', function(input)
       local newLocation = input.args
       if newLocation == "" then
