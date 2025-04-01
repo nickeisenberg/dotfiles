@@ -1,10 +1,9 @@
 return {
-  'neovim/nvim-lspconfig',
+  'williamboman/mason.nvim',
   enabled = true,
   dependencies = {
-    'williamboman/mason.nvim',
+    'neovim/nvim-lspconfig',
     'williamboman/mason-lspconfig.nvim',
-    'folke/lazydev.nvim',
   },
   config = function()
     local on_attach = function(client, bufnr)
@@ -55,11 +54,8 @@ return {
     local servers = {
       clangd = {},
       pyright = {},
-      ruff = {
-      },
-      bashls = {
-        filetypes = { "sh", "zsh" }
-      },
+      ruff = {},
+      bashls = { filetypes = { "sh", "zsh" } },
       sqlls = {},
       texlab = {},
       marksman = {},
@@ -71,9 +67,6 @@ return {
         },
       },
     }
-
-    -- vim api lsp support
-    require("lazydev").setup()
 
     local capabilities = require('cmp_nvim_lsp').default_capabilities(
       vim.lsp.protocol.make_client_capabilities()
