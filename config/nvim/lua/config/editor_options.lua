@@ -16,6 +16,7 @@ vim.opt.cursorcolumn = true
 vim.wo.nu = true
 
 vim.o.foldmethod = "indent"
+vim.o.foldlevelstart = 99
 
 -- Toggel error messages in a floating window
 vim.diagnostic.config({ virtual_text = false })

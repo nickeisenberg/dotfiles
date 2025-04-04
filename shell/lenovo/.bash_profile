@@ -55,3 +55,5 @@ export NVM_DIR="$HOME/.local/src/nvm"
 . "$HOME/.cargo/env"
 
 source /home/nicholas/.venvman/venvman/src/main.sh
+
+venvman activate --version 3.12 --name test > /dev/null 2>&1
