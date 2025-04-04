@@ -1,5 +1,6 @@
 source $HOME/.bashrc
 
+
 #--------------------------------------------------
 # Some helpers
 #--------------------------------------------------
@@ -54,6 +55,17 @@ export NVM_DIR="$HOME/.local/src/nvm"
 
 . "$HOME/.cargo/env"
 
+# venvman
 source /home/nicholas/.venvman/venvman/src/main.sh
 
-venvman activate --version 3.12 --name test > /dev/null 2>&1
+# default sys venv
+if [[ ! -f "${HOME}/.sysvenv/bin/activate" ]]; then
+    if python3 -m venv --help > /dev/null 2>&1; then
+        python3 -m venv "${HOME}/.sysvenv"
+    fi
+fi
+source "${HOME}/.sysvenv/bin/activate" > /dev/null 2>&1
+
+
+
+
