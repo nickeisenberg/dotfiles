@@ -25,7 +25,7 @@ mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
 alacrity_terminal = subprocess.run(
-    f"which alacritty",
+    "which alacritty",
     shell=True,
     stdout=subprocess.PIPE
 ).stdout
