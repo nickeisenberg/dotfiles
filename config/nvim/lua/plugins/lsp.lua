@@ -29,6 +29,10 @@ return {
       end
 
       vim.keymap.set(
+        'n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename symbol' }
+      )
+
+      vim.keymap.set(
         'n', '<leader>gd', require('telescope.builtin').lsp_definitions,
         { buffer = bufnr, desc = '[G]oto [D]efinition' }
       )

@@ -7,6 +7,7 @@ source $HOME/dotfiles/scripts/helpers.sh
 source $HOME/dotfiles/scripts/dm.sh
 #--------------------------------------------------
 
+alias c="clear"
 alias ll='ls -alF --group-directories-first'
 alias l='ls -l --group-directories-first'
 

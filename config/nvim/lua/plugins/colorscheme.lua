@@ -26,4 +26,11 @@ M.vague = {
   end
 }
 
+M.default = {
+  "vague2k/vague.nvim",
+  config = function()
+    vim.cmd("colorscheme default")
+  end
+}
+
 return M.vague
