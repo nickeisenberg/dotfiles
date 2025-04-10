@@ -14,6 +14,7 @@ vim.opt.cursorcolumn = true
 
 -- line numbers
 vim.wo.nu = true
+vim.wo.relativenumber = true
 
 vim.o.foldmethod = "indent"
 vim.o.foldlevelstart = 99

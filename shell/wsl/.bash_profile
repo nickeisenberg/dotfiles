@@ -1,4 +1,5 @@
-source $HOME/.bashrc
+source "${HOME}/.bashrc"
+source "${HOME}/dotfiles/scripts/helpers.sh"
 
 if [[ -d "${HOME}/.credentials" ]]; then
     for file in $(ls "${HOME}/.credentials"); do
