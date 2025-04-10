@@ -1,0 +1,54 @@
+let mapleader = ' '
+
+" settings and maps
+"--------------------------------------------------
+set tabstop=4
+set shiftwidth=4
+set foldmethod=indent
+set autoindent
+set mouse=a
+set number
+set updatetime=100
+set colorcolumn=80
+set wrap
+set nocompatible
+set cursorline
+set cursorcolumn
+set noswapfile
+set background=dark
+
+syntax on
+filetype on
+filetype plugin on
+
+let &shell = &shell . " --login"
+
+" move to the next/prev paragraph without opening folds
+"--------------------------------------------------
+nnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
+vnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
+nnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
+vnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
+
+" splits
+"--------------------------------------------------
+nnoremap <Leader>cs :close<CR>
+nnoremap <Leader>sv :vsplit<CR>
+nnoremap <Leader>sh :split<CR>
+
+" easy clipboard
+"--------------------------------------------------
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y
+nnoremap <leader>p "+p
+vnoremap <leader>p "+p
+nnoremap <leader>P "+P
+vnoremap <leader>P "+P
+
+" Explorer
+"--------------------------------------------------
+nnoremap <leader>O :Ex<CR>
+
+" quick write
+"--------------------------------------------------
+nnoremap <leader>w :w<CR>
