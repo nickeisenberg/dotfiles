@@ -94,10 +94,11 @@ Plug 'vim-airline/vim-airline-themes'
 " markdown
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
-" syntax
-Plug 'ntpeters/vim-better-whitespace'
+" editor
 Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'wellle/context.vim'
 
 " repl
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
