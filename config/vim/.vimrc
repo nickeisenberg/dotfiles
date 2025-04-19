@@ -121,6 +121,8 @@ let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
 let g:lsp_diagnostics_virtual_text_align = "right"
 let g:lsp_diagnostics_virtual_text_delay = 0
 
+inoremap <expr> <leader>y    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
+
 function! s:on_lsp_buffer_enabled() abort
   setlocal omnifunc=lsp#complete
   setlocal signcolumn=yes
