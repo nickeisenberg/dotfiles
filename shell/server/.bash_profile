@@ -1,5 +1,7 @@
 source $HOME/.bashrc
 
+export PATH="${HOME}/.local/bin:${PATH}"
+
 alias c="clear"
 alias ll='ls -alF --group-directories-first'
 alias l='ls -l --group-directories-first'
