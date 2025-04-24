@@ -16,10 +16,7 @@ set cursorline
 set cursorcolumn
 set noswapfile
 set background=dark
-
-syntax on
-filetype on
-filetype plugin on
+set relativenumber
 
 let &shell = &shell . " --login"
 
@@ -54,6 +51,10 @@ nnoremap <leader>O :Ex<CR>
 nnoremap <leader>w :w<CR>
 
 "--------------------------------------------------
+
+syntax on
+filetype on
+filetype plugin on
 
 " plugins
 "--------------------------------------------------
@@ -102,7 +103,7 @@ Plug 'wellle/context.vim'
 
 " repl
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
-" Plug '~/gitrepos/vigemus/iron.vim'
+" Plug '~/gitrepos/iron.vim'
 Plug 'nickeisenberg/float-term.vim'
 
 call plug#end()
@@ -242,7 +243,8 @@ let g:iron_keymaps = {
   \ "send_until_cursor": "<leader>su",
   \ "send_file": "<leader>sf",
   \ "send_cancel": "<leader>sc",
-  \ "send_blank_line": "<leader>s<CR>",
+  \ "send_blank_line": "<leader><CR>",
+  \ "clear": "<leader>rc",
 \ }
 
 " vim-signify
