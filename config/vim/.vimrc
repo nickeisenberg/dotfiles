@@ -108,8 +108,10 @@ Plug 'nickeisenberg/float-term.vim'
 
 call plug#end()
 
-colorscheme rosepine
-highlight Normal ctermbg=233
+if has('termguicolors') && v:version >= 900 && filereadable(expand("~/.vim/colors/rosepine.vim"))
+  colorscheme rosepine
+  highlight Normal ctermbg=233
+endif
 
 "--------------------------------------------------
 " plugin configs
