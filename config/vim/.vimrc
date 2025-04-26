@@ -139,9 +139,10 @@ function! s:on_lsp_buffer_enabled() abort
   nnoremap <buffer> <expr><c-n> lsp#scroll(+4)
   nnoremap <buffer> <expr><c-p> lsp#scroll(-4)
 
-  autocmd User lsp_buffer_enabled
-    \ autocmd! BufWritePre <buffer>
-    \ call execute('LspDocumentFormatSync')
+  augroup lsp_formatting
+    autocmd! * <buffer>
+    autocmd BufWritePre <buffer> call execute('LspDocumentFormatSync')
+  augroup END
 endfunction
 
 augroup lsp_install
@@ -163,6 +164,14 @@ if executable('pyright')
         \ 'name': 'pyright',
         \ 'cmd': {server_info->['pyright-langserver', '--stdio']},
         \ 'allowlist': ['python'],
+        \ })
+endif
+
+if executable('clangd')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'clangd',
+        \ 'cmd': {server_info->['clangd']},
+        \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
         \ })
 endif
 
@@ -188,13 +197,6 @@ if executable('ruff')
     \ 'cmd': {server_info->['ruff', 'server', '--preview']},
     \ 'allowlist': ['python'],
     \ })
-endif
-
-if &filetype ==# 'python'
-    command! -buffer RuffFix execute 'write'
-        \ | silent execute '!ruff check --fix %'
-        \ | silent edit!
-        \ | call execute('LspDocumentFormatSync')
 endif
 
 if has('python3')
