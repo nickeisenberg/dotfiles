@@ -1,7 +1,6 @@
 return {
   "Vigemus/iron.nvim",
-  -- dir = "~/gitrepos/vigemus/iron.nvim",
-  -- dir = "~\\GitRepos\\iron.nvim",
+  -- dir = "~/gitrepos/iron.nvim",
   -- "nickeisenberg/iron.nvim",
   -- branch = "master",
   config = function()
@@ -10,7 +9,7 @@ return {
     local common = require("iron.fts.common")
     local OS = require("utils").get_os_name()
 
-    iron.setup {
+    iron.setup({
       config = {
         scratch_repl = true,
         repl_open_cmd = {
@@ -23,7 +22,8 @@ return {
             format = common.bracketed_paste_python,
             block_deviders = { "# %%", "#%%" },
           },
-          sh = { command = { vim.o.shell } }
+          sh = { command = { vim.o.shell } },
+          cpp = { command = { "cling" } }
         },
         repl_filetype = function(_, ft)
           return ft
@@ -50,6 +50,6 @@ return {
         italic = true
       },
       ignore_blank_lines = true,
-    }
+    })
   end
 }

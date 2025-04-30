@@ -16,10 +16,7 @@ set cursorline
 set cursorcolumn
 set noswapfile
 set background=dark
-
-syntax on
-filetype on
-filetype plugin on
+set relativenumber
 
 let &shell = &shell . " --login"
 
@@ -54,6 +51,10 @@ nnoremap <leader>O :Ex<CR>
 nnoremap <leader>w :w<CR>
 
 "--------------------------------------------------
+
+syntax on
+filetype on
+filetype plugin on
 
 " plugins
 "--------------------------------------------------
@@ -102,13 +103,15 @@ Plug 'wellle/context.vim'
 
 " repl
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
-" Plug '~/gitrepos/vigemus/iron.vim'
+" Plug '~/gitrepos/iron.vim'
 Plug 'nickeisenberg/float-term.vim'
 
 call plug#end()
 
-colorscheme rosepine
-highlight Normal ctermbg=233
+if has('termguicolors') && v:version >= 900 && filereadable(expand("~/.vim/colors/rosepine.vim"))
+  colorscheme rosepine
+  highlight Normal ctermbg=233
+endif
 
 "--------------------------------------------------
 " plugin configs
@@ -120,6 +123,8 @@ let g:lsp_diagnostics_virtual_text_enabled = 1
 let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
 let g:lsp_diagnostics_virtual_text_align = "right"
 let g:lsp_diagnostics_virtual_text_delay = 0
+
+inoremap <expr> <leader>y    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
 
 function! s:on_lsp_buffer_enabled() abort
   setlocal omnifunc=lsp#complete
@@ -136,9 +141,10 @@ function! s:on_lsp_buffer_enabled() abort
   nnoremap <buffer> <expr><c-n> lsp#scroll(+4)
   nnoremap <buffer> <expr><c-p> lsp#scroll(-4)
 
-  autocmd User lsp_buffer_enabled
-    \ autocmd! BufWritePre <buffer>
-    \ call execute('LspDocumentFormatSync')
+  augroup lsp_formatting
+    autocmd! * <buffer>
+    autocmd BufWritePre <buffer> call execute('LspDocumentFormatSync')
+  augroup END
 endfunction
 
 augroup lsp_install
@@ -160,6 +166,14 @@ if executable('pyright')
         \ 'name': 'pyright',
         \ 'cmd': {server_info->['pyright-langserver', '--stdio']},
         \ 'allowlist': ['python'],
+        \ })
+endif
+
+if executable('clangd')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'clangd',
+        \ 'cmd': {server_info->['clangd', '--fallback-style=llvm']},
+        \ 'allowlist': ['c', 'cpp', 'objc', 'objcpp'],
         \ })
 endif
 
@@ -185,13 +199,6 @@ if executable('ruff')
     \ 'cmd': {server_info->['ruff', 'server', '--preview']},
     \ 'allowlist': ['python'],
     \ })
-endif
-
-if &filetype ==# 'python'
-    command! -buffer RuffFix execute 'write'
-        \ | silent execute '!ruff check --fix %'
-        \ | silent edit!
-        \ | call execute('LspDocumentFormatSync')
 endif
 
 if has('python3')
@@ -242,7 +249,8 @@ let g:iron_keymaps = {
   \ "send_until_cursor": "<leader>su",
   \ "send_file": "<leader>sf",
   \ "send_cancel": "<leader>sc",
-  \ "send_blank_line": "<leader>s<CR>",
+  \ "send_blank_line": "<leader><CR>",
+  \ "clear": "<leader>rc",
 \ }
 
 " vim-signify
