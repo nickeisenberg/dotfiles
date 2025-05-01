@@ -28,3 +28,6 @@ if [[ ! -f "${HOME}/.venv/bin/activate" ]]; then
     fi
 fi
 source "${HOME}/.venv/bin/activate" > /dev/null 2>&1
+
+PATH="${HOME}/.local/bin:${PATH}"
+PATH="${HOME}/.local/src/brew/bin:${PATH}"
