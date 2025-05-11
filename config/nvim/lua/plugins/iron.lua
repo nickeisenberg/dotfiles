@@ -23,7 +23,7 @@ return {
             block_deviders = { "# %%", "#%%" },
           },
           sh = { command = { vim.o.shell } },
-          cpp = { command = { "cling" } }
+          cpp = { command = { "cling", "-Iinclude" } }
         },
         repl_filetype = function(_, ft)
           return ft

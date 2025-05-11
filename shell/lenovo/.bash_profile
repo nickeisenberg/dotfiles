@@ -5,6 +5,7 @@ source $HOME/.bashrc
 #--------------------------------------------------
 source $HOME/dotfiles/scripts/helpers.sh
 source $HOME/dotfiles/scripts/dm.sh
+source $HOME/dotfiles/scripts/clipboard.sh
 #--------------------------------------------------
 
 alias c="clear"
