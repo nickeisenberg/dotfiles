@@ -33,10 +33,9 @@ export NVM_DIR="$HOME/.local/src/nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 #--------------------------------------------------
 
+source "${HOME}/.venvman/venvman/src/main.sh"
+
 # default sys venv
-if [[ ! -f "${HOME}/.sysvenv/venv/bin/activate" ]]; then
-    if python3 -m venv --help > /dev/null 2>&1; then
-        python3 -m venv "${HOME}/.sysvenv/venv"
-    fi
+if venvman --help > /dev/null 2>&1; then
+    venvman activate --version 3.11 --name test
 fi
-source "${HOME}/.sysvenv/venv/bin/activate" > /dev/null 2>&1
