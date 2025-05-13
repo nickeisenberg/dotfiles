@@ -59,7 +59,7 @@ fi
 PATH="${HOME}/.local/src/miniconda3/bin:${PATH}"
 PATH="${HOME}/.local/src/nvm/versions/node/v22.14.0/bin:${PATH}"
 PATH="${HOME}/.local/src/brew/bin:${PATH}"
-PATH="${HOME}/Library/Python/3.11/bin:${PATH}"
+PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:${PATH}"
 PATH="${HOME}/.local/bin:${PATH}"
 
 nvm() {
