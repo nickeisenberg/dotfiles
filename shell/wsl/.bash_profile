@@ -23,6 +23,8 @@ else
 fi
 #--------------------------------------------------
 
+export PATH="${HOME}/.local/bin:$PATH"
+
 # cuda paths
 export PATH="/usr/local/cuda-12.6/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH"
@@ -33,9 +35,20 @@ export NVM_DIR="$HOME/.local/src/nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 #--------------------------------------------------
 
-source "${HOME}/.venvman/venvman/src/main.sh"
-
-# default sys venv
-if venvman --help > /dev/null 2>&1; then
-    venvman activate --version 3.11 --name test
+if [[ -f "${HOME}/.venvman/venvman/src/main.sh" ]]; then
+	source "${HOME}/.venvman/venvman/src/main.sh"
 fi
+
+export PATH="${HOME}/.sysvenv/bin:$PATH"
+
+if python3.11 --version > /dev/null; then
+	if python3.11 -m venv --help > /dev/null; then
+		if [[ -f "${HOME}/.sysvenv/bin/activate" ]]; then
+			source "${HOME}/.sysvenv/bin/activate"
+		else
+			python3.11 -m venv "${HOME}/.sysvenv"
+			source "${HOME}/.sysvenv/bin/activate"
+		fi
+	fi
+fi
+

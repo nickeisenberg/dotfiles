@@ -12,11 +12,11 @@ set updatetime=100
 set colorcolumn=80
 set wrap
 set nocompatible
-set cursorline
-set cursorcolumn
 set noswapfile
 set background=dark
 set relativenumber
+" set cursorline
+" set cursorcolumn
 
 let &shell = &shell . " --login"
 
@@ -108,10 +108,10 @@ Plug 'nickeisenberg/float-term.vim'
 
 call plug#end()
 
-if has('termguicolors') && v:version >= 900 && filereadable(expand("~/.vim/colors/rosepine.vim"))
-  colorscheme rosepine
-  highlight Normal ctermbg=233
-endif
+" if has('termguicolors') && v:version >= 900 && filereadable(expand("~/.vim/colors/rosepine.vim"))
+"   colorscheme rosepine
+"   highlight Normal ctermbg=233
+" endif
 
 "--------------------------------------------------
 " plugin configs
