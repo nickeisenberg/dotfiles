@@ -1,4 +1,4 @@
-function dir_exists() {
+dir_exists() {
     if [[ -d $1 ]]; then
         return 0
     else
@@ -7,7 +7,7 @@ function dir_exists() {
 }
 
 
-function sym_link_exists() {
+sym_link_exists() {
     if [[ -L $1 ]]; then
         return 0
     else
@@ -16,7 +16,7 @@ function sym_link_exists() {
 }
 
 
-function is_on_system() {
+is_on_system() {
     if command -v $1 &> /dev/null; then
         return 0
     else
@@ -25,7 +25,7 @@ function is_on_system() {
 }
 
 
-function in_path() {
+in_path() {
     if [[ ":$PATH:" == *":$1:"* ]]; then
         return 0
     else
@@ -34,7 +34,7 @@ function in_path() {
 }
 
 
-function add_to_path() {
+add_to_path() {
     if ! in_path $1; then
         if [[ $2  == 0 ]]; then
             PATH=$1:$PATH
@@ -47,7 +47,7 @@ function add_to_path() {
 }
 
 
-function get_git_branch() {
+get_git_branch() {
     if is_on_system git; then
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
     else
@@ -56,7 +56,7 @@ function get_git_branch() {
 }
 
 
-function source_file() {
+source_file() {
     if [[ -f $1 ]]; then
         source $1
     else
@@ -65,7 +65,7 @@ function source_file() {
 }
 
 
-function variable_is_set() {
+variable_is_set() {
     if [[ -n $1 ]]; then
         return 0
     else
@@ -74,7 +74,7 @@ function variable_is_set() {
 }
 
 
-function add_directory_to_path() {
+add_directory_to_path() {
     if in_path $1; then
         return 0
     fi
@@ -107,7 +107,7 @@ function add_directory_to_path() {
 }
 
 
-function create_directory_and_add_to_path() {
+create_directory_and_add_to_path() {
     if [[ ! -d $1 ]]; then
         mkdir -p $1
         if ! dir_exists $1; then
@@ -122,7 +122,7 @@ function create_directory_and_add_to_path() {
 }
 
 
-function sym_link_file_as_bin() {
+sym_link_file_as_bin() {
     if [[ ! $# == 2 ]]; then
         echo "2 args must be given"
         return 1
