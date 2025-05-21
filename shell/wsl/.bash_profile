@@ -1,7 +1,7 @@
 source "${HOME}/.bashrc"
 
 get_git_branch() {
-    if is_on_system git; then
+    if git --version > /dev/null; then
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
     else
         echo
