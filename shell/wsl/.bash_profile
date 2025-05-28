@@ -28,17 +28,19 @@ export NVM_DIR="$HOME/.local/src/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
+export PATH="${HOME}/.sysvenv/venv/bin/:${PATH}"
 if python3.11 --version > /dev/null; then
 	if python3.11 -m venv --help > /dev/null; then
-		if [[ -f "${HOME}/.sysvenv/bin/activate" ]]; then
-			source "${HOME}/.sysvenv/bin/activate"
+		if [[ -f "${HOME}/.sysvenv/venv/bin/activate" ]]; then
+			source "${HOME}/.sysvenv/venv/bin/activate"
 		else
-			python3.11 -m venv "${HOME}/.sysvenv"
-			source "${HOME}/.sysvenv/bin/activate"
+			python3.11 -m venv "${HOME}/.sysvenv/venv"
+			source "${HOME}/.sysvenv/venv/bin/activate"
 		fi
 	fi
-	export PATH="${HOME}/.sysvenv/bin:$PATH"
+	export PATH="${HOME}/.sysvenv/venv/bin:$PATH"
 fi
+
 
 if [[ -f "${HOME}/.venvman/venvman/src/main.sh" ]]; then
 	source "${HOME}/.venvman/venvman/src/main.sh"
