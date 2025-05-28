@@ -172,7 +172,7 @@ endif
 if executable('clangd')
     au User lsp_setup call lsp#register_server({
         \ 'name': 'clangd',
-        \ 'cmd': {server_info->['clangd', '--fallback-style=llvm']},
+        \ 'cmd': {server_info->['clangd', '--fallback-style=google']},
         \ 'allowlist': ['c', 'cpp', 'objc', 'objcpp'],
         \ })
 endif
