@@ -1,9 +1,10 @@
 return {
   'williamboman/mason.nvim',
+  version = "1.11.0",
   enabled = true,
   dependencies = {
     'neovim/nvim-lspconfig',
-    'williamboman/mason-lspconfig.nvim',
+    { 'williamboman/mason-lspconfig.nvim', version = "1.32.0" }
   },
   config = function()
     local on_attach = function(client, bufnr)
