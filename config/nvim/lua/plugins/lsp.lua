@@ -1,33 +1,30 @@
 return {
-  'williamboman/mason.nvim',
+  'mason-org/mason.nvim',
   version = "1.11.0",
   enabled = true,
   dependencies = {
     'neovim/nvim-lspconfig',
-    { 'williamboman/mason-lspconfig.nvim', version = "1.32.0" }
+    'hrsh7th/cmp-nvim-lsp',
+    { 'mason-org/mason-lspconfig.nvim', version = "1.32.0" }
   },
   config = function()
     local on_attach = function(client, bufnr)
-      if client.name == "ruff" then
-        vim.api.nvim_buf_create_user_command(bufnr, "Format", function()
-          vim.lsp.buf.code_action {
-            context = {
-              only = { 'source.fixAll.ruff' }
-            },
-            apply = true,
-          }
+      vim.api.nvim_buf_create_user_command(
+        bufnr,
+        'Format',
+        function(_)
+          if client.name == "ruff" then
+            vim.lsp.buf.code_action {
+              context = {
+                only = { 'source.fixAll.ruff' }
+              },
+              apply = true,
+            }
+          end
           vim.lsp.buf.format()
-        end, { desc = "Ruff: Apply all autofixable fixes" })
-      else
-        vim.api.nvim_buf_create_user_command(
-          bufnr,
-          'Format',
-          function(_)
-            vim.lsp.buf.format()
-          end,
-          { desc = 'Format current buffer with LSP' }
-        )
-      end
+        end,
+        { desc = 'Format current buffer with LSP' }
+      )
 
       vim.keymap.set(
         'n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename symbol' }
@@ -80,6 +77,7 @@ return {
     mason_lspconfig.setup({
       ensure_installed = vim.tbl_keys(servers),
     })
+  
 
     mason_lspconfig.setup_handlers {
       function(server_name)
