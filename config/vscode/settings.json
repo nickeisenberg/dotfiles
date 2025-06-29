@@ -41,9 +41,29 @@
     // Vim Keybindings Setup
     // =====================
     "vim.leader": "<space>",
+    "vim.foldfix": true,
     "vscode-textobjects.vimEnabled": true,
     "vim.normalModeKeyBindingsNonRecursive": [
-        // File operations
+        {
+            "before": [
+                "]",
+                "d"
+            ],
+            "commands": [
+                "editor.action.marker.nextInFiles"
+            ],
+            "silent": true
+        },
+        {
+            "before": [
+                "[",
+                "d"
+            ],
+            "commands": [
+                "editor.action.marker.prevInFiles"
+            ],
+            "silent": true
+        }
         {
             "before": [
                 "<leader>",
@@ -71,7 +91,6 @@
                 "workbench.action.closeActiveEditor"
             ]
         },
-        // Split navigation
         {
             "before": [
                 "<leader>",
@@ -102,7 +121,6 @@
                 "workbench.action.closeActiveEditor"
             ]
         },
-        // Focus movement
         {
             "before": [
                 "<leader>",
@@ -139,7 +157,6 @@
                 "workbench.action.focusAboveGroup"
             ]
         },
-        // Tab switching
         {
             "before": [
                 "<S-h>"
@@ -156,7 +173,6 @@
                 "workbench.action.nextEditor"
             ]
         },
-        // Python/REPL
         {
             "before": [
                 "<leader>",
@@ -177,7 +193,6 @@
                 "python.execSelectionInTerminal"
             ]
         },
-        // Hover doc
         {
             "before": [
                 "<S-k>"
@@ -208,7 +223,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.function"
+                "vscode-textobjects.select.next.outer.function.start"
             ]
         },
         {
@@ -219,7 +234,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.function"
+                "vscode-textobjects.select.next.inner.function.start"
             ]
         },
         {
@@ -230,7 +245,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.loop"
+                "vscode-textobjects.select.next.outer.loop.start"
             ]
         },
         {
@@ -241,7 +256,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.loop"
+                "vscode-textobjects.select.next.inner.loop.start"
             ]
         },
         {
@@ -252,7 +267,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.conditional"
+                "vscode-textobjects.select.next.outer.conditional.start"
             ]
         },
         {
@@ -263,7 +278,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.conditional"
+                "vscode-textobjects.select.next.inner.conditional.start"
             ]
         },
         {
@@ -274,7 +289,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.rhs"
+                "vscode-textobjects.select.next.outer.rhs.start"
             ]
         },
         {
@@ -285,7 +300,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.rhs"
+                "vscode-textobjects.select.next.inner.rhs.start"
             ]
         },
         {
@@ -296,7 +311,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.lhs"
+                "vscode-textobjects.select.next.outer.lhs.start"
             ]
         },
         {
@@ -307,7 +322,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.lhs"
+                "vscode-textobjects.select.next.inner.lhs.start"
             ]
         },
         {
@@ -318,7 +333,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.variable"
+                "vscode-textobjects.select.next.outer.variable.start"
             ]
         },
         {
@@ -329,7 +344,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.string"
+                "vscode-textobjects.select.next.outer.string.start"
             ]
         },
         {
@@ -340,7 +355,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.string"
+                "vscode-textobjects.select.next.inner.string.start"
             ]
         },
         {
@@ -351,7 +366,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.class"
+                "vscode-textobjects.select.next.outer.class.start"
             ]
         },
         {
@@ -362,7 +377,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.class"
+                "vscode-textobjects.select.next.inner.class.start"
             ]
         },
         {
@@ -373,7 +388,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.array"
+                "vscode-textobjects.select.next.outer.array.start"
             ]
         },
         {
@@ -384,7 +399,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.array"
+                "vscode-textobjects.select.next.inner.array.start"
             ]
         },
         {
@@ -395,7 +410,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.object"
+                "vscode-textobjects.select.next.outer.object.start"
             ]
         },
         {
@@ -406,7 +421,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.object"
+                "vscode-textobjects.select.next.inner.object.start"
             ]
         },
         {
@@ -417,7 +432,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.parameters"
+                "vscode-textobjects.select.next.outer.parameters.start"
             ]
         },
         {
@@ -428,7 +443,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.parameters"
+                "vscode-textobjects.select.next.inner.parameters.start"
             ]
         },
         {
@@ -439,7 +454,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.call"
+                "vscode-textobjects.select.next.outer.call.start"
             ]
         },
         {
@@ -450,7 +465,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.call"
+                "vscode-textobjects.select.next.inner.call.start"
             ]
         },
         {
@@ -461,7 +476,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.type"
+                "vscode-textobjects.select.next.outer.type.start"
             ]
         },
         {
@@ -472,7 +487,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.type"
+                "vscode-textobjects.select.next.inner.type.start"
             ]
         },
         {
@@ -483,7 +498,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.comment"
+                "vscode-textobjects.select.next.outer.comment.start"
             ]
         },
         {
@@ -494,7 +509,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.comment"
+                "vscode-textobjects.select.next.inner.comment.start"
             ]
         },
         {
@@ -505,7 +520,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.function"
+                "vscode-textobjects.select.previous.outer.function.start"
             ]
         },
         {
@@ -516,7 +531,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.function"
+                "vscode-textobjects.select.previous.inner.function.start"
             ]
         },
         {
@@ -527,7 +542,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.loop"
+                "vscode-textobjects.select.previous.outer.loop.start"
             ]
         },
         {
@@ -538,7 +553,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.loop"
+                "vscode-textobjects.select.previous.inner.loop.start"
             ]
         },
         {
@@ -549,7 +564,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.conditional"
+                "vscode-textobjects.select.previous.outer.conditional.start"
             ]
         },
         {
@@ -560,7 +575,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.conditional"
+                "vscode-textobjects.select.previous.inner.conditional.start"
             ]
         },
         {
@@ -571,7 +586,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.rhs"
+                "vscode-textobjects.select.previous.outer.rhs.start"
             ]
         },
         {
@@ -582,7 +597,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.rhs"
+                "vscode-textobjects.select.previous.inner.rhs.start"
             ]
         },
         {
@@ -593,7 +608,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.lhs"
+                "vscode-textobjects.select.previous.outer.lhs.start"
             ]
         },
         {
@@ -604,7 +619,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.lhs"
+                "vscode-textobjects.select.previous.inner.lhs.start"
             ]
         },
         {
@@ -615,7 +630,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.variable"
+                "vscode-textobjects.select.previous.outer.variable.start"
             ]
         },
         {
@@ -626,7 +641,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.string"
+                "vscode-textobjects.select.previous.outer.string.start"
             ]
         },
         {
@@ -637,7 +652,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.string"
+                "vscode-textobjects.select.previous.inner.string.start"
             ]
         },
         {
@@ -648,7 +663,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.class"
+                "vscode-textobjects.select.previous.outer.class.start"
             ]
         },
         {
@@ -659,7 +674,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.class"
+                "vscode-textobjects.select.previous.inner.class.start"
             ]
         },
         {
@@ -670,7 +685,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.array"
+                "vscode-textobjects.select.previous.outer.array.start"
             ]
         },
         {
@@ -681,7 +696,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.array"
+                "vscode-textobjects.select.previous.inner.array.start"
             ]
         },
         {
@@ -692,7 +707,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.object"
+                "vscode-textobjects.select.previous.outer.object.start"
             ]
         },
         {
@@ -703,29 +718,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.object"
-            ]
-        },
-        {
-            "before": [
-                "v",
-                "i",
-                "P"
-            ],
-            "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
-            "commands": [
-                "vscode-textobjects.select.previous.inner.parameters"
-            ]
-        },
-        {
-            "before": [
-                "v",
-                "a",
-                "P"
-            ],
-            "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
-            "commands": [
-                "vscode-textobjects.select.previous.outer.parameters"
+                "vscode-textobjects.select.previous.inner.object.start"
             ]
         },
         {
@@ -736,7 +729,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.call"
+                "vscode-textobjects.select.previous.outer.call.start"
             ]
         },
         {
@@ -747,7 +740,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.call"
+                "vscode-textobjects.select.previous.inner.call.start"
             ]
         },
         {
@@ -758,7 +751,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.type"
+                "vscode-textobjects.select.previous.outer.type.start"
             ]
         },
         {
@@ -769,7 +762,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.type"
+                "vscode-textobjects.select.previous.inner.type.start"
             ]
         },
         {
@@ -780,7 +773,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.comment"
+                "vscode-textobjects.select.previous.outer.comment.start"
             ]
         },
         {
@@ -791,7 +784,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.comment"
+                "vscode-textobjects.select.previous.inner.comment.start"
             ]
         },
         {
@@ -801,7 +794,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.function"
+                "vscode-textobjects.goTo.next.outer.function.start"
             ]
         },
         {
@@ -811,7 +804,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.function"
+                "vscode-textobjects.goTo.next.inner.function.start"
             ]
         },
         {
@@ -821,7 +814,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.loop"
+                "vscode-textobjects.goTo.next.outer.loop.start"
             ]
         },
         {
@@ -831,7 +824,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.loop"
+                "vscode-textobjects.goTo.next.inner.loop.start"
             ]
         },
         {
@@ -841,7 +834,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.conditional"
+                "vscode-textobjects.goTo.next.outer.conditional.start"
             ]
         },
         {
@@ -851,7 +844,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.conditional"
+                "vscode-textobjects.goTo.next.inner.conditional.start"
             ]
         },
         {
@@ -861,7 +854,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.rhs"
+                "vscode-textobjects.goTo.next.outer.rhs.start"
             ]
         },
         {
@@ -871,7 +864,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.rhs"
+                "vscode-textobjects.goTo.next.inner.rhs.start"
             ]
         },
         {
@@ -881,7 +874,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.lhs"
+                "vscode-textobjects.goTo.next.outer.lhs.start"
             ]
         },
         {
@@ -891,7 +884,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.lhs"
+                "vscode-textobjects.goTo.next.inner.lhs.start"
             ]
         },
         {
@@ -901,7 +894,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.variable"
+                "vscode-textobjects.goTo.next.outer.variable.start"
             ]
         },
         {
@@ -911,7 +904,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.string"
+                "vscode-textobjects.goTo.next.outer.string.start"
             ]
         },
         {
@@ -921,7 +914,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.string"
+                "vscode-textobjects.goTo.next.inner.string.start"
             ]
         },
         {
@@ -931,7 +924,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.class"
+                "vscode-textobjects.goTo.next.outer.class.start"
             ]
         },
         {
@@ -941,7 +934,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.class"
+                "vscode-textobjects.goTo.next.inner.class.start"
             ]
         },
         {
@@ -951,7 +944,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.array"
+                "vscode-textobjects.goTo.next.outer.array.start"
             ]
         },
         {
@@ -961,7 +954,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.array"
+                "vscode-textobjects.goTo.next.inner.array.start"
             ]
         },
         {
@@ -971,7 +964,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.object"
+                "vscode-textobjects.goTo.next.outer.object.start"
             ]
         },
         {
@@ -981,7 +974,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.object"
+                "vscode-textobjects.goTo.next.inner.object.start"
             ]
         },
         {
@@ -991,7 +984,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.parameters"
+                "vscode-textobjects.goTo.next.outer.parameters.start"
             ]
         },
         {
@@ -1001,7 +994,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.parameters"
+                "vscode-textobjects.goTo.next.inner.parameters.start"
             ]
         },
         {
@@ -1011,7 +1004,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.call"
+                "vscode-textobjects.goTo.next.outer.call.start"
             ]
         },
         {
@@ -1021,7 +1014,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.call"
+                "vscode-textobjects.goTo.next.inner.call.start"
             ]
         },
         {
@@ -1031,7 +1024,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.type"
+                "vscode-textobjects.goTo.next.outer.type.start"
             ]
         },
         {
@@ -1041,7 +1034,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.type"
+                "vscode-textobjects.goTo.next.inner.type.start"
             ]
         },
         {
@@ -1051,7 +1044,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.comment"
+                "vscode-textobjects.goTo.next.outer.comment.start"
             ]
         },
         {
@@ -1061,7 +1054,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.comment"
+                "vscode-textobjects.goTo.next.inner.comment.start"
             ]
         },
         {
@@ -1071,7 +1064,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.function"
+                "vscode-textobjects.goTo.previous.outer.function.start"
             ]
         },
         {
@@ -1081,7 +1074,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.function"
+                "vscode-textobjects.goTo.previous.inner.function.start"
             ]
         },
         {
@@ -1091,7 +1084,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.loop"
+                "vscode-textobjects.goTo.previous.outer.loop.start"
             ]
         },
         {
@@ -1101,7 +1094,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.loop"
+                "vscode-textobjects.goTo.previous.inner.loop.start"
             ]
         },
         {
@@ -1111,7 +1104,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.conditional"
+                "vscode-textobjects.goTo.previous.outer.conditional.start"
             ]
         },
         {
@@ -1121,7 +1114,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.conditional"
+                "vscode-textobjects.goTo.previous.inner.conditional.start"
             ]
         },
         {
@@ -1131,7 +1124,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.rhs"
+                "vscode-textobjects.goTo.previous.outer.rhs.start"
             ]
         },
         {
@@ -1141,7 +1134,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.rhs"
+                "vscode-textobjects.goTo.previous.inner.rhs.start"
             ]
         },
         {
@@ -1151,7 +1144,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.lhs"
+                "vscode-textobjects.goTo.previous.outer.lhs.start"
             ]
         },
         {
@@ -1161,7 +1154,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.lhs"
+                "vscode-textobjects.goTo.previous.inner.lhs.start"
             ]
         },
         {
@@ -1171,7 +1164,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.variable"
+                "vscode-textobjects.goTo.previous.outer.variable.start"
             ]
         },
         {
@@ -1181,7 +1174,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.string"
+                "vscode-textobjects.goTo.previous.outer.string.start"
             ]
         },
         {
@@ -1191,7 +1184,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.string"
+                "vscode-textobjects.goTo.previous.inner.string.start"
             ]
         },
         {
@@ -1201,7 +1194,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.class"
+                "vscode-textobjects.goTo.previous.outer.class.start"
             ]
         },
         {
@@ -1211,7 +1204,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.class"
+                "vscode-textobjects.goTo.previous.inner.class.start"
             ]
         },
         {
@@ -1221,7 +1214,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.array"
+                "vscode-textobjects.goTo.previous.outer.array.start"
             ]
         },
         {
@@ -1231,7 +1224,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.array"
+                "vscode-textobjects.goTo.previous.inner.array.start"
             ]
         },
         {
@@ -1241,7 +1234,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.object"
+                "vscode-textobjects.goTo.previous.outer.object.start"
             ]
         },
         {
@@ -1251,7 +1244,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.object"
+                "vscode-textobjects.goTo.previous.inner.object.start"
             ]
         },
         {
@@ -1261,7 +1254,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.parameters"
+                "vscode-textobjects.goTo.previous.inner.parameters.start"
             ]
         },
         {
@@ -1271,7 +1264,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.parameters"
+                "vscode-textobjects.goTo.previous.outer.parameters.start"
             ]
         },
         {
@@ -1281,7 +1274,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.call"
+                "vscode-textobjects.goTo.previous.outer.call.start"
             ]
         },
         {
@@ -1291,7 +1284,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.call"
+                "vscode-textobjects.goTo.previous.inner.call.start"
             ]
         },
         {
@@ -1301,7 +1294,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.type"
+                "vscode-textobjects.goTo.previous.outer.type.start"
             ]
         },
         {
@@ -1311,7 +1304,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.type"
+                "vscode-textobjects.goTo.previous.inner.type.start"
             ]
         },
         {
@@ -1321,7 +1314,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.comment"
+                "vscode-textobjects.goTo.previous.outer.comment.start"
             ]
         },
         {
@@ -1331,7 +1324,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.comment"
+                "vscode-textobjects.goTo.previous.inner.comment.start"
             ]
         },
         {
@@ -1342,7 +1335,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.function"
+                "vscode-textobjects.delete.next.outer.function.start"
             ]
         },
         {
@@ -1353,7 +1346,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.function"
+                "vscode-textobjects.delete.next.inner.function.start"
             ]
         },
         {
@@ -1364,7 +1357,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.loop"
+                "vscode-textobjects.delete.next.outer.loop.start"
             ]
         },
         {
@@ -1375,7 +1368,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.loop"
+                "vscode-textobjects.delete.next.inner.loop.start"
             ]
         },
         {
@@ -1386,7 +1379,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.conditional"
+                "vscode-textobjects.delete.next.outer.conditional.start"
             ]
         },
         {
@@ -1397,7 +1390,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.conditional"
+                "vscode-textobjects.delete.next.inner.conditional.start"
             ]
         },
         {
@@ -1408,7 +1401,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.rhs"
+                "vscode-textobjects.delete.next.outer.rhs.start"
             ]
         },
         {
@@ -1419,7 +1412,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.rhs"
+                "vscode-textobjects.delete.next.inner.rhs.start"
             ]
         },
         {
@@ -1430,7 +1423,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.lhs"
+                "vscode-textobjects.delete.next.outer.lhs.start"
             ]
         },
         {
@@ -1441,7 +1434,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.lhs"
+                "vscode-textobjects.delete.next.inner.lhs.start"
             ]
         },
         {
@@ -1452,7 +1445,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.variable"
+                "vscode-textobjects.delete.next.outer.variable.start"
             ]
         },
         {
@@ -1463,7 +1456,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.string"
+                "vscode-textobjects.delete.next.outer.string.start"
             ]
         },
         {
@@ -1474,7 +1467,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.string"
+                "vscode-textobjects.delete.next.inner.string.start"
             ]
         },
         {
@@ -1485,7 +1478,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.class"
+                "vscode-textobjects.delete.next.outer.class.start"
             ]
         },
         {
@@ -1496,7 +1489,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.class"
+                "vscode-textobjects.delete.next.inner.class.start"
             ]
         },
         {
@@ -1507,7 +1500,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.array"
+                "vscode-textobjects.delete.next.outer.array.start"
             ]
         },
         {
@@ -1518,7 +1511,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.array"
+                "vscode-textobjects.delete.next.inner.array.start"
             ]
         },
         {
@@ -1529,7 +1522,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.object"
+                "vscode-textobjects.delete.next.outer.object.start"
             ]
         },
         {
@@ -1540,7 +1533,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.object"
+                "vscode-textobjects.delete.next.inner.object.start"
             ]
         },
         {
@@ -1551,7 +1544,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.parameters"
+                "vscode-textobjects.delete.next.outer.parameters.start"
             ]
         },
         {
@@ -1562,7 +1555,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.parameters"
+                "vscode-textobjects.delete.next.inner.parameters.start"
             ]
         },
         {
@@ -1573,7 +1566,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.call"
+                "vscode-textobjects.delete.next.outer.call.start"
             ]
         },
         {
@@ -1584,7 +1577,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.call"
+                "vscode-textobjects.delete.next.inner.call.start"
             ]
         },
         {
@@ -1595,7 +1588,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.type"
+                "vscode-textobjects.delete.next.outer.type.start"
             ]
         },
         {
@@ -1606,7 +1599,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.type"
+                "vscode-textobjects.delete.next.inner.type.start"
             ]
         },
         {
@@ -1617,7 +1610,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.comment"
+                "vscode-textobjects.delete.next.outer.comment.start"
             ]
         },
         {
@@ -1628,7 +1621,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.inner.comment"
+                "vscode-textobjects.delete.next.inner.comment.start"
             ]
         },
         {
@@ -1639,7 +1632,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.function"
+                "vscode-textobjects.delete.previous.outer.function.start"
             ]
         },
         {
@@ -1650,7 +1643,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.function"
+                "vscode-textobjects.delete.previous.inner.function.start"
             ]
         },
         {
@@ -1661,7 +1654,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.loop"
+                "vscode-textobjects.delete.previous.outer.loop.start"
             ]
         },
         {
@@ -1672,7 +1665,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.loop"
+                "vscode-textobjects.delete.previous.inner.loop.start"
             ]
         },
         {
@@ -1683,7 +1676,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.conditional"
+                "vscode-textobjects.delete.previous.outer.conditional.start"
             ]
         },
         {
@@ -1694,7 +1687,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.conditional"
+                "vscode-textobjects.delete.previous.inner.conditional.start"
             ]
         },
         {
@@ -1705,7 +1698,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.rhs"
+                "vscode-textobjects.delete.previous.outer.rhs.start"
             ]
         },
         {
@@ -1716,7 +1709,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.rhs"
+                "vscode-textobjects.delete.previous.inner.rhs.start"
             ]
         },
         {
@@ -1727,7 +1720,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.lhs"
+                "vscode-textobjects.delete.previous.outer.lhs.start"
             ]
         },
         {
@@ -1738,7 +1731,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.lhs"
+                "vscode-textobjects.delete.previous.inner.lhs.start"
             ]
         },
         {
@@ -1749,7 +1742,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.variable"
+                "vscode-textobjects.delete.previous.outer.variable.start"
             ]
         },
         {
@@ -1760,7 +1753,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.string"
+                "vscode-textobjects.delete.previous.outer.string.start"
             ]
         },
         {
@@ -1771,7 +1764,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.string"
+                "vscode-textobjects.delete.previous.inner.string.start"
             ]
         },
         {
@@ -1782,7 +1775,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.class"
+                "vscode-textobjects.delete.previous.outer.class.start"
             ]
         },
         {
@@ -1793,7 +1786,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.class"
+                "vscode-textobjects.delete.previous.inner.class.start"
             ]
         },
         {
@@ -1804,7 +1797,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.array"
+                "vscode-textobjects.delete.previous.outer.array.start"
             ]
         },
         {
@@ -1815,7 +1808,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.array"
+                "vscode-textobjects.delete.previous.inner.array.start"
             ]
         },
         {
@@ -1826,7 +1819,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.object"
+                "vscode-textobjects.delete.previous.outer.object.start"
             ]
         },
         {
@@ -1837,7 +1830,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.object"
+                "vscode-textobjects.delete.previous.inner.object.start"
             ]
         },
         {
@@ -1848,7 +1841,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.parameters"
+                "vscode-textobjects.delete.previous.outer.parameters.start"
             ]
         },
         {
@@ -1859,7 +1852,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.parameters"
+                "vscode-textobjects.delete.previous.inner.parameters.start"
             ]
         },
         {
@@ -1870,7 +1863,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.call"
+                "vscode-textobjects.delete.previous.outer.call.start"
             ]
         },
         {
@@ -1881,7 +1874,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.call"
+                "vscode-textobjects.delete.previous.inner.call.start"
             ]
         },
         {
@@ -1892,7 +1885,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.type"
+                "vscode-textobjects.delete.previous.outer.type.start"
             ]
         },
         {
@@ -1903,7 +1896,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.type"
+                "vscode-textobjects.delete.previous.inner.type.start"
             ]
         },
         {
@@ -1914,7 +1907,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.outer.comment"
+                "vscode-textobjects.delete.previous.outer.comment.start"
             ]
         },
         {
@@ -1925,7 +1918,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.comment"
+                "vscode-textobjects.delete.previous.inner.comment.start"
             ]
         },
         {
@@ -1936,7 +1929,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.function"
+                "vscode-textobjects.yank.next.outer.function.start"
             ]
         },
         {
@@ -1947,7 +1940,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.function"
+                "vscode-textobjects.yank.next.inner.function.start"
             ]
         },
         {
@@ -1958,7 +1951,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.loop"
+                "vscode-textobjects.yank.next.outer.loop.start"
             ]
         },
         {
@@ -1969,7 +1962,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.loop"
+                "vscode-textobjects.yank.next.inner.loop.start"
             ]
         },
         {
@@ -1980,7 +1973,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.conditional"
+                "vscode-textobjects.yank.next.outer.conditional.start"
             ]
         },
         {
@@ -1991,7 +1984,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.conditional"
+                "vscode-textobjects.yank.next.inner.conditional.start"
             ]
         },
         {
@@ -2002,7 +1995,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.rhs"
+                "vscode-textobjects.yank.next.outer.rhs.start"
             ]
         },
         {
@@ -2013,7 +2006,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.rhs"
+                "vscode-textobjects.yank.next.inner.rhs.start"
             ]
         },
         {
@@ -2024,7 +2017,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.lhs"
+                "vscode-textobjects.yank.next.outer.lhs.start"
             ]
         },
         {
@@ -2035,7 +2028,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.lhs"
+                "vscode-textobjects.yank.next.inner.lhs.start"
             ]
         },
         {
@@ -2046,7 +2039,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.variable"
+                "vscode-textobjects.yank.next.outer.variable.start"
             ]
         },
         {
@@ -2057,7 +2050,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.string"
+                "vscode-textobjects.yank.next.outer.string.start"
             ]
         },
         {
@@ -2068,7 +2061,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.string"
+                "vscode-textobjects.yank.next.inner.string.start"
             ]
         },
         {
@@ -2079,7 +2072,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.class"
+                "vscode-textobjects.yank.next.outer.class.start"
             ]
         },
         {
@@ -2090,7 +2083,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.class"
+                "vscode-textobjects.yank.next.inner.class.start"
             ]
         },
         {
@@ -2101,7 +2094,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.array"
+                "vscode-textobjects.yank.next.outer.array.start"
             ]
         },
         {
@@ -2112,7 +2105,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.array"
+                "vscode-textobjects.yank.next.inner.array.start"
             ]
         },
         {
@@ -2123,7 +2116,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.object"
+                "vscode-textobjects.yank.next.outer.object.start"
             ]
         },
         {
@@ -2134,7 +2127,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.object"
+                "vscode-textobjects.yank.next.inner.object.start"
             ]
         },
         {
@@ -2145,7 +2138,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.parameters"
+                "vscode-textobjects.yank.next.outer.parameters.start"
             ]
         },
         {
@@ -2156,7 +2149,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.parameters"
+                "vscode-textobjects.yank.next.inner.parameters.start"
             ]
         },
         {
@@ -2167,7 +2160,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.call"
+                "vscode-textobjects.yank.next.outer.call.start"
             ]
         },
         {
@@ -2178,7 +2171,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.call"
+                "vscode-textobjects.yank.next.inner.call.start"
             ]
         },
         {
@@ -2189,7 +2182,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.type"
+                "vscode-textobjects.yank.next.outer.type.start"
             ]
         },
         {
@@ -2200,7 +2193,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.type"
+                "vscode-textobjects.yank.next.inner.type.start"
             ]
         },
         {
@@ -2211,7 +2204,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.comment"
+                "vscode-textobjects.yank.next.outer.comment.start"
             ]
         },
         {
@@ -2222,7 +2215,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.comment"
+                "vscode-textobjects.yank.next.inner.comment.start"
             ]
         },
         {
@@ -2233,7 +2226,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.function"
+                "vscode-textobjects.yank.previous.outer.function.start"
             ]
         },
         {
@@ -2244,7 +2237,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.function"
+                "vscode-textobjects.yank.previous.inner.function.start"
             ]
         },
         {
@@ -2255,7 +2248,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.loop"
+                "vscode-textobjects.yank.previous.outer.loop.start"
             ]
         },
         {
@@ -2266,7 +2259,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.loop"
+                "vscode-textobjects.yank.previous.inner.loop.start"
             ]
         },
         {
@@ -2277,7 +2270,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.conditional"
+                "vscode-textobjects.yank.previous.outer.conditional.start"
             ]
         },
         {
@@ -2288,7 +2281,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.conditional"
+                "vscode-textobjects.yank.previous.inner.conditional.start"
             ]
         },
         {
@@ -2299,7 +2292,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.rhs"
+                "vscode-textobjects.yank.previous.outer.rhs.start"
             ]
         },
         {
@@ -2310,7 +2303,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.rhs"
+                "vscode-textobjects.yank.previous.inner.rhs.start"
             ]
         },
         {
@@ -2321,7 +2314,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.lhs"
+                "vscode-textobjects.yank.previous.outer.lhs.start"
             ]
         },
         {
@@ -2332,7 +2325,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.lhs"
+                "vscode-textobjects.yank.previous.inner.lhs.start"
             ]
         },
         {
@@ -2343,7 +2336,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.variable"
+                "vscode-textobjects.yank.previous.outer.variable.start"
             ]
         },
         {
@@ -2354,7 +2347,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.string"
+                "vscode-textobjects.yank.previous.outer.string.start"
             ]
         },
         {
@@ -2365,7 +2358,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.string"
+                "vscode-textobjects.yank.previous.inner.string.start"
             ]
         },
         {
@@ -2376,7 +2369,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.class"
+                "vscode-textobjects.yank.previous.outer.class.start"
             ]
         },
         {
@@ -2387,7 +2380,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.class"
+                "vscode-textobjects.yank.previous.inner.class.start"
             ]
         },
         {
@@ -2398,7 +2391,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.array"
+                "vscode-textobjects.yank.previous.outer.array.start"
             ]
         },
         {
@@ -2409,7 +2402,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.array"
+                "vscode-textobjects.yank.previous.inner.array.start"
             ]
         },
         {
@@ -2420,7 +2413,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.object"
+                "vscode-textobjects.yank.previous.outer.object.start"
             ]
         },
         {
@@ -2431,7 +2424,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.object"
+                "vscode-textobjects.yank.previous.inner.object.start"
             ]
         },
         {
@@ -2442,7 +2435,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.parameters"
+                "vscode-textobjects.yank.previous.outer.parameters.start"
             ]
         },
         {
@@ -2453,7 +2446,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.parameters"
+                "vscode-textobjects.yank.previous.inner.parameters.start"
             ]
         },
         {
@@ -2464,7 +2457,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.call"
+                "vscode-textobjects.yank.previous.outer.call.start"
             ]
         },
         {
@@ -2475,7 +2468,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.call"
+                "vscode-textobjects.yank.previous.inner.call.start"
             ]
         },
         {
@@ -2486,7 +2479,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.type"
+                "vscode-textobjects.yank.previous.outer.type.start"
             ]
         },
         {
@@ -2497,7 +2490,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.type"
+                "vscode-textobjects.yank.previous.inner.type.start"
             ]
         },
         {
@@ -2508,7 +2501,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.outer.comment"
+                "vscode-textobjects.yank.previous.outer.comment.start"
             ]
         },
         {
@@ -2519,7 +2512,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.previous.inner.comment"
+                "vscode-textobjects.yank.previous.inner.comment.start"
             ]
         },
         {
@@ -2530,7 +2523,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.function"
+                "vscode-textobjects.change.next.outer.function.start"
             ]
         },
         {
@@ -2541,7 +2534,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.function"
+                "vscode-textobjects.change.next.inner.function.start"
             ]
         },
         {
@@ -2552,7 +2545,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.loop"
+                "vscode-textobjects.change.next.outer.loop.start"
             ]
         },
         {
@@ -2563,7 +2556,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.loop"
+                "vscode-textobjects.change.next.inner.loop.start"
             ]
         },
         {
@@ -2574,7 +2567,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.conditional"
+                "vscode-textobjects.change.next.outer.conditional.start"
             ]
         },
         {
@@ -2585,7 +2578,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.conditional"
+                "vscode-textobjects.change.next.inner.conditional.start"
             ]
         },
         {
@@ -2596,7 +2589,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.rhs"
+                "vscode-textobjects.change.next.outer.rhs.start"
             ]
         },
         {
@@ -2607,7 +2600,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.rhs"
+                "vscode-textobjects.change.next.inner.rhs.start"
             ]
         },
         {
@@ -2618,7 +2611,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.lhs"
+                "vscode-textobjects.change.next.outer.lhs.start"
             ]
         },
         {
@@ -2629,7 +2622,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.lhs"
+                "vscode-textobjects.change.next.inner.lhs.start"
             ]
         },
         {
@@ -2640,7 +2633,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.variable"
+                "vscode-textobjects.change.next.outer.variable.start"
             ]
         },
         {
@@ -2651,7 +2644,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.string"
+                "vscode-textobjects.change.next.outer.string.start"
             ]
         },
         {
@@ -2662,7 +2655,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.string"
+                "vscode-textobjects.change.next.inner.string.start"
             ]
         },
         {
@@ -2673,7 +2666,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.class"
+                "vscode-textobjects.change.next.outer.class.start"
             ]
         },
         {
@@ -2684,7 +2677,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.class"
+                "vscode-textobjects.change.next.inner.class.start"
             ]
         },
         {
@@ -2695,7 +2688,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.array"
+                "vscode-textobjects.change.next.outer.array.start"
             ]
         },
         {
@@ -2706,7 +2699,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.array"
+                "vscode-textobjects.change.next.inner.array.start"
             ]
         },
         {
@@ -2717,7 +2710,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.object"
+                "vscode-textobjects.change.next.outer.object.start"
             ]
         },
         {
@@ -2728,7 +2721,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.object"
+                "vscode-textobjects.change.next.inner.object.start"
             ]
         },
         {
@@ -2739,7 +2732,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.parameters"
+                "vscode-textobjects.change.next.outer.parameters.start"
             ]
         },
         {
@@ -2750,7 +2743,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.parameters"
+                "vscode-textobjects.change.next.inner.parameters.start"
             ]
         },
         {
@@ -2761,7 +2754,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.call"
+                "vscode-textobjects.change.next.outer.call.start"
             ]
         },
         {
@@ -2772,7 +2765,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.call"
+                "vscode-textobjects.change.next.inner.call.start"
             ]
         },
         {
@@ -2783,7 +2776,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.type"
+                "vscode-textobjects.change.next.outer.type.start"
             ]
         },
         {
@@ -2794,7 +2787,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.type"
+                "vscode-textobjects.change.next.inner.type.start"
             ]
         },
         {
@@ -2805,7 +2798,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.comment"
+                "vscode-textobjects.change.next.outer.comment.start"
             ]
         },
         {
@@ -2816,7 +2809,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.inner.comment"
+                "vscode-textobjects.change.next.inner.comment.start"
             ]
         },
         {
@@ -2827,7 +2820,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.function"
+                "vscode-textobjects.change.previous.outer.function.start"
             ]
         },
         {
@@ -2838,7 +2831,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.function"
+                "vscode-textobjects.change.previous.inner.function.start"
             ]
         },
         {
@@ -2849,7 +2842,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.loop"
+                "vscode-textobjects.change.previous.outer.loop.start"
             ]
         },
         {
@@ -2860,7 +2853,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.loop"
+                "vscode-textobjects.change.previous.inner.loop.start"
             ]
         },
         {
@@ -2871,7 +2864,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.conditional"
+                "vscode-textobjects.change.previous.outer.conditional.start"
             ]
         },
         {
@@ -2882,7 +2875,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.conditional"
+                "vscode-textobjects.change.previous.inner.conditional.start"
             ]
         },
         {
@@ -2893,7 +2886,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.rhs"
+                "vscode-textobjects.change.previous.outer.rhs.start"
             ]
         },
         {
@@ -2904,7 +2897,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.rhs"
+                "vscode-textobjects.change.previous.inner.rhs.start"
             ]
         },
         {
@@ -2915,7 +2908,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.lhs"
+                "vscode-textobjects.change.previous.outer.lhs.start"
             ]
         },
         {
@@ -2926,7 +2919,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.lhs"
+                "vscode-textobjects.change.previous.inner.lhs.start"
             ]
         },
         {
@@ -2937,7 +2930,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.variable"
+                "vscode-textobjects.change.previous.outer.variable.start"
             ]
         },
         {
@@ -2948,7 +2941,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.string"
+                "vscode-textobjects.change.previous.outer.string.start"
             ]
         },
         {
@@ -2959,7 +2952,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.string"
+                "vscode-textobjects.change.previous.inner.string.start"
             ]
         },
         {
@@ -2970,7 +2963,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.class"
+                "vscode-textobjects.change.previous.outer.class.start"
             ]
         },
         {
@@ -2981,7 +2974,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.class"
+                "vscode-textobjects.change.previous.inner.class.start"
             ]
         },
         {
@@ -2992,7 +2985,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.array"
+                "vscode-textobjects.change.previous.outer.array.start"
             ]
         },
         {
@@ -3003,7 +2996,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.array"
+                "vscode-textobjects.change.previous.inner.array.start"
             ]
         },
         {
@@ -3014,7 +3007,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.object"
+                "vscode-textobjects.change.previous.outer.object.start"
             ]
         },
         {
@@ -3025,7 +3018,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.object"
+                "vscode-textobjects.change.previous.inner.object.start"
             ]
         },
         {
@@ -3036,7 +3029,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.parameters"
+                "vscode-textobjects.change.previous.outer.parameters.start"
             ]
         },
         {
@@ -3047,7 +3040,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.parameters"
+                "vscode-textobjects.change.previous.inner.parameters.start"
             ]
         },
         {
@@ -3058,7 +3051,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.call"
+                "vscode-textobjects.change.previous.outer.call.start"
             ]
         },
         {
@@ -3069,7 +3062,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.call"
+                "vscode-textobjects.change.previous.inner.call.start"
             ]
         },
         {
@@ -3080,7 +3073,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.type"
+                "vscode-textobjects.change.previous.outer.type.start"
             ]
         },
         {
@@ -3091,7 +3084,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.type"
+                "vscode-textobjects.change.previous.inner.type.start"
             ]
         },
         {
@@ -3102,7 +3095,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.outer.comment"
+                "vscode-textobjects.change.previous.outer.comment.start"
             ]
         },
         {
@@ -3113,7 +3106,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.comment"
+                "vscode-textobjects.change.previous.inner.comment.start"
             ]
         },
         {
@@ -3124,7 +3117,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.outer.node"
+                "vscode-textobjects.select.next.outer.node.start"
             ]
         },
         {
@@ -3135,7 +3128,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.next.inner.node"
+                "vscode-textobjects.select.next.inner.node.start"
             ]
         },
         {
@@ -3146,7 +3139,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.outer.node"
+                "vscode-textobjects.select.previous.outer.node.start"
             ]
         },
         {
@@ -3157,7 +3150,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.select.previous.inner.node"
+                "vscode-textobjects.select.previous.inner.node.start"
             ]
         },
         {
@@ -3167,7 +3160,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.outer.node"
+                "vscode-textobjects.goTo.next.outer.node.start"
             ]
         },
         {
@@ -3177,7 +3170,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.next.inner.node"
+                "vscode-textobjects.goTo.next.inner.node.start"
             ]
         },
         {
@@ -3187,7 +3180,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.outer.node"
+                "vscode-textobjects.goTo.previous.outer.node.start"
             ]
         },
         {
@@ -3197,7 +3190,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.goTo.previous.inner.node"
+                "vscode-textobjects.goTo.previous.inner.node.start"
             ]
         },
         {
@@ -3208,7 +3201,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.next.outer.node"
+                "vscode-textobjects.change.next.outer.node.start"
             ]
         },
         {
@@ -3219,7 +3212,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.change.previous.inner.node"
+                "vscode-textobjects.change.previous.inner.node.start"
             ]
         },
         {
@@ -3230,7 +3223,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.next.outer.node"
+                "vscode-textobjects.delete.next.outer.node.start"
             ]
         },
         {
@@ -3241,7 +3234,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.delete.previous.inner.node"
+                "vscode-textobjects.delete.previous.inner.node.start"
             ]
         },
         {
@@ -3252,7 +3245,7 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.outer.node"
+                "vscode-textobjects.yank.next.outer.node.start"
             ]
         },
         {
@@ -3263,10 +3256,10 @@
             ],
             "when": " editorTextFocus  && vscode-textobjects.vimEnabled  && !inDebugRepl && vim.mode != 'Insert'",
             "commands": [
-                "vscode-textobjects.yank.next.inner.node"
+                "vscode-textobjects.yank.next.inner.node.start"
             ]
         }
     ],
     "workbench.activityBar.location": "top",
-    "workbench.colorTheme": "Iceberg"
+    "workbench.colorTheme": "Vague"
 }
