@@ -60,22 +60,8 @@ filetype plugin on
 "--------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
-" autocompletion
-
-Plug 'prabirshrestha/vim-lsp'
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'prabirshrestha/asyncomplete-lsp.vim'
-Plug 'prabirshrestha/asyncomplete-file.vim'
-
-if has('python3')
-  Plug 'SirVer/ultisnips'
-  Plug 'honza/vim-snippets'
-  Plug 'prabirshrestha/asyncomplete-ultisnips.vim'
-else
-  Plug 'Shougo/neosnippet.vim'
-  Plug 'Shougo/neosnippet-snippets'
-  Plug 'prabirshrestha/asyncomplete-neosnippet.vim'
-endif
+" autocompletion and lsp
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " file exploring
 Plug 'junegunn/fzf'
@@ -116,109 +102,6 @@ call plug#end()
 "--------------------------------------------------
 " plugin configs
 "--------------------------------------------------
-
-" LSP
-"--------------------------------------------------
-let g:lsp_diagnostics_virtual_text_enabled = 1
-let g:lsp_diagnostics_virtual_text_insert_mode_enabled = 0
-let g:lsp_diagnostics_virtual_text_align = "right"
-let g:lsp_diagnostics_virtual_text_delay = 0
-
-inoremap <expr> <leader>y    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
-
-function! s:on_lsp_buffer_enabled() abort
-  setlocal omnifunc=lsp#complete
-  setlocal signcolumn=yes
-  if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-  nmap <buffer> <leader>gd <plug>(lsp-definition)
-  nmap <buffer> <leader>gr <plug>(lsp-references)
-  nmap <buffer> <leader>gi <plug>(lsp-implementation)
-  nmap <buffer> <leader>gt <plug>(lsp-type-definition)
-  nmap <buffer> <leader>rn <plug>(lsp-rename)
-  nmap <buffer> [d <plug>(lsp-previous-diagnostic)
-  nmap <buffer> ]d <plug>(lsp-next-diagnostic)
-  nmap <buffer> K <plug>(lsp-hover)
-  nnoremap <buffer> <expr><c-n> lsp#scroll(+4)
-  nnoremap <buffer> <expr><c-p> lsp#scroll(-4)
-
-  augroup lsp_formatting
-    autocmd! * <buffer>
-    autocmd BufWritePre <buffer> call execute('LspDocumentFormatSync')
-  augroup END
-endfunction
-
-augroup lsp_install
-  au!
-  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-augroup END
-
-au User asyncomplete_setup call asyncomplete#register_source(
-  \ asyncomplete#sources#file#get_source_options({
-    \ 'name': 'file',
-    \ 'allowlist': ['*'],
-    \ 'priority': 10,
-    \ 'completor': function('asyncomplete#sources#file#completor')
-  \ })
-\ )
-
-if executable('pyright')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'pyright',
-        \ 'cmd': {server_info->['pyright-langserver', '--stdio']},
-        \ 'allowlist': ['python'],
-        \ })
-endif
-
-if executable('clangd')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'clangd',
-        \ 'cmd': {server_info->['clangd', '--fallback-style=google']},
-        \ 'allowlist': ['c', 'cpp', 'objc', 'objcpp'],
-        \ })
-endif
-
-if executable('bash-language-server')
-  au User lsp_setup call lsp#register_server({
-    \ 'name': 'bash-language-server',
-    \ 'cmd': {server_info->['bash-language-server', 'start']},
-    \ 'allowlist': ['sh'],
-    \ })
-endif
-
-if executable('vim-language-server')
-  au User lsp_setup call lsp#register_server({
-    \ 'name': 'vimls',
-    \ 'cmd': {server_info->['vim-language-server', '--stdio']},
-    \ 'allowlist': ['vim'],
-    \ })
-endif
-
-if executable('ruff')
-  au User lsp_setup call lsp#register_server({
-    \ 'name': 'ruff',
-    \ 'cmd': {server_info->['ruff', 'server', '--preview']},
-    \ 'allowlist': ['python'],
-    \ })
-endif
-
-if has('python3')
-  let g:UltiSnipsExpandTrigger="<c-y>"
-  call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
-    \ 'name': 'ultisnips',
-    \ 'allowlist': ['*'],
-    \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
-    \ }))
-else
-  imap <C-y>     <Plug>(neosnippet_expand_or_jump)
-  smap <C-y>     <Plug>(neosnippet_expand_or_jump)
-  xmap <C-y>     <Plug>(neosnippet_expand_target)
-  call asyncomplete#register_source(asyncomplete#sources#neosnippet#get_source_options({
-     \ 'name': 'neosnippet',
-     \ 'allowlist': ['*'],
-     \ 'completor': function('asyncomplete#sources#neosnippet#completor'),
-     \ }))
-endif
-
 
 " syntax highlighting
 "--------------------------------------------------
