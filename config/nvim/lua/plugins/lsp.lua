@@ -1,32 +1,45 @@
 return {
-  'williamboman/mason.nvim',
-  enabled = true,
+  "mason-org/mason-lspconfig.nvim",
+  opts = {},
   dependencies = {
-    'neovim/nvim-lspconfig',
-    'williamboman/mason-lspconfig.nvim',
+    "mason-org/mason.nvim",
+    "neovim/nvim-lspconfig",
+    'hrsh7th/cmp-nvim-lsp',
+    "stevearc/conform.nvim",
   },
   config = function()
+    local mason = require("mason")
+    local mason_lspconfig = require('mason-lspconfig')
+    local lspconfig = require("lspconfig")
+    local conform = require("conform")
+
+    conform.setup({
+      log_level = vim.log.levels.DEBUG,
+      formatters_by_ft = {
+        markdown = { "prettier", "mdformat" },
+      }
+    })
+
     local on_attach = function(client, bufnr)
-      if client.name == "ruff" then
-        vim.api.nvim_buf_create_user_command(bufnr, "Format", function()
-          vim.lsp.buf.code_action {
-            context = {
-              only = { 'source.fixAll.ruff' }
-            },
-            apply = true,
-          }
-          vim.lsp.buf.format()
-        end, { desc = "Ruff: Apply all autofixable fixes" })
-      else
-        vim.api.nvim_buf_create_user_command(
-          bufnr,
-          'Format',
-          function(_)
+      vim.api.nvim_buf_create_user_command(
+        bufnr,
+        'Format',
+        function(_)
+          if client.name == "ruff" then
+            vim.lsp.buf.code_action {
+              context = {
+                only = { 'source.fixAll.ruff' }
+              },
+              apply = true,
+            }
+          end
+          if vim.bo.filetype ~= "markdown" then
             vim.lsp.buf.format()
-          end,
-          { desc = 'Format current buffer with LSP' }
-        )
-      end
+          end
+          conform.format()
+        end,
+        { desc = 'Format current buffer with LSP' }
+      )
 
       vim.keymap.set(
         'n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename symbol' }
@@ -48,12 +61,7 @@ return {
       )
     end
 
-    local mason = require("mason")
-    local mason_lspconfig = require('mason-lspconfig')
-    local lspconfig = require("lspconfig")
-
     mason.setup()
-    mason_lspconfig.setup()
 
     local servers = {
       clangd = {},
@@ -72,13 +80,13 @@ return {
       },
     }
 
+    mason_lspconfig.setup {
+      ensure_installed = vim.tbl_keys(servers)
+    }
+
     local capabilities = require('cmp_nvim_lsp').default_capabilities(
       vim.lsp.protocol.make_client_capabilities()
     )
-
-    mason_lspconfig.setup({
-      ensure_installed = vim.tbl_keys(servers),
-    })
 
     mason_lspconfig.setup_handlers {
       function(server_name)

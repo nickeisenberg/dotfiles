@@ -5,6 +5,7 @@ local without_yarn = {
   build = function() vim.fn["mkdp#util#install"]() end,
 }
 
+-- install yarn with `npm install -g yarn`
 local with_yarn = {
   "iamcco/markdown-preview.nvim",
   cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
