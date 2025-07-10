@@ -103,6 +103,9 @@ call plug#end()
 " plugin configs
 "--------------------------------------------------
 
+" coc.nvim setup
+nnoremap <silent> K :call CocActionAsync('doHover')<CR>
+
 " syntax highlighting
 "--------------------------------------------------
 let g:python_highlight_all = 1
