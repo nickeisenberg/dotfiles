@@ -19,6 +19,9 @@ alias l='ls -l --group-directories-first'
 
 export PATH="${HOME}/.local/bin:$PATH"
 
+SUDO_EDITOR=$(which vi)
+export SUDO_EDITOR
+
 # cuda paths
 export PATH="/usr/local/cuda-12.6/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH"
