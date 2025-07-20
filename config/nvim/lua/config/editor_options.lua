@@ -55,7 +55,7 @@ vim.diagnostic.config({
 --   }
 
 
-if vim.fn.has('wsl') == 1 then
+if vim.fn.has('wsl') == 1 and not (vim.env.SSH_CONNECTION or vim.env.SSH_CLIENT) then
   vim.g.clipboard = {
     name = 'WslClipboard',
     copy = {
