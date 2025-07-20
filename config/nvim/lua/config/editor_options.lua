@@ -38,8 +38,23 @@ vim.diagnostic.config({
   severity_sort = false,
 })
 
+-- Check if running over SSH or inside a remote terminal
+local is_ssh = vim.env.SSH_CONNECTION or vim.env.SSH_CLIENT
 
-if vim.fn.has('wsl') == 1 then
+if is_ssh then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    },
+  }
+
+elseif vim.fn.has('wsl') == 1 then
   vim.g.clipboard = {
     name = 'WslClipboard',
     copy = {
