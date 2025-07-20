@@ -3,6 +3,24 @@ vim.keymap.set("n", "<leader>bd", vim.cmd.bd)
 
 vim.keymap.set("v", "<leader>\"", 'c""<Esc>P', { noremap = true, silent = true })
 
+
+-- Check if running over SSH or inside a remote terminal
+local is_ssh = vim.env.SSH_CONNECTION or vim.env.SSH_CLIENT
+
+if is_ssh then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    },
+  }
+end
+
 -- Move to the bottom or top of the previous highlihgt
 vim.cmd([[nnoremap <leader>md `>]])
 vim.cmd([[nnoremap <leader>mu `<]])
