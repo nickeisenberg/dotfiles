@@ -1,8 +1,9 @@
 return {
   "mason-org/mason-lspconfig.nvim",
+  commit = "1a31f824b9cd5bc6f342fc29e9a53b60d74af245",
   opts = {},
   dependencies = {
-    "mason-org/mason.nvim",
+    { "mason-org/mason.nvim", commit = "fc98833b6da5de5a9c5b1446ac541577059555be" },
     "neovim/nvim-lspconfig",
     'hrsh7th/cmp-nvim-lsp',
     "stevearc/conform.nvim",
