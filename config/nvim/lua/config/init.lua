@@ -1,3 +1,3 @@
 require("config.keymaps")
-require("config.editor_options")
+require("config.options")
 require("config.commands")
