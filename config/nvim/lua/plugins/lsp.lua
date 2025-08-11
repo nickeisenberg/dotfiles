@@ -1,6 +1,6 @@
 return {
   'mason-org/mason.nvim',
-  dependencies = { 
+  dependencies = {
     'neovim/nvim-lspconfig',
     'mason-org/mason-lspconfig.nvim',
     'stevearc/conform.nvim',
