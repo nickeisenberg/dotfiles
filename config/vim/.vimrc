@@ -105,6 +105,10 @@ call plug#end()
 
 " coc.nvim setup
 nnoremap <silent> K :call CocActionAsync('doHover')<CR>
+nnoremap <leader>rn <Plug>(coc-rename)
+nnoremap <leader>gd <Plug>(coc-definition)
+command! -nargs=0 Format call CocAction('format')
+
 
 " syntax highlighting
 "--------------------------------------------------
