@@ -49,11 +49,9 @@ alias la='ls -AG'
 alias l='ls -CFlG'
 #--------------------------------------------------
 
-# From helpers.sh
-if [[ -d "$HOME/software" ]]; then
-    VENVMAN_ROOT_DIR=$HOME/.venvman
-    source_file "$HOME/.venvman/venvman/src/main.sh"
-fi
+VENVMAN_ROOT_DIR=$HOME/.venvman
+source "$HOME/.venvman/venvman/src/main.sh"
+
 #--------------------------------------------------
 
 PATH="${HOME}/.local/src/miniconda3/bin:${PATH}"
