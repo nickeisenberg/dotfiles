@@ -12,6 +12,7 @@ local with_yarn = {
   build = "cd app && yarn install",
   init = function()
     vim.g.mkdp_filetypes = { "markdown" }
+    vim.g.mkdp_port = '9001'
   end,
   ft = { "markdown" },
 }
