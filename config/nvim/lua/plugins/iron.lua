@@ -21,6 +21,7 @@ return {
             command = (OS == "Darwin") and { "ipython", "--no-autoindent" } or { "python3" },
             format = common.bracketed_paste_python,
             block_deviders = { "# %%", "#%%" },
+            env = {PYTHON_BASIC_REPL = "1"}
           },
           sh = { command = { vim.o.shell } },
           cpp = { command = { "cling", "-Iinclude" } }
