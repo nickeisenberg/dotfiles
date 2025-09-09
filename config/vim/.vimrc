@@ -107,6 +107,8 @@ call plug#end()
 nnoremap <silent> K :call CocActionAsync('doHover')<CR>
 nnoremap <leader>rn <Plug>(coc-rename)
 nnoremap <leader>gd <Plug>(coc-definition)
+nnoremap ]d <Plug>(coc-diagnostic-next)
+nnoremap [d <Plug>(coc-diagnostic-prev)
 command! -nargs=0 Format call CocAction('format')
 
 
