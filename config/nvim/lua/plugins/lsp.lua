@@ -1,7 +1,11 @@
 return {
   'mason-org/mason.nvim',
   dependencies = {
-    'neovim/nvim-lspconfig',
+    {  -- need to keep this or switch to vim.lsp.config
+      'neovim/nvim-lspconfig',
+      branch = 'master',
+      commit = '8b597f8fd1cf33e925f783a812ddcb81c5611a34'
+    },
     'mason-org/mason-lspconfig.nvim',
     'stevearc/conform.nvim',
     'hrsh7th/cmp-nvim-lsp',
