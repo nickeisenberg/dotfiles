@@ -47,7 +47,7 @@ return {
       end
       local debugpyPythonPath
       if not isWindowsOS() then
-        debugpyPythonPath = os.getenv("HOME") .. "/.venv311/debugpy/bin/python"
+        debugpyPythonPath = os.getenv("HOME") .. "/.sysvenv/venv/bin/python"
       else
         debugpyPythonPath = "C:\\Users\\nicke\\venvs\\debugpy\\Scripts\\python.exe"
       end

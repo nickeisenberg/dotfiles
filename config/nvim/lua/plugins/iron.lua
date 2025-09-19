@@ -12,6 +12,7 @@ return {
     iron.setup({
       config = {
         scratch_repl = true,
+        dap_integration = true,
         repl_open_cmd = {
           view.split.vertical.rightbelow("%40"),
           view.split.rightbelow("%25")
