@@ -19,7 +19,7 @@ alias l='ls -l --group-directories-first'
 
 export PATH="${HOME}/.local/bin:$PATH"
 
-SUDO_EDITOR=$(which vi)
+SUDO_EDITOR=$(which nvim)
 export SUDO_EDITOR
 
 # cuda paths
