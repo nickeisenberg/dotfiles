@@ -46,6 +46,8 @@ vim.keymap.set("n", "<leader>R", ":Lazy reload ")
 
 -- Easier save key
 vim.keymap.set("n", "<leader>w", "<ESC>:w <CR>")
+vim.keymap.set("n", "<leader>q", "<ESC>:q <CR>")
+vim.keymap.set("n", "<leader>Q", "<ESC>:q! <CR>")
 
 -- splits
 vim.keymap.set("n", "<leader>sv", ":vsplit <CR>")
