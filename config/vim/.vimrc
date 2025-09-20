@@ -49,6 +49,8 @@ nnoremap <leader>O :Ex<CR>
 " quick write
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>Q :q!<CR>
 
 "--------------------------------------------------
 
