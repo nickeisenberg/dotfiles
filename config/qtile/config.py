@@ -31,7 +31,7 @@ if alacrity_terminal:
 else:
     terminal = "gnome-terminal"
 
-browser = "firefox"
+browser = "google-chrome"
 # --------------------------------------------------
 # color setup
 # --------------------------------------------------
