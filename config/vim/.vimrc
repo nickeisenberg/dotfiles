@@ -147,6 +147,8 @@ let g:iron_keymaps = {
   \ "clear": "<leader>rc",
 \ }
 
+let g:iron_repl_debug_log = 1
+
 " vim-signify
 "--------------------------------------------------
 nnoremap <Leader>Sd :SignifyDiff<CR>

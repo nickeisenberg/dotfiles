@@ -18,6 +18,7 @@ return {
       bashls = { filetypes = { "sh", "zsh" } },
       sqlls = {},
       texlab = {},
+      vimls = {},
       marksman = {},
       html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },
       lua_ls = {
