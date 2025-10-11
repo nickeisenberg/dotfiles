@@ -1,5 +1,9 @@
 source "${HOME}/.bashrc"
 
+if [[ -f "${HOME}/.secrets.sh" ]]; then
+    source "${HOME}/.secrets.sh"
+fi
+
 get_git_branch() {
     if git --version > /dev/null; then
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
