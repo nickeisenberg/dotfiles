@@ -44,6 +44,13 @@ if python3.11 --version > /dev/null; then
 	export PATH="${HOME}/.sysvenv/venv/bin:$PATH"
 fi
 
+_pip_completion() {
+    COMPREPLY=( $( COMP_WORDS="${COMP_WORDS[*]}" \
+                   COMP_CWORD=$COMP_CWORD \
+                   PIP_AUTO_COMPLETE=1 $1 2>/dev/null ) )
+}
+complete -o default -F _pip_completion pip 2>/dev/null
+
 
 if [[ -f "${HOME}/.venvman/venvman/src/main.sh" ]]; then
 	source "${HOME}/.venvman/venvman/src/main.sh"
