@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+#----------
+# capslock to control
+#----------
+setxkbmap -option ctrl:nocaps &
+
+# picom --experimental-backends --backend glx --xrender-sync-fence &
+
+
+${HOME}/.config/qtile/scripts/battery-check &
+
+# natural scrolling
+xinput set-prop 11 "libinput Natural Scrolling Enabled" 1
+
+#----------
+# set up the dual monitor
+# Use xrandr --verbose to ge the monitor names
+#----------
+${HOME}/.config/qtile/scripts/refresh-monitors &

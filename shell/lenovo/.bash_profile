@@ -46,7 +46,8 @@ alias python='python3'
 #--------------------------------------------------
 # PATHS
 #--------------------------------------------------
-export PATH="/home/nicholas/.venvman/envs/3.12/system/bin:${PATH}"
+export PATH="${HOME}/.config/qtile/scripts:${PATH}"
+export PATH="${HOME}/.venvman/envs/3.12/system/bin:${PATH}"
 
 # cuda paths
 export PATH="/usr/local/cuda-12.6/bin:$PATH"
@@ -61,7 +62,7 @@ export NVM_DIR="$HOME/.local/src/nvm"
 . "$HOME/.cargo/env"
 
 # venvman
-source /home/nicholas/.venvman/venvman/src/main.sh
+source ${HOME}/.venvman/venvman/src/main.sh
 
 # default sys venv
 if [[ ! -f "${HOME}/.sysvenv/venv/bin/activate" ]]; then

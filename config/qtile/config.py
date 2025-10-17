@@ -551,4 +551,4 @@ wmname = "qtile"
 
 @hook.subscribe.startup_once
 def autostart():
-    subprocess.Popen("${HOME}/.config/qtile/scripts/autostart.sh", shell=True)
+    subprocess.Popen("${HOME}/.config/qtile/scripts/autostart", shell=True)
