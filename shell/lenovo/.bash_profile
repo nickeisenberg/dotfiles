@@ -8,6 +8,10 @@ source $HOME/dotfiles/scripts/dm.sh
 source $HOME/dotfiles/scripts/clipboard.sh
 #--------------------------------------------------
 
+if [[ -f "${HOME}/.local/src/geant4/geant4-11.3/install/bin/geant4.sh" ]]; then
+    source "${HOME}/.local/src/geant4/geant4-11.3/install/bin/geant4.sh"
+fi
+
 alias c="clear"
 alias ll='ls -alF --group-directories-first'
 alias l='ls -l --group-directories-first'
