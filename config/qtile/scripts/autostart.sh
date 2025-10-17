@@ -15,7 +15,10 @@ setxkbmap -option ctrl:nocaps &
 # xsetroot -solid '#191724'
 
 # vague
-xsetroot -solid '#141415'
+# xsetroot -solid '#141415'
+
+feh --bg-scale ${HOME}/.config/qtile/assets/house-on-river.jpg
+
 
 # nvim default
 # xsetroot -solid "#14161b"
