@@ -4,7 +4,6 @@ source $HOME/.bashrc
 # Some helpers
 #--------------------------------------------------
 source $HOME/dotfiles/scripts/helpers.sh
-source $HOME/dotfiles/scripts/dm.sh
 source $HOME/dotfiles/scripts/clipboard.sh
 #--------------------------------------------------
 
