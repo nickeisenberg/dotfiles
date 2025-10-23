@@ -5,7 +5,7 @@
 #----------
 setxkbmap -option ctrl:nocaps &
 
-# picom --experimental-backends --backend glx --xrender-sync-fence &
+picom --experimental-backends --backend glx --xrender-sync-fence &
 
 
 ${HOME}/.config/qtile/scripts/battery-check &
