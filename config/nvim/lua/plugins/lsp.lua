@@ -5,15 +5,42 @@ return {
     'mason-org/mason-lspconfig.nvim',
     'stevearc/conform.nvim',
     'hrsh7th/cmp-nvim-lsp',
+    'mfussenegger/nvim-lint',
   },
   config = function()
     local mason = require("mason")
     local mason_lspconfig = require('mason-lspconfig')
-    local lspconfig = require("lspconfig")
     local conform = require("conform")
+    local lint = require("lint")
+
+    local servers = {
+      clangd = {},
+      pyright = {},
+      ruff = {},
+      bashls = { filetypes = { "sh", "zsh" } },
+      sqlls = {},
+      texlab = {},
+      vimls = {},
+      marksman = {},
+      html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },
+      lua_ls = {
+        Lua = {
+          workspace = { checkThirdParty = false },
+          telemetry = { enable = false },
+        },
+      },
+    }
+
+    local server_names = {}
+    for name, _ in pairs(servers) do
+      table.insert(server_names, name)
+    end
 
     mason.setup()
-    mason_lspconfig.setup()
+    mason_lspconfig.setup({
+      ensure_installed = server_names
+    })
+
 
     conform.setup({
       log_level = vim.log.levels.DEBUG,
@@ -42,48 +69,30 @@ return {
         end,
         { desc = 'Format current buffer with LSP' }
       )
-
+    
       vim.keymap.set(
         'n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename symbol' }
       )
-
+    
       vim.keymap.set(
         'n', '<leader>gd', require('telescope.builtin').lsp_definitions,
         { buffer = bufnr, desc = '[G]oto [D]efinition' }
       )
-
+    
       vim.keymap.set(
         'n', '<leader>gr', require('telescope.builtin').lsp_references,
         { buffer = bufnr, desc = '[G]oto [D]efinition' }
       )
-
+    
       vim.keymap.set(
         'n', '<leader>gs', require('telescope.builtin').lsp_document_symbols,
         { buffer = bufnr, desc = '[D]ocument [S]ymbols' }
       )
     end
-
-    local servers = {
-      clangd = {},
-      pyright = {},
-      ruff = {},
-      bashls = { filetypes = { "sh", "zsh" } },
-      sqlls = {},
-      texlab = {},
-      marksman = {},
-      html = { filetypes = { 'html', 'twig', 'hbs', 'htmldjango' } },
-      lua_ls = {
-        Lua = {
-          workspace = { checkThirdParty = false },
-          telemetry = { enable = false },
-        },
-      },
-    }
-
+    
     local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
     for server_name, server_config in pairs(servers) do
-      lspconfig[server_name].setup({
+      vim.lsp.config(server_name, {
         capabilities = capabilities,
         on_attach = on_attach,
         settings = server_config,

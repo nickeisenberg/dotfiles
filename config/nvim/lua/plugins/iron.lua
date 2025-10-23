@@ -12,6 +12,7 @@ return {
     iron.setup({
       config = {
         scratch_repl = true,
+        dap_integration = true,
         repl_open_cmd = {
           view.split.vertical.rightbelow("%40"),
           view.split.rightbelow("%25")
@@ -23,7 +24,7 @@ return {
             block_deviders = { "# %%", "#%%" },
             env = {PYTHON_BASIC_REPL = "1"}
           },
-          sh = { command = { vim.o.shell } },
+          sh = { command = { "/bin/bash", "-l" } },
           cpp = { command = { "cling", "-Iinclude" } }
         },
         repl_filetype = function(_, ft)

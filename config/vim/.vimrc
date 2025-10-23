@@ -49,6 +49,8 @@ nnoremap <leader>O :Ex<CR>
 " quick write
 "--------------------------------------------------
 nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>Q :q!<CR>
 
 "--------------------------------------------------
 
@@ -145,6 +147,8 @@ let g:iron_keymaps = {
   \ "send_blank_line": "<leader><CR>",
   \ "clear": "<leader>rc",
 \ }
+
+let g:iron_repl_debug_log = 1
 
 " vim-signify
 "--------------------------------------------------

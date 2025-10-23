@@ -1,13 +1,16 @@
 import os
 import subprocess
+from shutil import which
 
-from libqtile import bar, widget, hook
+from libqtile import widget, hook
+from libqtile.bar import Bar
 from libqtile.layout.columns import Columns
 from libqtile.layout.xmonad import MonadTall
 from libqtile.layout.matrix import Matrix
 from libqtile.layout.floating import Floating
 from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
+
 from utils import (
     NvidiaSensors2,
     grow_up_floating_window,
@@ -22,16 +25,23 @@ from colors.vague import Colors
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-alacrity_terminal = subprocess.run(
-    "which alacritty", shell=True, stdout=subprocess.PIPE
-).stdout
-
-if alacrity_terminal:
+if which("alacritty"):
     terminal = "alacritty"
-else:
+elif which("gnome-terminal"):
     terminal = "gnome-terminal"
+else:
+    print("WARNING: A terminal was not set.")
+    terminal = ""
 
-browser = "firefox"
+
+if which("google-chrome"):
+    browser = "google-chrome"
+elif which("firefox"):
+    browser = "firefox"
+else:
+    print("WARNING: A browser was not set.")
+    browser = ""
+
 # --------------------------------------------------
 # color setup
 # --------------------------------------------------
@@ -503,7 +513,7 @@ mybar_dual_items = [
     widget.Spacer(),
 ]
 
-mybar = bar.Bar(
+mybar = Bar(
     mybar_items,
     size=widget_fontsize * 2,
     background=barcolor,
@@ -512,7 +522,7 @@ mybar = bar.Bar(
     border_color=barcolor,
 )
 
-mybar_dual = bar.Bar(
+mybar_dual = Bar(
     mybar_dual_items,
     25,
     background=barcolor,
@@ -551,4 +561,4 @@ wmname = "qtile"
 
 @hook.subscribe.startup_once
 def autostart():
-    subprocess.Popen("${HOME}/.config/qtile/scripts/autostart.sh", shell=True)
+    subprocess.Popen("${HOME}/.config/qtile/scripts/autostart", shell=True)
