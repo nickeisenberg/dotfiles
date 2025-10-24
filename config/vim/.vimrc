@@ -88,6 +88,7 @@ Plug 'vim-python/python-syntax'
 Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'wellle/context.vim'
+Plug 'jeetsukumaran/vim-pythonsense'
 
 " repl
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
