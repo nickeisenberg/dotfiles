@@ -511,6 +511,7 @@ mybar_dual_items = [
         background=widget_background,
     ),
     widget.Spacer(),
+    widget.Sep(background=barcolor, padding=10, linewidth=0),
 ]
 
 mybar = Bar(
