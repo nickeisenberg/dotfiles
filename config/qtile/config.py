@@ -320,7 +320,7 @@ layout_theme = {
     "border_focus": selected,
     "border_normal": widget_background,
     "single_border_width": 3,
-    "margin": 5,
+    "margin": 3,
 }
 
 layouts = [
