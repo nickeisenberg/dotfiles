@@ -1,4 +1,15 @@
 import subprocess
+
+try:
+    import iwlib
+
+except ImportError:
+    try:
+        _ = subprocess.run(["iw", "--help"], stdout=subprocess.DEVNULL)
+
+    except FileNotFoundError as e:
+        raise e
+
 from libqtile.log_utils import logger
 from libqtile.pangocffi import markup_escape_text
 from libqtile.widget import base
