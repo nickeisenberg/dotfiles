@@ -20,7 +20,7 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan_widget import Wlan
+from utils.wlan_widget3 import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
