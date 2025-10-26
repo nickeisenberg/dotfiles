@@ -1,6 +1,6 @@
 source $HOME/.bashrc
 
-if xclip -h > /dev/null; then
+if xclip -h > /dev/null 2>&1; then
     clipboard() {
         xclip -selection clipboard
     }
