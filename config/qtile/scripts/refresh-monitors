@@ -15,9 +15,6 @@ if [ "$MONITOR_STATUS" = "connected" ]; then
     xrandr --output ${PORT_NAME} --noprimary --above eDP-1
 fi
 
-#----------
-# Wallpaper
-#----------
 feh --no-fehbg --bg-scale ${HOME}/.config/qtile/assets/house-on-river.jpg
 
 # rosepint
