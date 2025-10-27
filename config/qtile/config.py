@@ -12,7 +12,7 @@ from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDow
 from libqtile.lazy import lazy
 
 from utils import (
-    NvidiaSensors2,
+    # NvidiaSensors2,
     grow_up_floating_window,
     grow_right_floating_window,
     grow_left_floating_window,
@@ -20,7 +20,7 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan_widget3 import Wlan
+# from utils.wlan_widget3 import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
@@ -371,14 +371,15 @@ mybar_items += [
     widget.Spacer(),
     main_group_box,
     widget.Sep(padding=20, foreground=barcolor),
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
-    ),
+    # widget.CurrentLayoutIcon(
+    #     foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
+    # ),
     widget.CurrentLayout(
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
         background=widget_background,
+        mode="both"
     ),
     widget.Spacer(),
     widget.TextBox(
@@ -389,15 +390,15 @@ mybar_items += [
         padding=0,
         fontsize=widget_fontsize,
     ),
-    NvidiaSensors2(
-        font=widget_font,
-        sensors=["memory.used"],
-        format="{memory_used}",
-        fontsize=widget_fontsize,
-        padding=5,
-        background=widget_background,
-        foreground=widget_text_color,
-    ),
+    # NvidiaSensors2(
+    #     font=widget_font,
+    #     sensors=["memory.used"],
+    #     format="{memory_used}",
+    #     fontsize=widget_fontsize,
+    #     padding=5,
+    #     background=widget_background,
+    #     foreground=widget_text_color,
+    # ),
     widget.TextBox(
         text="\u2502",
         foreground=widget_text_color,
@@ -457,8 +458,8 @@ mybar_items += [
         background=widget_background,
         padding=0,
     ),
-    # widget.Wlan(
-    Wlan(
+    widget.Wlan(
+    # Wlan(
         font=widget_font,
         fontsize=widget_fontsize,
         interface="wlp0s20f3",
@@ -504,13 +505,14 @@ mybar_dual_items = [
     ),
     widget.Spacer(),
     dual_group_box,
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
-    ),
+    # widget.CurrentLayoutIcon(
+    #     foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
+    # ),
     widget.CurrentLayout(
         fontsize=20,
         foreground=widget_text_color,
         background=widget_background,
+        mode="both"
     ),
     widget.Spacer(),
     widget.Sep(background=barcolor, padding=10, linewidth=0),

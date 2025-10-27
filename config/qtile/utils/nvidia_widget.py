@@ -144,5 +144,6 @@ class NvidiaSensors2(base.ThreadPoolText):
 
         except CalledProcessError as ex:    # Invalid sensor name
             return ex.stdout
+
         except Exception as ex:
             return str(ex) 
