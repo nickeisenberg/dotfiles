@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source ${HOME}/.bash_profile
+
 ## Author : Aditya Shakya (adi1090x)
 ## Github : @adi1090x
 #
@@ -55,7 +57,6 @@ confirm_exit() {
 # Pass variables to rofi dmenu
 run_rofi() {
 	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
-	# echo -e "$logout\n$reboot\n$shutdown\n$suspend" | rofi_cmd
 }
 
 # Execute Command
@@ -79,7 +80,7 @@ run_cmd() {
 				i3-msg exit
 			elif [[ "$DESKTOP_SESSION" == 'qtile' ]]; then
 				qtile cmd-obj -o cmd -f shutdown
-			elif [[ "$DESKTOP_SESSION" == 'qtile-wayland' ]]; then
+			elif [[ "$DESKTOP_SESSION" == *'qtile'* ]]; then
 				qtile cmd-obj -o cmd -f shutdown
 			elif [[ "$DESKTOP_SESSION" == 'plasma' ]]; then
 	 			qdbus org.kde.ksmserver /KSMServer logout 0 0 0

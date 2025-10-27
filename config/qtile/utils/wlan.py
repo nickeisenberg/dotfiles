@@ -1,19 +1,29 @@
+import re
 import subprocess
-
-try:
-    import iwlib
-    _IW_BACKEND = "iwlib"
-except ImportError:
-    try:
-        _ = subprocess.run(["iw", "--help"], stdout=subprocess.DEVNULL)
-        _IW_BACKEND = "iw"
-
-    except FileNotFoundError as e:
-        raise e
 
 from libqtile.log_utils import logger
 from libqtile.pangocffi import markup_escape_text
 from libqtile.widget import base
+
+_IW_BACKEND = None
+try:
+    import iwlib
+
+    _IW_BACKEND = "iwlib"
+
+except ImportError:
+    pass
+
+if _IW_BACKEND is None:
+    try:
+        _ = subprocess.run(["iw", "--help"], stdout=subprocess.DEVNULL)
+        _IW_BACKEND = "iw"
+
+    except FileNotFoundError:
+        pass
+
+if _IW_BACKEND is None:
+    logger.exception("Both iwlib could not be imported and iw could not be found in PATH.")
 
 
 def _get_status_from_iwlib(interface_name: str):
@@ -26,7 +36,6 @@ def _get_status_from_iwlib(interface_name: str):
 
 
 def _get_status_from_iw(interface_name: str):
-    """Return ESSID and signal strength (0–100%) using `iw`, scaled linearly from -100 to -30 dBm."""
     try:
         result = subprocess.run(
             ["iw", "dev", interface_name, "link"],
@@ -45,15 +54,28 @@ def _get_status_from_iw(interface_name: str):
     essid, quality = None, None
     for line in output.splitlines():
         line = line.strip()
+
         if line.startswith("SSID:"):
             essid = line.split("SSID:")[1].strip()
+
         elif line.startswith("signal:"):
             quality = int(line.split()[1])
+
+            match = re.search(r"signal:\s*(-?\d+)", line)
+            if match:
+                quality = int(match.group(1))
+
+            if quality < 0:
+                quality *= -1
 
     if essid is None or quality is None:
         return None, None
 
     return essid, quality
+
+
+def _get_status_from_none(*_, **__):
+    return "N/A", "N/A"
 
 
 def get_status(interface_name: str):
@@ -62,7 +84,7 @@ def get_status(interface_name: str):
     elif _IW_BACKEND == "iw":
         return _get_status_from_iw(interface_name)
     else:
-        raise ValueError(f"Unknown IW_BACKEND: {_IW_BACKEND}")
+        return _get_status_from_none(interface_name)
 
 
 def get_private_ip(interface_name):
@@ -169,4 +191,3 @@ class Wlan(base.InLoopPollText):
                 "Probably your wlan device is switched off or "
                 " otherwise not present in your system."
             )
-

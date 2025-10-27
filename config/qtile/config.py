@@ -21,7 +21,7 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan_widget import Wlan
+from utils.wlan import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
@@ -112,6 +112,12 @@ keys = [
         "q",
         lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")),
         desc="Launch the Rofi file explorer",
+    ),
+    Key(
+        [mod0, "control"],
+        "t",
+        lazy.spawn("/home/nicholas/test.sh"),
+        desc="testing",
     ),
     Key(
         [mod1, "shift"],
