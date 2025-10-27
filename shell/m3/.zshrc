@@ -1,10 +1,3 @@
-#-------------------------------------------------- 
-# Some helpers
-#-------------------------------------------------- 
-source $HOME/dotfiles/scripts/helpers.sh
-source $HOME/dotfiles/scripts/dm.sh
-#-------------------------------------------------- 
-
 autoload -Uz compinit
 compinit
 
