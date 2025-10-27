@@ -24,6 +24,7 @@ program = "/bin/bash"
 opacity = 1
 
 [general]
+# import = ["~/.config/alacritty/vague.toml"]
 import = ["~/.config/alacritty/vague.toml"]
 
 [terminal]
