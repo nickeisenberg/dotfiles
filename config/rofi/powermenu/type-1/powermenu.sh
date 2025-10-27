@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-source ${HOME}/.bash_profile
-
 ## Author : Aditya Shakya (adi1090x)
 ## Github : @adi1090x
 #
