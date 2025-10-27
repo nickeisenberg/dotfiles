@@ -1,7 +1,6 @@
 import os
 import subprocess
 from shutil import which
-
 from libqtile import widget, hook
 from libqtile.bar import Bar
 from libqtile.layout.columns import Columns
@@ -10,7 +9,6 @@ from libqtile.layout.matrix import Matrix
 from libqtile.layout.floating import Floating
 from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
-from libqtile.backend.wayland.inputs import InputConfig
 
 from utils import (
     NvidiaSensors2,
@@ -559,12 +557,12 @@ focus_on_window_activation = "smart"
 reconfigure_screens = True
 auto_minimize = True
 
-# When using the Wayland backend, this can be used to configure input devices.
 xdg_session_type = os.getenv("XDG_SESSION_TYPE")
 if xdg_session_type == "x11":
     wl_input_rules = None
 
 elif xdg_session_type == "wayland":
+    from libqtile.backend.wayland.inputs import InputConfig
     wl_input_rules = {
         "type:keyboard": InputConfig(kb_options="ctrl:nocaps"),
     }
@@ -572,6 +570,7 @@ else:
     print("WARNING: XDG_SESSION_TYPE was not set")
 
 wmname = "qtile"
+
 
 @hook.subscribe.startup_once
 def autostart():
