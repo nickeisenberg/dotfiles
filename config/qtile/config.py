@@ -10,7 +10,7 @@ from libqtile.layout.matrix import Matrix
 from libqtile.layout.floating import Floating
 from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
-from libqtile.backend.wayland import InputConfig
+from libqtile.backend.wayland.inputs import InputConfig
 
 from utils import (
     NvidiaSensors2,
@@ -21,7 +21,7 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan_widget3 import Wlan
+from utils.wlan_widget import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
