@@ -371,10 +371,8 @@ mybar_items += [
     widget.Spacer(),
     main_group_box,
     widget.Sep(padding=20, foreground=barcolor),
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
-    ),
     widget.CurrentLayout(
+        mode="both",
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
@@ -504,10 +502,8 @@ mybar_dual_items = [
     ),
     widget.Spacer(),
     dual_group_box,
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
-    ),
     widget.CurrentLayout(
+        mode="both",
         fontsize=20,
         foreground=widget_text_color,
         background=widget_background,
