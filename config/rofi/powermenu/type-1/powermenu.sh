@@ -105,6 +105,8 @@ case ${chosen} in
         		betterlockscreen -l
         	elif [[ -x '/usr/bin/i3lock' ]]; then
         		i3lock -c 000000
+        	elif [[ -x '/usr/local/bin/gtklock' ]]; then
+				gtklock
         	fi
         ;;
     $suspend)
