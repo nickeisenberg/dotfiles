@@ -1,5 +1,5 @@
 import os
-import subprocess
+
 from shutil import which
 from libqtile import widget, hook
 from libqtile.bar import Bar
@@ -563,6 +563,7 @@ if xdg_session_type == "x11":
 
 elif xdg_session_type == "wayland":
     from libqtile.backend.wayland.inputs import InputConfig
+
     wl_input_rules = {
         "type:keyboard": InputConfig(kb_options="ctrl:nocaps"),
     }

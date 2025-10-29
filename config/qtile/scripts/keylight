@@ -6,19 +6,20 @@
 import os
 import subprocess
 
+
 class KeyLight:
     def __init__(self):
         self.brightness_files = {
             "thinkpad": {
                 "current": "/sys/class/leds/tpacpi::kbd_backlight/brightness",
-                "max": "/sys/class/leds/tpacpi::kbd_backlight/max_brightness"
+                "max": "/sys/class/leds/tpacpi::kbd_backlight/max_brightness",
             },
         }
 
         self._host = None
         self._max_brightness = None
         self._current_brightness = None
-    
+
     @property
     def host(self):
         if self._host is not None:
@@ -26,7 +27,7 @@ class KeyLight:
         # TODO: fix this
         self._host = "thinkpad"
         return self._host
-    
+
     @property
     def max_brightness(self):
         if self._max_brightness is not None:
@@ -38,11 +39,15 @@ class KeyLight:
         if not os.path.isfile(file):
             raise FileNotFoundError(f"Cant find {file}")
 
-        max_brightness = subprocess.run(
-            f"cat {file}", 
-            shell=True,
-            stdout=subprocess.PIPE,
-        ).stdout.decode().strip()
+        max_brightness = (
+            subprocess.run(
+                f"cat {file}",
+                shell=True,
+                stdout=subprocess.PIPE,
+            )
+            .stdout.decode()
+            .strip()
+        )
 
         try:
             max_brightness = int(max_brightness)
@@ -51,7 +56,7 @@ class KeyLight:
 
         self._max_brightness = max_brightness
         return self._max_brightness
-    
+
     @property
     def current_brightness(self):
         if self._current_brightness is not None:
@@ -63,18 +68,22 @@ class KeyLight:
         if not os.path.isfile(file):
             raise FileNotFoundError(f"Cant find {file}")
 
-        current_brightness = subprocess.run(
-            f"cat {file}", 
-            shell=True,
-            stdout=subprocess.PIPE,
-        ).stdout.decode().strip()
+        current_brightness = (
+            subprocess.run(
+                f"cat {file}",
+                shell=True,
+                stdout=subprocess.PIPE,
+            )
+            .stdout.decode()
+            .strip()
+        )
 
         try:
             current_brightness = int(current_brightness)
         except Exception as e:
             raise e
 
-        self._current_brightness = current_brightness 
+        self._current_brightness = current_brightness
         return self._current_brightness
 
     def set(self, value: int):
@@ -83,16 +92,14 @@ class KeyLight:
 
         if value < 0:
             value = 0
-    
+
         host = self.host
         file = self.brightness_files[host]["current"]
-        
+
         result = subprocess.run(
-            f"echo {value} | sudo tee {file}", 
-            shell=True,
-            stdout=subprocess.PIPE
+            f"echo {value} | sudo tee {file}", shell=True, stdout=subprocess.PIPE
         )
-        
+
         if result.returncode == 0:
             self._current_brightness = value
         else:
@@ -103,8 +110,10 @@ class KeyLight:
     def increment(self, value: int):
         self.set(self.current_brightness + value)
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Control ThinkPad keyboard backlight.")
     parser.add_argument("value", type=int, help="Brightness increment or value to set")
     args = parser.parse_args()
