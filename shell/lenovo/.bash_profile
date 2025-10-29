@@ -51,8 +51,13 @@ export PATH="${HOME}/.venvman/envs/3.12/system/bin:${PATH}"
 #--------------------------------------------------
 
 # cuda paths
-export PATH="/usr/local/cuda-12.6/bin:$PATH"
-export LD_LIBRARY_PATH="/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH"
+if [[ $(uname -n) == "fedora" ]]; then
+	export PATH="/usr/local/cuda-13.0/bin:${PATH}"
+	export LD_LIBRARY_PATH="/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH"
+else
+	export PATH="/usr/local/cuda-12.6/bin:$PATH"
+	export LD_LIBRARY_PATH="/usr/local/cuda-12.6/lib64:$LD_LIBRARY_PATH"
+fi
 
 # nvm paths
 export NVM_DIR="$HOME/.local/src/nvm"
