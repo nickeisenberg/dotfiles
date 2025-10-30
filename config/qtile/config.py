@@ -96,6 +96,12 @@ keys = [
         lazy.spawn(f"{browser} --new-window https://chat.openai.com/"),
         desc="Launch ChatGPT",
     ),
+    Key(
+        [mod0],
+        "c",
+        lazy.spawn(f"{browser} --new-window https://teams.microsoft.com/v2/"),
+        desc="Launch ChatGPT",
+    ),
     Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod0], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload config"),
