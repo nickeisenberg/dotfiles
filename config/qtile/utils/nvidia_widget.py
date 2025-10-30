@@ -7,13 +7,20 @@ NvidiaSensors2().poll below. The change is a "cheap fix" but it is good enough
 for now.
 """
 
-
 import csv
 import re
 from subprocess import CalledProcessError
 from libqtile.widget import base
 
-class NvidiaSensors2(base.ThreadPoolText):
+try:
+    parent = base.ThreadPoolText
+except Exception as e:
+    try:
+        parent = base.BackgroundPoll
+    except Exception as e:
+        raise e
+
+class NvidiaSensors2(parent):
     """
     Displays arbitrary sensor data from Nvidia GPU(s).
     Not backwards-compatible with ``libqtile.widget.NvidiaSensors``.
@@ -70,7 +77,7 @@ class NvidiaSensors2(base.ThreadPoolText):
     ]
 
     def __init__(self, **config):
-        base.ThreadPoolText.__init__(self, "", **config)
+        parent.__init__(self, "", **config)
         self.add_defaults(NvidiaSensors2.defaults)
         self.foreground_normal = self.foreground
 

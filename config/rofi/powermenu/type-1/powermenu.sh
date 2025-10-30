@@ -55,7 +55,6 @@ confirm_exit() {
 # Pass variables to rofi dmenu
 run_rofi() {
 	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
-	# echo -e "$logout\n$reboot\n$shutdown\n$suspend" | rofi_cmd
 }
 
 # Execute Command
@@ -78,6 +77,8 @@ run_cmd() {
 			elif [[ "$DESKTOP_SESSION" == 'i3' ]]; then
 				i3-msg exit
 			elif [[ "$DESKTOP_SESSION" == 'qtile' ]]; then
+				qtile cmd-obj -o cmd -f shutdown
+			elif [[ "$DESKTOP_SESSION" == *'qtile'* ]]; then
 				qtile cmd-obj -o cmd -f shutdown
 			elif [[ "$DESKTOP_SESSION" == 'plasma' ]]; then
 	 			qdbus org.kde.ksmserver /KSMServer logout 0 0 0
@@ -104,6 +105,8 @@ case ${chosen} in
         		betterlockscreen -l
         	elif [[ -x '/usr/bin/i3lock' ]]; then
         		i3lock -c 000000
+        	elif [[ -x '/usr/local/bin/gtklock' ]]; then
+				gtklock
         	fi
         ;;
     $suspend)
