@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from shutil import which
 from libqtile import widget, hook
