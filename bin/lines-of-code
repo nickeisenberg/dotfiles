@@ -17,6 +17,12 @@ def count_lines_in_dirs(directories: list[Path], extensions: list[str], verbose:
     totals = {}
     grand_total = 0
 
+    for i, ext in enumerate(extensions):
+        if not ext.startswith("."):
+            ext = "." + ext
+            _ = extensions.pop(i)
+            extensions.append(ext)
+
     for root in directories:
         root = root.resolve()
         if not root.exists():
@@ -49,7 +55,7 @@ def main():
         "-t", "--types",
         nargs="+",
         default=[],
-        help="File types to include (e.g. .py .js .cpp). Leave empty for all.",
+        help="File types to include (e.g. py js cpp). Leave empty for all.",
     )
     parser.add_argument(
         "-v", "--verbose",
