@@ -1,5 +1,9 @@
 source "${HOME}/.bashrc"
 
+if [[ -f "${HOME}/codebase/apps/data-getter-cli/main.sh" ]]; then
+    source "${HOME}/codebase/apps/data-getter-cli/main.sh"
+fi
+
 if [[ -f "${HOME}/.secrets.sh" ]]; then
     source "${HOME}/.secrets.sh"
 fi
