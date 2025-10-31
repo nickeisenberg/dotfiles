@@ -23,7 +23,9 @@ if _IW_BACKEND is None:
         pass
 
 if _IW_BACKEND is None:
-    logger.exception("Both iwlib could not be imported and iw could not be found in PATH.")
+    logger.exception(
+        "Both iwlib could not be imported and iw could not be found in PATH."
+    )
 
 
 def _get_status_from_iwlib(interface_name: str):
@@ -56,20 +58,25 @@ def _get_status_from_iw(interface_name: str):
         line = line.strip()
 
         if line.startswith("SSID:"):
-            essid = line.split("SSID:")[1].strip()
+            essid_match = re.search(r"SSID:\s*(.*)", line)
+            if essid_match:
+                essid = essid_match.group(1)
 
         elif line.startswith("signal:"):
-            quality = int(line.split()[1])
+            signal_match = re.search(r"signal:\s*(-?\d+)", line)
+            if signal_match:
+                quality = int(signal_match.group(1))
+                quality *= -1 if quality < 0 else 1
 
-            match = re.search(r"signal:\s*(-?\d+)", line)
-            if match:
-                quality = int(match.group(1))
+    if essid is None:
+        logger.exception(
+            f"SSID could not be determined from `iw dev {interface_name}` link"
+        )
 
-            if quality < 0:
-                quality *= -1
-
-    if essid is None or quality is None:
-        return None, None
+    if quality is None:
+        logger.exception(
+            f"signal could not be determined from `iw dev {interface_name}` link"
+        )
 
     return essid, quality
 
@@ -92,7 +99,6 @@ def _get_status_from_nmcli(interface_name: str):
             assert len(parts) == 3
 
             active, ssid, signal = parts[0], parts[1], parts[2]
-
 
             if active == "yes" and ssid:
                 return ssid, int(signal)
@@ -158,7 +164,11 @@ class Wlan(base.InLoopPollText):
             "The ethernet interface to monitor, NOTE: If you do not have a wlan device in your system, ethernet functionality will not work, use the Net widget instead",
         ),
         ("update_interval", 1, "The update interval."),
-        ("disconnected_message", "Disconnected", "String to show when the wlan is diconnected."),
+        (
+            "disconnected_message",
+            "Disconnected",
+            "String to show when the wlan is diconnected.",
+        ),
         (
             "ethernet_message_format",
             "eth",
@@ -201,7 +211,9 @@ class Wlan(base.InLoopPollText):
                             f"/sys/class/net/{self.ethernet_interface}/operstate"
                         ) as statfile:
                             if statfile.read().strip() == "up":
-                                return self.ethernet_message_format.format(ipaddr=ipaddr)
+                                return self.ethernet_message_format.format(
+                                    ipaddr=ipaddr
+                                )
                             else:
                                 return self.disconnected_message
                     except FileNotFoundError:
