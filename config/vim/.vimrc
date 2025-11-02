@@ -3,6 +3,7 @@ let mapleader = ' '
 " settings and maps
 "--------------------------------------------------
 set tabstop=4
+set expandtab
 set shiftwidth=4
 set foldmethod=indent
 set autoindent

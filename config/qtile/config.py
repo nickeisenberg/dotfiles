@@ -20,7 +20,9 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan import Wlan
+
+# from utils.wlan import Wlan
+from libqtile.widget.wlan import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt

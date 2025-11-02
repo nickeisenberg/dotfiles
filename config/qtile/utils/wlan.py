@@ -81,34 +81,6 @@ def _get_status_from_iw(interface_name: str):
     return essid, quality
 
 
-def _get_status_from_nmcli(interface_name: str):
-    try:
-        result = subprocess.run(
-            ["nmcli", "-f", "ACTIVE,SSID,SIGNAL", "dev", "wifi"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-    except Exception:
-        return None, None
-
-    for line in result.stdout.splitlines():
-        parts = line.split()
-        try:
-            assert len(parts) == 3
-
-            active, ssid, signal = parts[0], parts[1], parts[2]
-
-            if active == "yes" and ssid:
-                return ssid, int(signal)
-
-        except Exception:
-            continue
-
-    return None, None
-
-
 def _get_status_from_none(*_, **__):
     return "N/A", "N/A"
 
@@ -214,6 +186,7 @@ class Wlan(base.InLoopPollText):
                                 return self.ethernet_message_format.format(
                                     ipaddr=ipaddr
                                 )
+
                             else:
                                 return self.disconnected_message
                     except FileNotFoundError:
