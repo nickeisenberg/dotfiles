@@ -23,7 +23,9 @@ if _IW_BACKEND is None:
         pass
 
 if _IW_BACKEND is None:
-    logger.exception("Both iwlib could not be imported and iw could not be found in PATH.")
+    logger.exception(
+        "Both iwlib could not be imported and iw could not be found in PATH."
+    )
 
 
 def _get_status_from_iwlib(interface_name: str):
@@ -64,6 +66,7 @@ def _get_status_from_iw(interface_name: str):
             signal_match = re.search(r"signal:\s*(-?\d+)", line)
             if signal_match:
                 signal = int(signal_match.group(1))
+                # see: https://superuser.com/questions/866005/wireless-connection-link-quality-what-does-31-70-indicate
                 quality_percent = (signal + 110) * 10 / 7 # = quality / 70 * 100
                 quality = quality_percent / 100 * 70
 
@@ -129,7 +132,11 @@ class Wlan(base.InLoopPollText):
             "The ethernet interface to monitor, NOTE: If you do not have a wlan device in your system, ethernet functionality will not work, use the Net widget instead",
         ),
         ("update_interval", 1, "The update interval."),
-        ("disconnected_message", "Disconnected", "String to show when the wlan is diconnected."),
+        (
+            "disconnected_message",
+            "Disconnected",
+            "String to show when the wlan is diconnected.",
+        ),
         (
             "ethernet_message_format",
             "eth",
@@ -172,7 +179,9 @@ class Wlan(base.InLoopPollText):
                             f"/sys/class/net/{self.ethernet_interface}/operstate"
                         ) as statfile:
                             if statfile.read().strip() == "up":
-                                return self.ethernet_message_format.format(ipaddr=ipaddr)
+                                return self.ethernet_message_format.format(
+                                    ipaddr=ipaddr
+                                )
                             else:
                                 return self.disconnected_message
                     except FileNotFoundError:
