@@ -56,51 +56,24 @@ def _get_status_from_iw(interface_name: str):
         line = line.strip()
 
         if line.startswith("SSID:"):
-            essid = line.split("SSID:")[1].strip()
+            essid_match = re.search(r"SSID:\s*(.*)", line)
+            if essid_match:
+                essid = essid_match.group(1)
 
         elif line.startswith("signal:"):
-            quality = int(line.split()[1])
+            signal_match = re.search(r"signal:\s*(-?\d+)", line)
+            if signal_match:
+                signal = int(signal_match.group(1))
+                quality_percent = (signal + 110) * 10 / 7 # = quality / 70 * 100
+                quality = quality_percent / 100 * 70
 
-            match = re.search(r"signal:\s*(-?\d+)", line)
-            if match:
-                quality = int(match.group(1))
+    if essid is None:
+        logger.exception(f"SSID could not be determined from `iw dev {interface_name}` link")
 
-            if quality < 0:
-                quality *= -1
-
-    if essid is None or quality is None:
-        return None, None
+    if quality is None:
+        logger.exception(f"signal could not be determined from `iw dev {interface_name}` link")
 
     return essid, quality
-
-
-def _get_status_from_nmcli(interface_name: str):
-    try:
-        result = subprocess.run(
-            ["nmcli", "-f", "ACTIVE,SSID,SIGNAL", "dev", "wifi"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-
-    except Exception:
-        return None, None
-
-    for line in result.stdout.splitlines():
-        parts = line.split()
-        try:
-            assert len(parts) == 3
-
-            active, ssid, signal = parts[0], parts[1], parts[2]
-
-
-            if active == "yes" and ssid:
-                return ssid, int(signal)
-
-        except Exception:
-            continue
-
-    return None, None
 
 
 def _get_status_from_none(*_, **__):
@@ -112,8 +85,6 @@ def get_status(interface_name: str):
         return _get_status_from_iwlib(interface_name)
     elif _IW_BACKEND == "iw":
         return _get_status_from_iw(interface_name)
-    elif _IW_BACKEND == "nmcli":
-        return _get_status_from_nmcli(interface_name)
     else:
         return _get_status_from_none(interface_name)
 
