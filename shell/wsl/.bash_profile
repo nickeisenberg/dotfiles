@@ -4,6 +4,18 @@ if [[ -f "${HOME}/.secrets.sh" ]]; then
     source "${HOME}/.secrets.sh"
 fi
 
+if [[ -f "${HOME}/.local/src/geant4/geant4-11.3/install/bin/geant4.sh" ]]; then
+    source "${HOME}/.local/src/geant4/geant4-11.3/install/bin/geant4.sh"
+fi
+
+if [[ -f "${HOME}/codebase/apps/data-getter-cli/main.sh" ]]; then
+    source "${HOME}/codebase/apps/data-getter-cli/main.sh"
+fi
+
+if [[ -f "${HOME}/casual/codebase/apps/data-getter-cli/main.sh" ]]; then
+    source "${HOME}/casual/codebase/apps/data-getter-cli/main.sh"
+fi
+
 get_git_branch() {
     if git --version > /dev/null; then
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'

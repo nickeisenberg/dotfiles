@@ -43,6 +43,8 @@ return {
       log_level = vim.log.levels.DEBUG,
       formatters_by_ft = {
         markdown = { "prettier", "mdformat" },
+        cpp = { "clang_format" },
+        c = { "clang_format" }
       }
     })
 
@@ -66,27 +68,27 @@ return {
         end,
         { desc = 'Format current buffer with LSP' }
       )
-    
+
       vim.keymap.set(
         'n', '<leader>rn', vim.lsp.buf.rename, { desc = 'LSP: Rename symbol' }
       )
-    
+
       vim.keymap.set(
         'n', '<leader>gd', require('telescope.builtin').lsp_definitions,
         { buffer = bufnr, desc = '[G]oto [D]efinition' }
       )
-    
+
       vim.keymap.set(
         'n', '<leader>gr', require('telescope.builtin').lsp_references,
         { buffer = bufnr, desc = '[G]oto [D]efinition' }
       )
-    
+
       vim.keymap.set(
         'n', '<leader>gs', require('telescope.builtin').lsp_document_symbols,
         { buffer = bufnr, desc = '[D]ocument [S]ymbols' }
       )
     end
-    
+
     local capabilities = require('cmp_nvim_lsp').default_capabilities()
     for server_name, server_config in pairs(servers) do
       vim.lsp.config(server_name, {

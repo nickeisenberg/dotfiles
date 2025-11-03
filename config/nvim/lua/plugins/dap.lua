@@ -1,6 +1,8 @@
 return {
   {
     "mfussenegger/nvim-dap",
+    branch = "master",
+    commit = "7367cec8e8f7a0b1e4566af9a7ef5959d11206a7",
 	  keys = {
 	  	{
 	  		"<leader>dc",
@@ -24,6 +26,8 @@ return {
 
   {
     "rcarriga/nvim-dap-ui",
+    branch = "master",
+    commit ="cf91d5e2d07c72903d052f5207511bf7ecdb7122",
     dependencies = {
       "mfussenegger/nvim-dap",
       "nvim-neotest/nvim-nio"
@@ -40,6 +44,8 @@ return {
 
   {
     "mfussenegger/nvim-dap-python",
+    branch = "master",
+    commit = "bfe572e4458e0ac876b9539a1e9f301c72db8ea0",
     dependencies = "mfussenegger/nvim-dap",
     config = function()
       local function isWindowsOS()
