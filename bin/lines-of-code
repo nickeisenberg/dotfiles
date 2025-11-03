@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+
+import argparse
+from pathlib import Path
+
+def count_lines_in_file(file_path: Path) -> int:
+    """Count non-empty lines in a given file."""
+    try:
+        with file_path.open("r", encoding="utf-8", errors="ignore") as f:
+            return sum(1 for line in f if line.strip())
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+        return 0
+
+
+def count_lines_in_dirs(directories: list[Path], extensions: list[str], verbose: bool):
+    totals = {}
+    grand_total = 0
+
+    for i, ext in enumerate(extensions):
+        if not ext.startswith("."):
+            ext = "." + ext
+            _ = extensions.pop(i)
+            extensions.append(ext)
+
+    for root in directories:
+        root = root.resolve()
+        if not root.exists():
+            print(f"Warning: {root} does not exist — skipping.")
+            continue
+
+        print(f"\nScanning {root}...")
+        for path in root.rglob("*"):
+            if path.is_file() and (not extensions or path.suffix in extensions):
+                count = count_lines_in_file(path)
+                ext = path.suffix or "NO_EXT"
+                totals[ext] = totals.get(ext, 0) + count
+                grand_total += count
+                if verbose:
+                    print(f"{path.relative_to(root)}: {count}")
+
+    return totals, grand_total
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Count lines of code in one or more directories.")
+    parser.add_argument(
+        "directories",
+        nargs="*",
+        type=str,
+        default=["."],
+        help="One or more directories to scan (default: current directory).",
+    )
+    parser.add_argument(
+        "-t", "--types",
+        nargs="+",
+        default=[],
+        help="File types to include (e.g. py js cpp). Leave empty for all.",
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Print per-file line counts.",
+    )
+
+    args = parser.parse_args()
+    dirs = [Path(d) for d in args.directories]
+
+    print(f"Counting lines in: {', '.join(str(d) for d in dirs)}")
+    if args.types:
+        print(f"File types: {', '.join(args.types)}")
+
+    totals, grand_total = count_lines_in_dirs(dirs, args.types, args.verbose)
+
+    print("\nSummary:")
+    for ext, total in sorted(totals.items(), key=lambda x: -x[1]):
+        print(f"{ext or '(no ext)'}: {total} lines")
+    print(f"\nTotal: {grand_total} lines")
+
+
+if __name__ == "__main__":
+    main()

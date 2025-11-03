@@ -1,4 +1,4 @@
-return {
+local M = {
   {
     "mfussenegger/nvim-dap",
     branch = "master",
@@ -61,3 +61,5 @@ return {
     end,
   }
 }
+
+return {}

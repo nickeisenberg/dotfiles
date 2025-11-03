@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+nohup swaybg -i "${HOME}/.config/qtile/assets/house-on-river.jpg" -m fill >/dev/null 2>&1 &

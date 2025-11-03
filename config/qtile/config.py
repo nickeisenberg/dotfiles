@@ -1,13 +1,16 @@
 import os
 import subprocess
 
-from libqtile import bar, widget, hook
+from shutil import which
+from libqtile import widget, hook
+from libqtile.bar import Bar
 from libqtile.layout.columns import Columns
 from libqtile.layout.xmonad import MonadTall
 from libqtile.layout.matrix import Matrix
 from libqtile.layout.floating import Floating
 from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
 from libqtile.lazy import lazy
+
 from utils import (
     NvidiaSensors2,
     grow_up_floating_window,
@@ -17,21 +20,29 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
+from utils.wlan import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-alacrity_terminal = subprocess.run(
-    "which alacritty", shell=True, stdout=subprocess.PIPE
-).stdout
-
-if alacrity_terminal:
+if which("alacritty"):
     terminal = "alacritty"
-else:
+elif which("gnome-terminal"):
     terminal = "gnome-terminal"
+else:
+    print("WARNING: A terminal was not set.")
+    terminal = ""
 
-browser = "google-chrome"
+
+if which("google-chrome"):
+    browser = "google-chrome"
+elif which("firefox"):
+    browser = "firefox"
+else:
+    print("WARNING: A browser was not set.")
+    browser = ""
+
 # --------------------------------------------------
 # color setup
 # --------------------------------------------------
@@ -86,6 +97,12 @@ keys = [
         lazy.spawn(f"{browser} --new-window https://chat.openai.com/"),
         desc="Launch ChatGPT",
     ),
+    Key(
+        [mod0],
+        "c",
+        lazy.spawn(f"{browser} --new-window https://teams.microsoft.com/v2/"),
+        desc="Launch ChatGPT",
+    ),
     Key([mod0], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod0], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod0, "control"], "r", lazy.reload_config(), desc="Reload config"),
@@ -100,6 +117,12 @@ keys = [
         "q",
         lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")),
         desc="Launch the Rofi file explorer",
+    ),
+    Key(
+        [mod0, "control"],
+        "t",
+        lazy.spawn("/home/nicholas/test.sh"),
+        desc="testing",
     ),
     Key(
         [mod1, "shift"],
@@ -310,7 +333,7 @@ layout_theme = {
     "border_focus": selected,
     "border_normal": widget_background,
     "single_border_width": 3,
-    "margin": 5,
+    "margin": 3,
 }
 
 layouts = [
@@ -360,10 +383,8 @@ mybar_items += [
     widget.Spacer(),
     main_group_box,
     widget.Sep(padding=20, foreground=barcolor),
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
-    ),
     widget.CurrentLayout(
+        mode="both",
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
@@ -446,7 +467,8 @@ mybar_items += [
         background=widget_background,
         padding=0,
     ),
-    widget.Wlan(
+    # widget.Wlan(
+    Wlan(
         font=widget_font,
         fontsize=widget_fontsize,
         interface="wlp0s20f3",
@@ -492,18 +514,17 @@ mybar_dual_items = [
     ),
     widget.Spacer(),
     dual_group_box,
-    widget.CurrentLayoutIcon(
-        foreground=widget_text_color, background=widget_background, padding=0, scale=0.5
-    ),
     widget.CurrentLayout(
+        mode="both",
         fontsize=20,
         foreground=widget_text_color,
         background=widget_background,
     ),
     widget.Spacer(),
+    widget.Sep(background=barcolor, padding=10, linewidth=0),
 ]
 
-mybar = bar.Bar(
+mybar = Bar(
     mybar_items,
     size=widget_fontsize * 2,
     background=barcolor,
@@ -512,7 +533,7 @@ mybar = bar.Bar(
     border_color=barcolor,
 )
 
-mybar_dual = bar.Bar(
+mybar_dual = Bar(
     mybar_dual_items,
     25,
     background=barcolor,
@@ -543,12 +564,22 @@ focus_on_window_activation = "smart"
 reconfigure_screens = True
 auto_minimize = True
 
-# When using the Wayland backend, this can be used to configure input devices.
-wl_input_rules = None
+xdg_session_type = os.getenv("XDG_SESSION_TYPE")
+if xdg_session_type == "x11":
+    wl_input_rules = None
+
+elif xdg_session_type == "wayland":
+    from libqtile.backend.wayland.inputs import InputConfig
+
+    wl_input_rules = {
+        "type:keyboard": InputConfig(kb_options="ctrl:nocaps"),
+    }
+else:
+    print("WARNING: XDG_SESSION_TYPE was not set")
 
 wmname = "qtile"
 
 
 @hook.subscribe.startup_once
 def autostart():
-    subprocess.Popen("${HOME}/.config/qtile/scripts/autostart.sh", shell=True)
+    subprocess.Popen("${HOME}/.config/qtile/scripts/autostart", shell=True)

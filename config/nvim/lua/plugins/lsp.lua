@@ -5,11 +5,13 @@ return {
     'mason-org/mason-lspconfig.nvim',
     'stevearc/conform.nvim',
     'hrsh7th/cmp-nvim-lsp',
+    'mfussenegger/nvim-lint',
   },
   config = function()
     local mason = require("mason")
     local mason_lspconfig = require('mason-lspconfig')
     local conform = require("conform")
+    local lint = require("lint")
 
     local servers = {
       clangd = {},
@@ -38,6 +40,7 @@ return {
     mason_lspconfig.setup({
       ensure_installed = server_names
     })
+
 
     conform.setup({
       log_level = vim.log.levels.DEBUG,
