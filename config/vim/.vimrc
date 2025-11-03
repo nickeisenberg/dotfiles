@@ -42,6 +42,7 @@ vnoremap <leader>p "+p
 nnoremap <leader>P "+P
 vnoremap <leader>P "+P
 
+
 " Explorer
 "--------------------------------------------------
 nnoremap <leader>O :Ex<CR>

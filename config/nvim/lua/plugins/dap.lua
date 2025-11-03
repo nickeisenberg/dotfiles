@@ -1,4 +1,4 @@
-return {
+local M = {
   {
     "mfussenegger/nvim-dap",
 	  keys = {
@@ -55,3 +55,5 @@ return {
     end,
   }
 }
+
+return {}
