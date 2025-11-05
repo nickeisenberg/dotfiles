@@ -468,14 +468,23 @@ mybar_items += [
         background=widget_background,
         padding=0,
     ),
-    # widget.Wlan(
-    Wlan(
+    WlanIw(
         font=widget_font,
         fontsize=widget_fontsize,
         interface="wlp0s20f3",
+        ethernet_interface="enp86s0u2u1c2",
+        use_ethernet=True,
+        format="{essid} {percent:2.0%}",
+        ethernet_message_format="{ipaddr}",
         foreground=widget_text_color,
         background=widget_background,
-        format="{essid} {percent:2.0%}",
+    ),
+    widget.TextBox(
+        text="\u2502",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=0,
+        fontsize=20,
     ),
     widget.TextBox(
         font="FontAwesome",
