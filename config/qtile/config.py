@@ -480,13 +480,6 @@ mybar_items += [
         background=widget_background,
     ),
     widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
-    widget.TextBox(
         font="FontAwesome",
         text="\u2502",
         foreground=widget_text_color,
