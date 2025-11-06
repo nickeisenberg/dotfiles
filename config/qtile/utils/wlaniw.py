@@ -78,7 +78,9 @@ class WlanIw(GenPollCommand):
     ]
 
     def __init__(self, **config):
-        config["cmd"] = ["iw", "dev", f"{config['interface']}", "link"]
+        interface = config.get("interface", None)
+        interface = interface if interface is not None else "wlan0"
+        config["cmd"] = ["iw", "dev", interface, "link"]
         super().__init__(**config)
         self.add_defaults(WlanIw.defaults)
         self.ethernet_interface_not_found = False
@@ -101,7 +103,9 @@ class WlanIw(GenPollCommand):
                             f"/sys/class/net/{self.ethernet_interface}/operstate"
                         ) as statfile:
                             if statfile.read().strip() == "up":
-                                return self.ethernet_message_format.format(ipaddr=ipaddr)
+                                return self.ethernet_message_format.format(
+                                    ipaddr=ipaddr
+                                )
 
                             else:
                                 return self.disconnected_message
@@ -121,6 +125,7 @@ class WlanIw(GenPollCommand):
                 percent=(quality / 70),
                 ipaddr=ipaddr,
             )
+
         except OSError:
             logger.error(
                 "Probably your wlan device is switched off or "
