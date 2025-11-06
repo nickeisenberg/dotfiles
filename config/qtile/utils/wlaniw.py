@@ -79,8 +79,9 @@ class WlanIw(GenPollCommand):
 
     def __init__(self, **config):
         config["cmd"] = ["iw", "dev", f"{config['interface']}", "link"]
-        GenPollCommand.__init__(self, **config)
+        super().__init__(**config)
         self.add_defaults(WlanIw.defaults)
+        self.ethernet_interface_not_found = False
 
     def parse(self, raw: str):
         try:
@@ -100,17 +101,15 @@ class WlanIw(GenPollCommand):
                             f"/sys/class/net/{self.ethernet_interface}/operstate"
                         ) as statfile:
                             if statfile.read().strip() == "up":
-                                return self.ethernet_message_format.format(
-                                    ipaddr=ipaddr
-                                )
+                                return self.ethernet_message_format.format(ipaddr=ipaddr)
 
                             else:
                                 return self.disconnected_message
 
                     except FileNotFoundError:
-                        if not self.ethernetInterfaceNotFound:
+                        if not self.ethernet_interface_not_found:
                             logger.error("Ethernet interface has not been found!")
-                            self.ethernetInterfaceNotFound = True
+                            self.ethernet_interface_not_found = True
                         return self.disconnected_message
 
                 else:
