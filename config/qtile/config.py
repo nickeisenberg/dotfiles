@@ -20,8 +20,6 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan import Wlan
-from utils.wlaniw import WlanIw
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
@@ -468,7 +466,7 @@ mybar_items += [
         background=widget_background,
         padding=0,
     ),
-    WlanIw(
+    widget.WlanIw(
         font=widget_font,
         fontsize=widget_fontsize,
         interface="wlp0s20f3",
