@@ -2,6 +2,8 @@ import os
 import subprocess
 
 from shutil import which
+
+from libqtile.log_utils import logger
 from libqtile import widget, hook
 from libqtile.bar import Bar
 from libqtile.layout.columns import Columns
@@ -30,8 +32,14 @@ if which("alacritty"):
 elif which("gnome-terminal"):
     terminal = "gnome-terminal"
 else:
-    print("WARNING: A terminal was not set.")
     terminal = ""
+    logger.exception("WARNING: A terminal was not set.")
+
+if which("thunderbird"):
+    main_client = "thunderbird"
+else:
+    main_client = ""
+    logger.exception("WARNING: A main client was not set.")
 
 
 if which("google-chrome"):
@@ -39,8 +47,8 @@ if which("google-chrome"):
 elif which("firefox"):
     browser = "firefox"
 else:
-    print("WARNING: A browser was not set.")
     browser = ""
+    logger.exception("WARNING: A browser was not set.")
 
 # --------------------------------------------------
 # color setup
@@ -90,6 +98,7 @@ keys = [
     Key([mod0, mod1], "k", grow_down_floating_window(height=-15)),
     Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
+    Key([mod0], "m", lazy.spawn(main_client), desc=f"Launch {main_client}"),
     Key(
         [mod0],
         "h",
