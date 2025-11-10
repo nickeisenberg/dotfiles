@@ -1,3 +1,41 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+# Requires: wlr-randr, jq
+outputs_json=$(wlr-randr --json)
+
+# Detect internal (eDP-*) and external (HDMI/DP*) outputs
+internal=$(echo "$outputs_json" |
+  jq -r '.[] | select(.enabled and (.name | startswith("eDP"))) | .name')
+
+# FIXED: balanced parentheses
+external=$(echo "$outputs_json" |
+  jq -r '.[] | select(.enabled and ((.name | startswith("HDMI")) or (.name | startswith("DP"))) and (.name | startswith("eDP") | not)) | .name')
+
+if [[ -z "$internal" || -z "$external" ]]; then
+  echo "❌ Could not identify internal/external displays"
+  exit 1
+fi
+
+iw=$(echo "$outputs_json" | jq -r --arg n "$internal" '.[] | select(.name==$n) | .modes[] | select(.current) | .width')
+ih=$(echo "$outputs_json" | jq -r --arg n "$internal" '.[] | select(.name==$n) | .modes[] | select(.current) | .height')
+ew=$(echo "$outputs_json" | jq -r --arg n "$external" '.[] | select(.name==$n) | .modes[] | select(.current) | .width')
+eh=$(echo "$outputs_json" | jq -r --arg n "$external" '.[] | select(.name==$n) | .modes[] | select(.current) | .height')
+
+x_offset=$(( (iw - ew) / 2 ))
+y_offset=$((-eh))
+
+target_internal="0,0"
+target_external="${x_offset},${y_offset}"
+
+apply_layout() {
+  wlr-randr --output "$external" --pos "$target_external" \
+             --output "$internal" --pos "$target_internal"
+}
+
+apply_layout
+sleep 0.3
+apply_layout
 
 nohup swaybg -i "${HOME}/.config/qtile/assets/house-on-river.jpg" -m fill >/dev/null 2>&1 &
+
