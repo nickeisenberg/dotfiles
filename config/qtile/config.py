@@ -372,14 +372,14 @@ mybar_items = []
 
 mybar_items += [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
-    # widget.TextBox(
-    #     font="FontAwesome",
-    #     text="",
-    #     foreground=widget_text_color,
-    #     background=widget_background,
-    #     padding=5,
-    #     fontsize=24,
-    # ),
+    widget.TextBox(
+        font="FontAwesome",
+        text="",
+        foreground=widget_text_color,
+        background=widget_background,
+        padding=5,
+        fontsize=24,
+    ),
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.Clock(
         font=widget_font,
