@@ -1,4 +1,4 @@
-return {
+M = {
   {
     'stevearc/oil.nvim',
     dependencies = {
@@ -24,3 +24,5 @@ return {
     config = true
   }
 }
+
+return {}

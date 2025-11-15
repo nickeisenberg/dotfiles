@@ -26,7 +26,7 @@ M.vague = {
   end
 }
 
-M.default = {
+M.vscode = {
   "Mofiqul/vscode.nvim",
   config = function()
     vim.cmd("colorscheme vscode")
