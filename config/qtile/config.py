@@ -368,17 +368,24 @@ mouse = [
 ]
 # --------------------------------------------------
 
-mybar_items = []
+widget_sep = widget.TextBox(
+    text="\u2502",
+    foreground=widget_text_color,
+    background=widget_background,
+    padding=0,
+    fontsize=26,
+)
 
-mybar_items += [
+mybar_items = [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.TextBox(
-        font="FontAwesome",
+        #font="FontAwesome",
+        font=widget_font,
         text="",
         foreground=widget_text_color,
         background=widget_background,
         padding=5,
-        fontsize=24,
+        fontsize=28,
     ),
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.Clock(
@@ -393,6 +400,7 @@ mybar_items += [
     widget.Sep(padding=20, foreground=barcolor),
     widget.CurrentLayout(
         mode="both",
+        scale=.7,
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
@@ -416,13 +424,7 @@ mybar_items += [
         background=widget_background,
         foreground=widget_text_color,
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.TextBox(
         font=widget_font,
         fontsize=widget_fontsize,
@@ -438,13 +440,7 @@ mybar_items += [
         fontsize=widget_fontsize,
         format="{MemUsed:.0f} MiB",
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.TextBox(
         text="Vol:",
         font=widget_font,
@@ -460,13 +456,7 @@ mybar_items += [
         background=widget_background,
         foreground=widget_text_color,
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.TextBox(
         font=widget_font,
         fontsize=widget_fontsize,
@@ -486,13 +476,7 @@ mybar_items += [
         foreground=widget_text_color,
         background=widget_background,
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.Battery(
         font=widget_font,
         fontsize=widget_fontsize,
