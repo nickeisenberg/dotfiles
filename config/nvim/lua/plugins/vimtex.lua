@@ -8,8 +8,11 @@ return {
         [[let g:vimtex_view_method = 'skim']]
       )
     else
+      -- vim.cmd(
+      --   [[let g:vimtex_view_method = 'zathura']]
+      -- )
       vim.cmd(
-        [[let g:vimtex_view_method = 'zathura']]
+        [[let g:vimtex_view_general_viewer = 'google-chrome']]
       )
     end
   end
