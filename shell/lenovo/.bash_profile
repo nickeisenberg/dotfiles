@@ -65,6 +65,10 @@ export NVM_DIR="$HOME/.local/src/nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 #--------------------------------------------------
 
+if [[ -f "${HOME}/.secrets" ]]; then
+    source ${HOME}/.secrets
+fi
+
 if [[ -f "${HOME}/.cargo/env" ]]; then
     source "$HOME/.cargo/env"
 fi

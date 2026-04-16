@@ -8,7 +8,7 @@ M.rosepine = {
       palette = {
         main = {
           base = "#121212",
-		      surface = "#121212",
+          surface = "#121212",
         }
       }
     })
@@ -26,22 +26,22 @@ M.vague = {
   end
 }
 
-M.default = {
-  "vague2k/vague.nvim",
+M.vscode = {
+  "Mofiqul/vscode.nvim",
   config = function()
-    vim.cmd("colorscheme default")
+    vim.cmd("colorscheme vscode")
   end
 }
 
 M.lackluster = {
-    "slugbyte/lackluster.nvim",
-    lazy = false,
-    priority = 1000,
-    init = function()
-        vim.cmd.colorscheme("lackluster")
-        -- vim.cmd.colorscheme("lackluster-hack") -- my favorite
-        -- vim.cmd.colorscheme("lackluster-mint")
-    end,
+  "slugbyte/lackluster.nvim",
+  lazy = false,
+  priority = 1000,
+  init = function()
+    vim.cmd.colorscheme("lackluster")
+    -- vim.cmd.colorscheme("lackluster-hack") -- my favorite
+    -- vim.cmd.colorscheme("lackluster-mint")
+  end,
 }
 
 return M.vague
