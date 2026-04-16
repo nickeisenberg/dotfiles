@@ -89,6 +89,7 @@ Plug 'Vimjas/vim-python-pep8-indent'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'wellle/context.vim'
 Plug 'jeetsukumaran/vim-pythonsense'
+Plug 'lervag/vimtex'
 
 " repl
 Plug 'Vigemus/iron.vim', { 'branch': 'master' }
@@ -110,6 +111,7 @@ call plug#end()
 nnoremap <silent> K :call CocActionAsync('doHover')<CR>
 nnoremap <leader>rn <Plug>(coc-rename)
 nnoremap <leader>gd <Plug>(coc-definition)
+nnoremap <leader>gr <Plug>(coc-references)
 nnoremap ]d <Plug>(coc-diagnostic-next)
 nnoremap [d <Plug>(coc-diagnostic-prev)
 command! -nargs=0 Format call CocAction('format')
