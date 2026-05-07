@@ -2,6 +2,8 @@ import os
 import subprocess
 
 from shutil import which
+
+from libqtile.log_utils import logger
 from libqtile import widget, hook
 from libqtile.bar import Bar
 from libqtile.layout.columns import Columns
@@ -20,7 +22,6 @@ from utils import (
     go_to_group,
     go_to_group_and_move_window,
 )
-from utils.wlan import Wlan
 from colors.vague import Colors
 
 mod0 = "mod1"  # alt
@@ -31,8 +32,14 @@ if which("alacritty"):
 elif which("gnome-terminal"):
     terminal = "gnome-terminal"
 else:
-    print("WARNING: A terminal was not set.")
     terminal = ""
+    logger.exception("WARNING: A terminal was not set.")
+
+if which("thunderbird"):
+    main_client = "thunderbird"
+else:
+    main_client = ""
+    logger.exception("WARNING: A main client was not set.")
 
 
 if which("google-chrome"):
@@ -40,8 +47,8 @@ if which("google-chrome"):
 elif which("firefox"):
     browser = "firefox"
 else:
-    print("WARNING: A browser was not set.")
     browser = ""
+    logger.exception("WARNING: A browser was not set.")
 
 # --------------------------------------------------
 # color setup
@@ -91,6 +98,7 @@ keys = [
     Key([mod0, mod1], "k", grow_down_floating_window(height=-15)),
     Key([mod0], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([mod0], "b", lazy.spawn(browser), desc=f"Launch {browser}"),
+    Key([mod0], "m", lazy.spawn(main_client), desc=f"Launch {main_client}"),
     Key(
         [mod0],
         "h",
@@ -360,17 +368,24 @@ mouse = [
 ]
 # --------------------------------------------------
 
-mybar_items = []
+widget_sep = widget.TextBox(
+    text="\u2502",
+    foreground=widget_text_color,
+    background=widget_background,
+    padding=0,
+    fontsize=26,
+)
 
-mybar_items += [
+mybar_items = [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.TextBox(
-        font="FontAwesome",
+        #font="FontAwesome",
+        font=widget_font,
         text="",
         foreground=widget_text_color,
         background=widget_background,
         padding=5,
-        fontsize=24,
+        fontsize=28,
     ),
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.Clock(
@@ -378,13 +393,14 @@ mybar_items += [
         fontsize=widget_fontsize,
         foreground=widget_text_color,
         background=widget_background,
-        format="%A, %b %d %I:%M %p ",
+        format="%a %b %d %I:%M %p ",
     ),
     widget.Spacer(),
     main_group_box,
     widget.Sep(padding=20, foreground=barcolor),
     widget.CurrentLayout(
         mode="both",
+        scale=.7,
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
@@ -408,13 +424,7 @@ mybar_items += [
         background=widget_background,
         foreground=widget_text_color,
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.TextBox(
         font=widget_font,
         fontsize=widget_fontsize,
@@ -430,13 +440,7 @@ mybar_items += [
         fontsize=widget_fontsize,
         format="{MemUsed:.0f} MiB",
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.TextBox(
         text="Vol:",
         font=widget_font,
@@ -452,13 +456,7 @@ mybar_items += [
         background=widget_background,
         foreground=widget_text_color,
     ),
-    widget.TextBox(
-        text="\u2502",
-        foreground=widget_text_color,
-        background=widget_background,
-        padding=0,
-        fontsize=20,
-    ),
+    widget_sep,
     widget.TextBox(
         font=widget_font,
         fontsize=widget_fontsize,
@@ -467,23 +465,18 @@ mybar_items += [
         background=widget_background,
         padding=0,
     ),
-    # widget.Wlan(
-    Wlan(
+    widget.WlanIw(
         font=widget_font,
         fontsize=widget_fontsize,
         interface="wlp0s20f3",
-        foreground=widget_text_color,
-        background=widget_background,
+        ethernet_interface="enp86s0u2u1c2",
+        use_ethernet=True,
         format="{essid} {percent:2.0%}",
-    ),
-    widget.TextBox(
-        font="FontAwesome",
-        text="\u2502",
+        ethernet_message_format="{ipaddr}",
         foreground=widget_text_color,
         background=widget_background,
-        padding=0,
-        fontsize=20,
     ),
+    widget_sep,
     widget.Battery(
         font=widget_font,
         fontsize=widget_fontsize,
@@ -510,7 +503,7 @@ mybar_dual_items = [
         # background=background,
         background=widget_background,
         fontsize=20,
-        format="%A, %b %d %I:%M %p ",
+        format="%a %b %d %I:%M %p ",
     ),
     widget.Spacer(),
     dual_group_box,

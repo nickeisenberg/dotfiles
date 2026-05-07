@@ -41,6 +41,11 @@ alias ll='ls -alFG'
 alias la='ls -AG'
 alias l='ls -CFlG'
 #--------------------------------------------------
+#
+if [[ -f "${HOME}/.secrets.sh" ]]; then
+	    source "${HOME}/.secrets.sh"
+fi
+
 
 VENVMAN_ROOT_DIR=$HOME/.venvman
 source "$HOME/.venvman/venvman/src/main.sh"
