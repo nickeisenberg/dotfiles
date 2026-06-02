@@ -1,0 +1,50 @@
+#!/bin/bash
+
+TARGET_DIR="${1:-.}"
+
+if [ ! -d "$TARGET_DIR" ]; then
+    echo "Error: $TARGET_DIR is not a valid directory."
+    exit 1
+fi
+
+echo "Filetype : Total Size (Respecting .gitignore)"
+echo "--------------------------------------------"
+
+# Resolve absolute path to TARGET_DIR so paths do not break
+ABS_TARGET_DIR=$(cd "$TARGET_DIR" && pwd)
+
+# cd into the directory so wc -c can find the files natively
+cd "$ABS_TARGET_DIR" || exit 1
+
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git ls-files -co --exclude-standard | tr '\n' '\0' | xargs -0 wc -c 2>/dev/null
+else
+    find . -type f -name "*.*" -exec wc -c {} + 2>/dev/null
+fi | awk '
+{
+    size = $1
+    file_path = $2
+    
+    if (file_path != "total" && file_path != "") {
+        # 1. Isolate the true filename from the path
+        num_slashes = split(file_path, path_parts, "/")
+        filename = path_parts[num_slashes]
+        
+        # 2. Check if the filename actually contains a dot
+        if (filename ~ /\./) {
+            num_dots = split(filename, ext_parts, ".")
+            ext = ext_parts[num_dots]
+        } else {
+            ext = "[no extension]"
+        }
+        
+        sum[ext] += size
+    }
+}
+END {
+    for (e in sum) {
+        mb = sum[e] / 1024 / 1024
+        printf "%015.2f,%s\n", mb, e
+    }
+}' | sort -r | awk -F, '{printf "%s : %.2f MB\n", $2, $1}'
+

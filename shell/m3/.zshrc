@@ -30,6 +30,10 @@ set_prompt() {
     fi
 }
 
+pipthis() {
+	pip install . --no-deps --trusted-host jfrog.nts.ops
+}
+
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd set_prompt
 
