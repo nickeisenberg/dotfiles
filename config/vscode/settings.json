@@ -201,7 +201,7 @@
             "commands": [
                 "editor.action.showHover"
             ]
-        }
+        },
     ],
     "vim.visualModeKeyBindingsNonRecursive": [
         {

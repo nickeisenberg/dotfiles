@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""
+Build a single markdown prompt from Python files.
+
+Semantics:
+
+--root
+    The displayed file root in the generated prompt.
+
+--show
+    The subdirectory to recursively walk and include files from.
+    Must be inside --root.
+
+Example:
+    python scripts/llm-prompt.py \
+        --root ./src/photo_pilot \
+        --show ./src/photo_pilot/app \
+        --output ~/prompt.txt
+
+This produces displayed paths like:
+
+    app/controllers/query_controller.py
+    app/widgets/pdf_viewer_widget.py
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+
+IGNORE_DIRS = {
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+}
+
+
+def should_ignore(path: Path) -> bool:
+    return any(part in IGNORE_DIRS for part in path.parts)
+
+
+def get_python_files(show_root: Path) -> list[Path]:
+    files: list[Path] = []
+
+    for path in sorted(show_root.rglob("*.py")):
+        if should_ignore(path):
+            continue
+
+        if path.is_file():
+            files.append(path)
+
+    return files
+
+
+def build_tree(show_root: Path) -> str:
+    """
+    Create a tree-like structure similar to `tree`.
+    """
+
+    lines: list[str] = [show_root.name]
+
+    def walk(directory: Path, prefix: str = "") -> None:
+        entries = sorted(
+            [p for p in directory.iterdir() if not should_ignore(p)],
+            key=lambda p: (p.is_file(), p.name.lower()),
+        )
+
+        for i, entry in enumerate(entries):
+            connector = "└── " if i == len(entries) - 1 else "├── "
+
+            lines.append(f"{prefix}{connector}{entry.name}")
+
+            if entry.is_dir():
+                extension = "    " if i == len(entries) - 1 else "│   "
+
+                walk(
+                    entry,
+                    prefix + extension,
+                )
+
+    walk(show_root)
+
+    return "\n".join(lines)
+
+
+def read_file(path: Path) -> str:
+    return path.read_text(
+        encoding="utf-8",
+        errors="replace",
+    )
+
+
+def build_prompt(
+    root: Path,
+    show_root: Path,
+    files: list[Path],
+) -> str:
+    sections: list[str] = []
+
+    sections.append(
+        """
+You are analyzing a Python application.
+
+Answer questions about:
+- architecture
+- code quality
+- bugs
+- refactoring
+- design patterns
+- data flow
+- missing features
+
+The project tree and full Python source code are included below.
+""".strip()
+    )
+
+    sections.append("\n# PROJECT TREE\n")
+    sections.append(build_tree(show_root))
+
+    sections.append("\n# SOURCE CODE\n")
+
+    for file_path in files:
+        rel = file_path.relative_to(root)
+
+        sections.append("\n" + "=" * 80)
+        sections.append(f"FILE: {rel}")
+        sections.append("=" * 80)
+
+        code = read_file(file_path)
+
+        sections.append(f"\n```python\n{code}\n```")
+
+    return "\n".join(sections)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--root",
+        type=Path,
+        required=True,
+        help=("Project file root used for displayed paths"),
+    )
+
+    parser.add_argument(
+        "--show",
+        type=Path,
+        default=None,
+        help=("Subdirectory to recursively walk and include files from"),
+    )
+
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("prompt.txt"),
+        help="Output markdown file",
+    )
+
+    args = parser.parse_args()
+
+    root = args.root.resolve()
+
+    if not root.exists():
+        raise FileNotFoundError(f"Root does not exist: {root}")
+
+    show_root = args.show.resolve() if args.show is not None else root
+
+    if not show_root.exists():
+        raise FileNotFoundError(f"Show path does not exist: {show_root}")
+
+    try:
+        show_root.relative_to(root)
+    except ValueError:
+        raise ValueError("--show must be inside --root")
+
+    files = get_python_files(show_root)
+
+    prompt = build_prompt(
+        root=root,
+        show_root=show_root,
+        files=files,
+    )
+
+    args.output.write_text(
+        prompt,
+        encoding="utf-8",
+    )
+
+    print(f"Saved prompt to: {args.output}")
+    print(f"Root: {root}")
+    print(f"Show: {show_root}")
+    print(f"Included {len(files)} Python files")
+
+
+if __name__ == "__main__":
+    main()

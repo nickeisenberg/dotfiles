@@ -15,8 +15,8 @@ set nocompatible
 set noswapfile
 set background=dark
 set relativenumber
-" set cursorline
-" set cursorcolumn
+set cursorline
+set cursorcolumn
 
 let &shell = &shell . " --login"
 
