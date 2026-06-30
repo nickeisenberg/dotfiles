@@ -1,31 +1,28 @@
 #!/usr/bin/env bash
 
-PORT_NAME=$1
+INTERNAL_PORT=$(
+    xrandr | awk '$2=="connected" && $1 ~ /^eDP/ {print $1; exit}'
+)
 
-if [[ -z $PORT_NAME ]]; then
-    PORT_NAME="HDMI-1-0"
+PORT_NAME=$(
+    xrandr | awk '$2=="connected" && $1 ~ /^HDMI/ {print $1; exit}'
+)
+
+# Always start with the external monitor disabled.
+if [[ -n "$PORT_NAME" ]]; then
+    xrandr --output "$PORT_NAME" --off
 fi
 
-xrandr --output ${PORT_NAME} --off
+# Enable the laptop panel first and make it primary.
+xrandr --output "$INTERNAL_PORT" --auto --primary
 
-MONITOR_STATUS=$(xrandr | awk "/${PORT_NAME}/ {print \$2}")
-
-if [ "$MONITOR_STATUS" = "connected" ]; then
-    xrandr --output ${PORT_NAME} --auto
-    xrandr --output ${PORT_NAME} --noprimary --above eDP-1
+# Enable the external monitor if one is connected.
+if [[ -n "$PORT_NAME" ]]; then
+    xrandr \
+        --output "$PORT_NAME" --auto \
+        --above "$INTERNAL_PORT"
 fi
 
-sleep .5
+sleep 0.5
 
-feh --no-fehbg --bg-scale ${HOME}/.config/qtile/assets/house-on-river.jpg
-
-# rosepint
-# xsetroot -solid '#191724'
-
-# vague
-# xsetroot -solid '#141415'
-
-
-# nvim default
-# xsetroot -solid "#14161b"
-#----------
+feh --no-fehbg --bg-scale "$HOME/.config/qtile/assets/house-on-river.jpg"
