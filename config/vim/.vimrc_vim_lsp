@@ -139,6 +139,7 @@ function! s:on_lsp_buffer_enabled() abort
 
   augroup lsp_formatting
     autocmd! * <buffer>
+	autocmd BufWritePre <buffer> silent! LspCodeActionSync source.fixAll.ruff
     autocmd BufWritePre <buffer> call execute('LspDocumentFormatSync')
   augroup END
 endfunction
