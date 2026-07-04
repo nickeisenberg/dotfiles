@@ -13,6 +13,8 @@ from tkinter import font
 
 LOCK_COMMAND = [
     "i3lock",
+    "--color",
+    "000000",
 ]
 
 SHUTDOWN_COMMAND = [
