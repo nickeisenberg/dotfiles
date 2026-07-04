@@ -1,28 +1,27 @@
 import os
 import subprocess
-
 from shutil import which
 
-from libqtile.log_utils import logger
-from libqtile import widget, hook
+from libqtile import hook, widget
 from libqtile.bar import Bar
+from libqtile.config import Click, Drag, DropDown, Group, Key, ScratchPad, Screen
 from libqtile.layout.columns import Columns
-from libqtile.layout.xmonad import MonadTall
-from libqtile.layout.matrix import Matrix
 from libqtile.layout.floating import Floating
-from libqtile.config import Click, Drag, Group, Key, Screen, ScratchPad, DropDown
+from libqtile.layout.matrix import Matrix
+from libqtile.layout.xmonad import MonadTall
 from libqtile.lazy import lazy
+from libqtile.log_utils import logger
 
+from colors.vague import Colors
 from utils import (
     NvidiaSensors2,
-    grow_up_floating_window,
-    grow_right_floating_window,
-    grow_left_floating_window,
-    grow_down_floating_window,
     go_to_group,
     go_to_group_and_move_window,
+    grow_down_floating_window,
+    grow_left_floating_window,
+    grow_right_floating_window,
+    grow_up_floating_window,
 )
-from colors.vague import Colors
 
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
@@ -123,7 +122,8 @@ keys = [
     Key(
         [mod0, "control"],
         "q",
-        lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")),
+        # lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")),
+        lazy.spawn(os.path.expanduser("~/.config/qtile/scripts/powermenu.py")),
         desc="Launch the Rofi file explorer",
     ),
     Key(
@@ -261,7 +261,7 @@ for i in groups:
             [mod0],
             i.name,
             lazy.function(go_to_group(i.name, maingroups)),
-            desc="Switch to group {}".format(i.name),
+            desc=f"Switch to group {i.name}",
         )
     )
     keys.append(
@@ -269,7 +269,7 @@ for i in groups:
             [mod0, "control"],
             i.name,
             lazy.function(go_to_group_and_move_window(i.name, maingroups)),
-            desc="Switch to & move focused window to group {}".format(i.name),
+            desc=f"Switch to & move focused window to group {i.name}",
         )
     )
 
@@ -379,7 +379,7 @@ widget_sep = widget.TextBox(
 mybar_items = [
     widget.Sep(background=barcolor, padding=10, linewidth=0),
     widget.TextBox(
-        #font="FontAwesome",
+        # font="FontAwesome",
         font=widget_font,
         text="",
         foreground=widget_text_color,
@@ -400,7 +400,7 @@ mybar_items = [
     widget.Sep(padding=20, foreground=barcolor),
     widget.CurrentLayout(
         mode="both",
-        scale=.7,
+        scale=0.7,
         font=widget_font,
         fontsize=widget_fontsize,
         foreground=widget_text_color,
