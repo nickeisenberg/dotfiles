@@ -11,21 +11,14 @@ from tkinter import font
 # Configuration
 ###############################################################################
 
-LOCK_COMMAND = [
-    "i3lock",
-    "--color",
-    "000000",
-]
+LOCK_COMMAND = ["i3lock", "--color", "000000"]
 
-SHUTDOWN_COMMAND = [
-    "systemctl",
-    "poweroff",
-]
 
-REBOOT_COMMAND = [
-    "systemctl",
-    "reboot",
-]
+LOGOUT_COMMAND = ["qtile", "cmd-obj", "-o", "cmd", "-f", "shutdown"]
+
+SHUTDOWN_COMMAND = ["systemctl", "poweroff"]
+
+REBOOT_COMMAND = ["systemctl", "reboot"]
 
 
 @dataclass
@@ -35,9 +28,10 @@ class MenuItem:
 
 
 MENU = [
-    MenuItem("󰌾  Lock", LOCK_COMMAND),
-    MenuItem("󰐥  Shutdown", SHUTDOWN_COMMAND),
-    MenuItem("󰜉  Reboot", REBOOT_COMMAND),
+    MenuItem("Lock", LOCK_COMMAND),
+    MenuItem("Logout", LOGOUT_COMMAND),
+    MenuItem("Shutdown", SHUTDOWN_COMMAND),
+    MenuItem("Reboot", REBOOT_COMMAND),
 ]
 
 
@@ -59,7 +53,6 @@ class PowerMenu:
     FONT_SIZE = 18
 
     def __init__(self) -> None:
-
         self.selection = 0
 
         self.root = tk.Tk()
@@ -127,7 +120,6 @@ class PowerMenu:
     ###########################################################################
 
     def center_window(self) -> None:
-
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
 
@@ -139,7 +131,6 @@ class PowerMenu:
     ###########################################################################
 
     def update_selection(self) -> None:
-
         for i, label in enumerate(self.labels):
             if i == self.selection:
                 label.configure(
@@ -156,7 +147,6 @@ class PowerMenu:
     ###########################################################################
 
     def up(self, event=None):
-
         self.selection -= 1
 
         if self.selection < 0:
@@ -167,7 +157,6 @@ class PowerMenu:
     ###########################################################################
 
     def down(self, event=None):
-
         self.selection += 1
 
         if self.selection >= len(MENU):
@@ -178,7 +167,6 @@ class PowerMenu:
     ###########################################################################
 
     def execute(self, event=None):
-
         self.root.destroy()
 
         subprocess.Popen(MENU[self.selection].command)
@@ -186,13 +174,11 @@ class PowerMenu:
     ###########################################################################
 
     def quit(self, event=None):
-
         self.root.destroy()
 
     ###########################################################################
 
     def run(self):
-
         self.root.mainloop()
 
 
@@ -200,7 +186,6 @@ class PowerMenu:
 
 
 def main():
-
     PowerMenu().run()
 
 
