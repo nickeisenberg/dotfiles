@@ -17,6 +17,7 @@ set background=dark
 set relativenumber
 set cursorline
 set cursorcolumn
+set expandtab
 
 let &shell = &shell . " --login"
 
