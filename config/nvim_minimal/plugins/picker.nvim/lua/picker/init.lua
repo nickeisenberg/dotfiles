@@ -1,7 +1,7 @@
-local find = require("picker.find")
-local grep = require("picker.grep")
-local buffers = require("picker.buffers")
-local lsp = require("picker.lsp")
+local find = require("picker.sources.find")
+local grep = require("picker.sources.grep")
+local buffers = require("picker.sources.buffers")
+local lsp = require("picker.sources.lsp")
 
 local M = {}
 

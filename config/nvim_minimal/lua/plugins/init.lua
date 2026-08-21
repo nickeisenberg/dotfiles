@@ -9,7 +9,11 @@ vim.pack.add({
   {
     src = "https://github.com/Vigemus/iron.nvim",
   },
+  {
+    src = "https://github.com/lewis6991/gitsigns.nvim",
+  },
 })
 
 require("plugins.picker")
 require("plugins.iron")
+require("plugins.gitsigns")
