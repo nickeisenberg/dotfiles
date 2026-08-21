@@ -1,0 +1,46 @@
+source $HOME/.bashrc
+
+if [[ "${XDG_SESSION_TYPE}" == "x11" ]]; then
+    xset r rate 250 30
+    setxkbmap -option ctrl:nocaps
+fi
+
+get_git_branch() {
+	git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+if git --version > /dev/null 2>&1; then
+    export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]$(get_git_branch)\[\033[00m\]\$ '
+
+else
+    export PS1='$\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[01;31m\]\[\033[00m\]\$ '
+fi
+
+if [[ -f "${HOME}/.secrets.sh" ]]; then
+	    source "${HOME}/.secrets.sh"
+fi
+
+alias ll='ls -alF --group-directories-first'
+alias l='ls -l --group-directories-first'
+
+export PATH="/usr/local/cuda-12.9/bin:${PATH}"
+export LD_LIBRARY_PATH="/usr/local/cuda-12.9/lib64:$LD_LIBRARY_PATH"
+
+export PATH="${HOME}/.local/bin:${PATH}"
+
+if [[ -f "${HOME}/.secrets.sh" ]]; then
+	    source "${HOME}/.secrets.sh"
+fi
+
+export NVIM_APPNAME="nvim_minimal"
+
+# default sys venv
+if [[ ! -f "${HOME}/.venv/bin/activate" ]]; then
+    if python3.12 -m venv --help > /dev/null 2>&1; then
+        python3.12 -m venv "${HOME}/.venv"
+    fi
+fi
+source "${HOME}/.venv/bin/activate" > /dev/null 2>&1
+
+eval "$(register-python-argcomplete monocommit)"
+eval "$(register-python-argcomplete serverctl)"

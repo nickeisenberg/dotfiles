@@ -1,0 +1,8 @@
+{
+  "plugins": {
+    "iron.nvim": {
+      "rev": "c7f8047d964fb155a701b7c860fa3d4143d713c5",
+      "src": "https://github.com/Vigemus/iron.nvim"
+    }
+  }
+}
