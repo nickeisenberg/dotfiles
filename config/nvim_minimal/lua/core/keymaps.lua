@@ -1,8 +1,7 @@
 -- close a buffer
 vim.keymap.set("n", "<leader>bd", vim.cmd.bd)
 
-vim.keymap.set("v", "<leader>\"", 'c""<Esc>P', { noremap = true, silent = true })
-
+vim.keymap.set("v", '<leader>"', 'c""<Esc>P', { noremap = true, silent = true })
 
 -- Move to the bottom or top of the previous highlihgt
 vim.cmd([[nnoremap <leader>md `>]])
@@ -23,24 +22,31 @@ vim.keymap.set("n", "<leader>id", vim.diagnostic.open_float)
 
 -- Move to the next paragraph without opening folds
 vim.api.nvim_set_keymap(
-  'n', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
+  "n",
+  "}",
+  [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
   { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-  'v', '}', [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
+  "v",
+  "}",
+  [[<Cmd>execute foldclosed('.') == -1 ? "normal! }" : "normal! j"<CR>]],
   { noremap = true, silent = true }
 )
 
 -- Move to the previous paragraph without opening folds
 vim.api.nvim_set_keymap(
-  'n', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]],
+  "n",
+  "{",
+  [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]],
   { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-  'v', '{', [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]],
+  "v",
+  "{",
+  [[<Cmd>execute foldclosed('.') == -1 ? "normal! {" : "normal! k"<CR>]],
   { noremap = true, silent = true }
 )
-
 
 vim.keymap.set("n", "<leader>O", ":Ex <CR>")
 
@@ -58,7 +64,7 @@ vim.keymap.set("n", "<leader>cs", ":close <CR>")
 vim.keymap.set("n", "<leader>vf", ":G ")
 
 -- Resize splits
-vim.keymap.set("n","<c-Up>", ":resize -2 <cr>")
-vim.keymap.set("n","<c-Down>", ":resize +2 <cr>")
-vim.keymap.set("n","<c-Left>", ":vertical resize -2 <cr>")
-vim.keymap.set("n","<c-Right>", ":vertical resize +2 <cr>")
+vim.keymap.set("n", "<c-Up>", ":resize -2 <cr>")
+vim.keymap.set("n", "<c-Down>", ":resize +2 <cr>")
+vim.keymap.set("n", "<c-Left>", ":vertical resize -2 <cr>")
+vim.keymap.set("n", "<c-Right>", ":vertical resize +2 <cr>")

@@ -1,9 +1,11 @@
 vim.g.mapleader = " "
 
-require("config")
-require("colorscheme")
-require("find")
-require("formatting")
-require("grep")
-require("lsp")
-require("statusline")
+-- Add locally developed plugins.
+local plugin_root = vim.fn.stdpath("config") .. "/plugins"
+vim.opt.runtimepath:prepend(plugin_root .. "/picker.nvim")
+
+-- Load configuration.
+require("core")
+require("ui")
+require("coding")
+require("plugins")
