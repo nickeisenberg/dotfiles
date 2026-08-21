@@ -179,7 +179,13 @@ function M.open(opts)
     local preview = opts.preview(result)
 
     if not preview or not preview.file then
-      vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, { "No preview available" })
+      vim.api.nvim_buf_set_lines(
+        preview_buf,
+        0,
+        -1,
+        false,
+        { "No preview available" }
+      )
 
       vim.bo[preview_buf].modifiable = false
       return
@@ -203,7 +209,8 @@ function M.open(opts)
 
     local lnum = math.min(preview.lnum or 1, line_count)
 
-    local line = vim.api.nvim_buf_get_lines(preview_buf, lnum - 1, lnum, false)[1] or ""
+    local line = vim.api.nvim_buf_get_lines(preview_buf, lnum - 1, lnum, false)[1]
+      or ""
 
     local column = math.min(math.max((preview.col or 1) - 1, 0), #line)
 

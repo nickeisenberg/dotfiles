@@ -3,10 +3,8 @@ local M = {}
 -- Filetype -> formatter command
 M.formatters = {
   lua = "stylua -",
-  javascript = "prettier --stdin-filepath %",
-  typescript = "prettier --stdin-filepath %",
-  typescriptreact = "prettier --stdin-filepath %",
   json = "prettier --stdin-filepath %",
+  python = "ruff format -",
 }
 
 vim.api.nvim_create_autocmd("BufWritePre", {

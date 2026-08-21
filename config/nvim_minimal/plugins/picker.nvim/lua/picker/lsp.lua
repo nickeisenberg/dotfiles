@@ -23,7 +23,13 @@ local function location_to_item(location, client)
     text = vim.trim(lines[line])
   end
 
-  local display = string.format("%s:%d:%d: %s", vim.fn.fnamemodify(file, ":."), line, col, text)
+  local display = string.format(
+    "%s:%d:%d: %s",
+    vim.fn.fnamemodify(file, ":."),
+    line,
+    col,
+    text
+  )
 
   return {
     display = display,
@@ -48,107 +54,113 @@ function M.references()
     return
   end
 
-  local params = vim.lsp.util.make_position_params(0, clients[1].offset_encoding)
+  local params =
+    vim.lsp.util.make_position_params(0, clients[1].offset_encoding)
 
   params.context = {
     includeDeclaration = true,
   }
 
-  vim.lsp.buf_request_all(bufnr, "textDocument/references", params, function(results)
-    local items = {}
+  vim.lsp.buf_request_all(
+    bufnr,
+    "textDocument/references",
+    params,
+    function(results)
+      local items = {}
 
-    for client_id, response in pairs(results) do
-      if response.result then
-        local client = vim.lsp.get_client_by_id(client_id)
+      for client_id, response in pairs(results) do
+        if response.result then
+          local client = vim.lsp.get_client_by_id(client_id)
 
-        for _, location in ipairs(response.result) do
-          local item = location_to_item(location, client)
+          for _, location in ipairs(response.result) do
+            local item = location_to_item(location, client)
 
-          if item then
-            items[#items + 1] = item
+            if item then
+              items[#items + 1] = item
+            end
           end
         end
       end
-    end
 
-    if #items == 0 then
-      vim.notify("No references found")
-      return
-    end
-
-    table.sort(items, function(a, b)
-      if a.file ~= b.file then
-        return a.file < b.file
+      if #items == 0 then
+        vim.notify("No references found")
+        return
       end
 
-      if a.line ~= b.line then
-        return a.line < b.line
-      end
-
-      return a.col < b.col
-    end)
-
-    ui.open({
-      title = "References",
-
-      initial_results = items,
-
-      search = function(query)
-        if query == "" then
-          return items
+      table.sort(items, function(a, b)
+        if a.file ~= b.file then
+          return a.file < b.file
         end
 
-        local displays = {}
-
-        for _, item in ipairs(items) do
-          displays[#displays + 1] = item.display
+        if a.line ~= b.line then
+          return a.line < b.line
         end
 
-        local matches = vim.fn.matchfuzzy(displays, query)
+        return a.col < b.col
+      end)
 
-        local by_display = {}
+      ui.open({
+        title = "References",
 
-        for _, item in ipairs(items) do
-          by_display[item.display] = item
-        end
+        initial_results = items,
 
-        local filtered = {}
-
-        for _, display in ipairs(matches) do
-          local item = by_display[display]
-
-          if item then
-            filtered[#filtered + 1] = item
+        search = function(query)
+          if query == "" then
+            return items
           end
-        end
 
-        return filtered
-      end,
+          local displays = {}
 
-      format = function(item)
-        return item.display
-      end,
+          for _, item in ipairs(items) do
+            displays[#displays + 1] = item.display
+          end
 
-      preview = function(item)
-        return {
-          file = item.file,
-          lnum = item.line,
-          col = item.col,
-        }
-      end,
+          local matches = vim.fn.matchfuzzy(displays, query)
 
-      select = function(item)
-        vim.cmd.edit(vim.fn.fnameescape(item.file))
+          local by_display = {}
 
-        vim.api.nvim_win_set_cursor(0, {
-          item.line,
-          item.col - 1,
-        })
+          for _, item in ipairs(items) do
+            by_display[item.display] = item
+          end
 
-        vim.cmd("normal! zz")
-      end,
-    })
-  end)
+          local filtered = {}
+
+          for _, display in ipairs(matches) do
+            local item = by_display[display]
+
+            if item then
+              filtered[#filtered + 1] = item
+            end
+          end
+
+          return filtered
+        end,
+
+        format = function(item)
+          return item.display
+        end,
+
+        preview = function(item)
+          return {
+            file = item.file,
+            lnum = item.line,
+            col = item.col,
+          }
+        end,
+
+        select = function(item)
+          vim.cmd.edit(vim.fn.fnameescape(item.file))
+
+          vim.api.nvim_win_set_cursor(0, {
+            item.line,
+            item.col - 1,
+          })
+
+          vim.cmd("normal! zz")
+        end,
+      })
+    end
+  )
 end
 
 return M

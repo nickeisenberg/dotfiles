@@ -81,26 +81,30 @@ local function update_buffer_info(bufnr)
   end
 
   -- Branch lookup happens asynchronously.
-  vim.system({ "git", "-C", root, "branch", "--show-current" }, { text = true }, function(result)
-    if result.code ~= 0 then
-      return
-    end
-
-    local branch = vim.trim(result.stdout)
-
-    if branch == "" then
-      return
-    end
-
-    git_cache[root] = branch
-
-    vim.schedule(function()
-      if vim.api.nvim_buf_is_valid(bufnr) then
-        vim.b[bufnr].git_branch = branch
-        vim.cmd("redrawstatus!")
+  vim.system(
+    { "git", "-C", root, "branch", "--show-current" },
+    { text = true },
+    function(result)
+      if result.code ~= 0 then
+        return
       end
-    end)
-  end)
+
+      local branch = vim.trim(result.stdout)
+
+      if branch == "" then
+        return
+      end
+
+      git_cache[root] = branch
+
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          vim.b[bufnr].git_branch = branch
+          vim.cmd("redrawstatus!")
+        end
+      end)
+    end
+  )
 end
 
 function _G._statusline()
@@ -136,7 +140,16 @@ function _G._statusline()
     end
   end
 
-  return "%#StlMode# " .. mode .. " %*" .. branch .. " " .. path .. "%=" .. diag .. vim.bo.filetype .. " %l:%c"
+  return "%#StlMode# "
+    .. mode
+    .. " %*"
+    .. branch
+    .. " "
+    .. path
+    .. "%="
+    .. diag
+    .. vim.bo.filetype
+    .. " %l:%c"
 end
 
 vim.api.nvim_create_autocmd("BufEnter", {
