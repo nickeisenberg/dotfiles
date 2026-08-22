@@ -52,7 +52,7 @@ local function location_to_item(location)
   }
 end
 
-local function open_references(items)
+local function open_locations(title, items)
   table.sort(items, function(a, b)
     if a.file ~= b.file then
       return a.file < b.file
@@ -66,7 +66,7 @@ local function open_references(items)
   end)
 
   ui.open({
-    title = "References",
+    title = title,
 
     initial_results = items,
 
@@ -181,7 +181,68 @@ function M.references()
         return
       end
 
-      open_references(items)
+      open_locations("References", items)
+    end
+  )
+end
+
+function M.definitions()
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  local clients = vim.lsp.get_clients({
+    bufnr = bufnr,
+    method = "textDocument/definition",
+  })
+
+  if #clients == 0 then
+    vim.notify("No LSP client supports definitions", vim.log.levels.WARN)
+    return
+  end
+
+  local client = clients[1]
+
+  local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+
+  vim.lsp.buf_request(
+    bufnr,
+    "textDocument/definition",
+    params,
+    function(err, result)
+      if err then
+        vim.notify(
+          "LSP definition failed: " .. (err.message or tostring(err)),
+          vim.log.levels.ERROR
+        )
+        return
+      end
+
+      if not result or vim.tbl_isempty(result) then
+        vim.notify("No definitions found")
+        return
+      end
+
+      -- Definition may return a single Location/LocationLink
+      -- instead of a list.
+      if result.uri or result.targetUri then
+        result = { result }
+      end
+
+      local items = {}
+
+      for _, location in ipairs(result) do
+        local item = location_to_item(location)
+
+        if item then
+          items[#items + 1] = item
+        end
+      end
+
+      if #items == 0 then
+        vim.notify("No definitions found")
+        return
+      end
+
+      open_locations("Definitions", items)
     end
   )
 end

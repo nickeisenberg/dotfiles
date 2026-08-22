@@ -22,5 +22,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
       buffer = ev.buf,
       desc = "LSP: References",
     })
+    vim.keymap.set("n", "<leader>gd", picker.definitions, {
+      buffer = ev.buf,
+      desc = "LSP: Definitions",
+    })
   end,
 })

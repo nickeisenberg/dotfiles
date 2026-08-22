@@ -9,5 +9,6 @@ M.find_files = find.find_files
 M.live_grep = grep.live_grep
 M.find_buffers = buffers.find_buffers
 M.references = lsp.references
+M.definitions = lsp.definitions
 
 return M
