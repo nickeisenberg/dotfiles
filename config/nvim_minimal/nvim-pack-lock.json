@@ -7,6 +7,14 @@
     "iron.nvim": {
       "rev": "c7f8047d964fb155a701b7c860fa3d4143d713c5",
       "src": "https://github.com/Vigemus/iron.nvim"
+    },
+    "oil-git-status.nvim": {
+      "rev": "a3e2ccb00cb8822115e28a9a1791eda051d940c9",
+      "src": "https://github.com/refractalize/oil-git-status.nvim"
+    },
+    "oil.nvim": {
+      "rev": "b73018b75affd13fa38e2fc94ef753b465f770d7",
+      "src": "https://github.com/stevearc/oil.nvim"
     }
   }
 }

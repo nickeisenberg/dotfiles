@@ -13,9 +13,16 @@ vim.pack.add({
   {
     src = "https://github.com/lewis6991/gitsigns.nvim",
   },
+  {
+    src = "https://github.com/stevearc/oil.nvim",
+  },
+  {
+    src = "https://github.com/refractalize/oil-git-status.nvim",
+  },
 })
 
 require("plugins.picker")
 require("plugins.iron")
 require("plugins.gitsigns")
 require("plugins.float-term")
+require("plugins.oil")
