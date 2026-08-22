@@ -34,6 +34,9 @@ fi
 
 export NVIM_APPNAME="nvim_minimal"
 
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
 # default sys venv
 if [[ ! -f "${HOME}/.venv/bin/activate" ]]; then
     if python3.12 -m venv --help > /dev/null 2>&1; then
