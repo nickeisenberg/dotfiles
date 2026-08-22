@@ -3,6 +3,7 @@
 -- Add locally developed plugins.
 local plugin_root = vim.fn.stdpath("config") .. "/plugins"
 vim.opt.runtimepath:prepend(plugin_root .. "/picker.nvim")
+vim.opt.runtimepath:prepend(plugin_root .. "/float-term.nvim")
 
 -- Add git repo plugins.
 vim.pack.add({
@@ -17,3 +18,4 @@ vim.pack.add({
 require("plugins.picker")
 require("plugins.iron")
 require("plugins.gitsigns")
+require("plugins.float-term")
