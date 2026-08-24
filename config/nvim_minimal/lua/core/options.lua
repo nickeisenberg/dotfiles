@@ -5,6 +5,8 @@ vim.o.hlsearch = false
 
 vim.o.shell = vim.o.shell .. " --login"
 
+vim.opt.colorcolumn = "80"
+
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
