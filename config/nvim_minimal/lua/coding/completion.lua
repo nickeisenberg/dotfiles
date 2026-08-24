@@ -67,9 +67,6 @@ local function complete_path()
 
       -- `word` is the complete replacement text starting at `start_col`.
       local candidate = typed_directory .. name
-      if is_directory then
-        candidate = candidate .. "/"
-      end
 
       matches[#matches + 1] = {
         word = candidate,
