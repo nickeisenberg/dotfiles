@@ -36,8 +36,10 @@ M.formatters = {
       command = "ruff",
       args = function(bufname)
         return {
+          -- Apply automatic lint fixes, including import sorting.
           "check",
           "--fix",
+          "--exit-zero",
           "--stdin-filename",
           bufname,
           "-",
