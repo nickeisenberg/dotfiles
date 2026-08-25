@@ -17,7 +17,6 @@ M.formatters = {
       args = { "-" },
     },
   },
-
   json = {
     {
       command = "prettier",
@@ -36,7 +35,6 @@ M.formatters = {
       command = "ruff",
       args = function(bufname)
         return {
-          -- Apply automatic lint fixes, including import sorting.
           "check",
           "--fix",
           "--exit-zero",
@@ -50,7 +48,6 @@ M.formatters = {
       command = "ruff",
       args = function(bufname)
         return {
-          -- Format the source after Ruff has applied its lint fixes.
           "format",
           "--stdin-filename",
           bufname,
@@ -112,10 +109,7 @@ local function format_external(bufnr, pipeline)
 
   for _, step in ipairs(pipeline) do
     if vim.fn.executable(step.command) ~= 1 then
-      vim.notify(
-        "Formatter not found: " .. step.command,
-        vim.log.levels.WARN
-      )
+      vim.notify("Formatter not found: " .. step.command, vim.log.levels.WARN)
       return false
     end
 
@@ -124,10 +118,12 @@ local function format_external(bufnr, pipeline)
       unpack(get_args(step, bufname)),
     }
 
-    local result = vim.system(command, {
-      stdin = input,
-      text = true,
-    }):wait()
+    local result = vim
+      .system(command, {
+        stdin = input,
+        text = true,
+      })
+      :wait()
 
     if result.code ~= 0 then
       local message = result.stderr
