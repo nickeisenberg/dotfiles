@@ -50,6 +50,8 @@ export PATH="${HOME}/.venvman/envs/3.12/system/bin:${PATH}"
 # Software
 #--------------------------------------------------
 
+export NVIM_APPNAME="nvim_minimal"
+
 # cuda paths
 if [[ $(uname -n) == "fedora" ]]; then
 	export PATH="/usr/local/cuda-13.0/bin:${PATH}"

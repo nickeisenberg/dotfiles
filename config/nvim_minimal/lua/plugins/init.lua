@@ -19,6 +19,9 @@ vim.pack.add({
   {
     src = "https://github.com/refractalize/oil-git-status.nvim",
   },
+  {
+    src = "https://github.com/lervag/vimtex", 
+  },
 })
 
 require("plugins.picker")
@@ -26,3 +29,4 @@ require("plugins.iron")
 require("plugins.gitsigns")
 require("plugins.float-term")
 require("plugins.oil")
+require("plugins.vimtex")
