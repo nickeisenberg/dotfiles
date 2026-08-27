@@ -20,7 +20,7 @@ vim.pack.add({
     src = "https://github.com/refractalize/oil-git-status.nvim",
   },
   {
-    src = "https://github.com/lervag/vimtex", 
+    src = "https://github.com/lervag/vimtex",
   },
 })
 
