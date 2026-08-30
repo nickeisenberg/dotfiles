@@ -17,19 +17,6 @@ M.formatters = {
       args = { "-" },
     },
   },
-  json = {
-    {
-      command = "prettier",
-      args = function(bufname)
-        return {
-          -- Lets Prettier infer parsing and configuration from the filename.
-          "--stdin-filepath",
-          bufname,
-        }
-      end,
-    },
-  },
-
   python = {
     {
       command = "ruff",
