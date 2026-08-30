@@ -2,37 +2,33 @@ local ui = require("picker.ui")
 
 local M = {}
 
-local ignore_patterns = {
-  "node_modules",
-  "%.git",
-  "%.cache",
-  "dist",
-  "build",
-  "%.tmp",
-  "%.log",
-}
-
-local function should_ignore(path)
-  for _, pattern in ipairs(ignore_patterns) do
-    if path:match(pattern) then
-      return true
-    end
-  end
-
-  return false
-end
-
 local function get_files()
-  local files = vim.fn.glob("**/*", true, true)
-  local result = {}
+  local files = vim.fn.systemlist({
+    "rg",
+    "--files",
+    "--hidden",
+    "--no-messages",
+    "--glob",
+    "!.git/*",
+    "--glob",
+    "!node_modules/*",
+    "--glob",
+    "!.cache/*",
+    "--glob",
+    "!dist/*",
+    "--glob",
+    "!build/*",
+    "--glob",
+    "!*.tmp",
+    "--glob",
+    "!*.log",
+  })
 
-  for _, file in ipairs(files) do
-    if vim.fn.isdirectory(file) == 0 and not should_ignore(file) then
-      result[#result + 1] = file
-    end
+  if vim.v.shell_error ~= 0 then
+    return {}
   end
 
-  return result
+  return files
 end
 
 function M.find_files()
