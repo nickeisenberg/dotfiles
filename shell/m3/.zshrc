@@ -50,6 +50,7 @@ if [[ -f "${HOME}/.secrets.sh" ]]; then
 	    source "${HOME}/.secrets.sh"
 fi
 
+export NVIM_APPNAME="nvim_minimal"
 
 VENVMAN_ROOT_DIR=$HOME/.venvman
 source "$HOME/.venvman/venvman/src/main.sh"
