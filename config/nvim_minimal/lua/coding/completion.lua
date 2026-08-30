@@ -3,6 +3,10 @@
 
 local uv = vim.uv or vim.loop
 
+local group = vim.api.nvim_create_augroup("native_completion", {
+  clear = true,
+})
+
 -- Find the path-like token directly before the cursor.
 -- Quotes, whitespace, and common brackets terminate a path.
 local function path_token_before_cursor(line_before_cursor)
@@ -102,6 +106,7 @@ local function complete_path()
 end
 
 vim.api.nvim_create_autocmd("LspAttach", {
+  group = group,
   callback = function(ev)
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
 
@@ -114,27 +119,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
         autotrigger = true,
       })
     end
-
-    if client:supports_method("textDocument/signatureHelp") then
-      vim.api.nvim_create_autocmd("InsertCharPre", {
-        buffer = ev.buf,
-        callback = function()
-          if vim.v.char == "(" or vim.v.char == "," then
-            vim.schedule(function()
-              vim.lsp.buf.signature_help({
-                border = "rounded",
-              })
-            end)
-          end
-        end,
-      })
-    end
   end,
 })
 
 vim.api.nvim_create_autocmd("TextChangedI", {
+  group = group,
   callback = function()
-    -- Paths get priority over LSP completion.
     if complete_path() then
       return
     end
@@ -153,11 +143,18 @@ vim.api.nvim_create_autocmd("TextChangedI", {
   end,
 })
 
-vim.opt.completeopt = {
-  "menu",
-  "menuone",
-  "noselect",
-}
+vim.api.nvim_create_autocmd("InsertCharPre", {
+  group = group,
+  callback = function()
+    if vim.v.char == "(" or vim.v.char == "," then
+      vim.schedule(function()
+        vim.lsp.buf.signature_help({
+          border = "rounded",
+        })
+      end)
+    end
+  end,
+})
 
 vim.opt.completeopt = {
   "menu",
