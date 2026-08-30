@@ -113,32 +113,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.lsp.completion.enable(true, client.id, ev.buf, {
         autotrigger = true,
       })
-
-      vim.api.nvim_create_autocmd("TextChangedI", {
-        buffer = ev.buf,
-        callback = function()
-          -- Paths get priority over LSP completion.
-          --
-          -- For example, after typing `~/Doc`, this scans the home directory
-          -- and presents matching entries through Neovim's normal popup menu.
-          if complete_path() then
-            return
-          end
-
-          -- Otherwise retain your existing LSP-trigger rule.
-          if vim.fn.pumvisible() == 1 then
-            return
-          end
-
-          local line = vim.api.nvim_get_current_line()
-          local col = vim.api.nvim_win_get_cursor(0)[2]
-          local before = line:sub(1, col)
-
-          if before:match("[%w_][%w_]$") then
-            vim.lsp.completion.get()
-          end
-        end,
-      })
     end
 
     if client:supports_method("textDocument/signatureHelp") then
@@ -157,6 +131,33 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
   end,
 })
+
+vim.api.nvim_create_autocmd("TextChangedI", {
+  callback = function()
+    -- Paths get priority over LSP completion.
+    if complete_path() then
+      return
+    end
+
+    if vim.fn.pumvisible() == 1 then
+      return
+    end
+
+    local line = vim.api.nvim_get_current_line()
+    local col = vim.api.nvim_win_get_cursor(0)[2]
+    local before = line:sub(1, col)
+
+    if before:match("[%w_][%w_]$") then
+      vim.lsp.completion.get()
+    end
+  end,
+})
+
+vim.opt.completeopt = {
+  "menu",
+  "menuone",
+  "noselect",
+}
 
 vim.opt.completeopt = {
   "menu",
