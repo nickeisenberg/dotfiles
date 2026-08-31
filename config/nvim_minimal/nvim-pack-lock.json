@@ -4,10 +4,6 @@
       "rev": "5be654f2232c10ddcad19c1607a67b6b4b78fc29",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
-    "gruvbox": {
-      "rev": "5d15b2765f59754d7ac263c88a0f6e3e58124951",
-      "src": "https://github.com/morhetz/gruvbox"
-    },
     "iron.nvim": {
       "rev": "c7f8047d964fb155a701b7c860fa3d4143d713c5",
       "src": "https://github.com/Vigemus/iron.nvim"
