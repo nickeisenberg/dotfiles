@@ -148,9 +148,23 @@ vim.api.nvim_create_autocmd("InsertCharPre", {
   callback = function()
     if vim.v.char == "(" or vim.v.char == "," then
       vim.schedule(function()
-        vim.lsp.buf.signature_help({
-          border = "rounded",
-        })
+        -- Check if any attached client supports signature help
+        local bufnr = vim.api.nvim_get_current_buf()
+        local clients = vim.lsp.get_clients({ bufnr = bufnr })
+
+        local has_signature_help = false
+        for _, client in ipairs(clients) do
+          if client.server_capabilities.signatureHelpProvider then
+            has_signature_help = true
+            break
+          end
+        end
+
+        if has_signature_help then
+          vim.lsp.buf.signature_help({
+            border = "rounded",
+          })
+        end
       end)
     end
   end,
