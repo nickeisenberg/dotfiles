@@ -2,60 +2,89 @@ autoload -Uz compinit
 compinit
 
 autoload -Uz colors && colors
+autoload -Uz add-zsh-hook
 
-parse_git_branch() {
+# --------------------------------------------------
+# Prompt
+# --------------------------------------------------
+
+git_prompt_info() {
     local branch
-    branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-    [[ -n $branch ]] && echo " ($branch)"
+    branch=$(git symbolic-ref --short HEAD 2>/dev/null) ||
+        branch=$(git rev-parse --short HEAD 2>/dev/null) ||
+        return
+
+    local dirty=""
+    if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
+        dirty=" %{$fg_bold[yellow]%}✗"
+    fi
+
+    echo " %{$fg_bold[blue]%}git:(%{$fg[red]%}${branch}%{$fg_bold[blue]%})${dirty}%{$reset_color%}"
 }
 
 set_prompt() {
-	FANCY=false
+    local exit_code=$?
+    local arrow
+    local git_info
 
-	PROMPT_NO_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} \$ "
-	PROMPT_STATUS="%{$fg_bold[green]%}%n@%m%{$reset_color%}:%{$fg_bold[blue]%}%1~%{$fg_bold[red]%}$(parse_git_branch)%{$reset_color%} (x) \$ "
+    git_info="$(git_prompt_info)"
 
-	if $FANCY; then
-		STATUS=$(git status --short 2> /dev/null)
-	fi
+    if [[ $exit_code -eq 0 ]]; then
+        arrow="%{$fg_bold[green]%}➜"
+    else
+        arrow="%{$fg_bold[red]%}➜"
+    fi
 
-	if [ -n "$STATUS" ]; then
-	  PROMPT=$PROMPT_STATUS
-	else
-	  PROMPT=$PROMPT_NO_STATUS
-	fi
+    PROMPT="${arrow}  %{$fg_bold[cyan]%}%c%{$reset_color%}${git_info} "
 
-    if [ -n "$VIRTUAL_ENV_PROMPT" ]; then
+    if [[ -n "$VIRTUAL_ENV_PROMPT" ]]; then
         PROMPT="${VIRTUAL_ENV_PROMPT} ${PROMPT}"
     fi
 }
 
-pipthis() {
-	pip install . --no-deps --trusted-host jfrog.nts.ops
-}
-
-autoload -Uz add-zsh-hook
 add-zsh-hook precmd set_prompt
 
-#--------------------------------------------------
-# Alias
-#--------------------------------------------------
+# --------------------------------------------------
+# Functions
+# --------------------------------------------------
+
+pipthis() {
+    pip install . --no-deps --trusted-host jfrog.nts.ops
+}
+
+# --------------------------------------------------
+# Aliases
+# --------------------------------------------------
+
 alias ls='ls -G'
 alias ll='ls -alFG'
 alias la='ls -AG'
 alias l='ls -CFlG'
-#--------------------------------------------------
-#
+
+# --------------------------------------------------
+# Secrets
+# --------------------------------------------------
+
 if [[ -f "${HOME}/.secrets.sh" ]]; then
-	    source "${HOME}/.secrets.sh"
+    source "${HOME}/.secrets.sh"
 fi
+
+# --------------------------------------------------
+# Neovim
+# --------------------------------------------------
 
 export NVIM_APPNAME="nvim_minimal"
 
-VENVMAN_ROOT_DIR=$HOME/.venvman
-source "$HOME/.venvman/venvman/src/main.sh"
+# --------------------------------------------------
+# venvman
+# --------------------------------------------------
 
-#--------------------------------------------------
+VENVMAN_ROOT_DIR="${HOME}/.venvman"
+source "${HOME}/.venvman/venvman/src/main.sh"
+
+# --------------------------------------------------
+# PATH
+# --------------------------------------------------
 
 PATH="${HOME}/.local/src/miniconda3/bin:${PATH}"
 PATH="${HOME}/.local/src/nvm/versions/node/v22.14.0/bin:${PATH}"
@@ -63,32 +92,55 @@ PATH="${HOME}/.local/src/nvm/versions/node/v22.14.0/bin:${PATH}"
 PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:${PATH}"
 PATH="${HOME}/.local/bin:${PATH}"
 
+# --------------------------------------------------
+# NVM
+# --------------------------------------------------
+
 nvm() {
     unset -f nvm
-    export NVM_DIR="$HOME/.local/src/nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-    nvm $@
+
+    export NVM_DIR="${HOME}/.local/src/nvm"
+
+    [[ -s "${NVM_DIR}/nvm.sh" ]] &&
+        source "${NVM_DIR}/nvm.sh"
+
+    [[ -s "${NVM_DIR}/bash_completion" ]] &&
+        source "${NVM_DIR}/bash_completion"
+
+    nvm "$@"
 }
 
-if python3.12 --version > /dev/null; then
-	SYS_VENV="${HOME}/.sysvenv/venv"
-	if python3.12 -m venv --help > /dev/null; then
-		if [[ -f "${SYS_VENV}/bin/activate" ]]; then
-			source "${SYS_VENV}/bin/activate"
-		else
-			python3.12 -m venv ${SYS_VENV}
-			source "${SYS_VENV}/bin/activate"
-		fi
-	fi
-	export PATH="${SYS_VENV}/bin/:${PATH}"
+# --------------------------------------------------
+# System Python virtual environment
+# --------------------------------------------------
+
+if python3.12 --version >/dev/null 2>&1; then
+    SYS_VENV="${HOME}/.sysvenv/venv"
+
+    if python3.12 -m venv --help >/dev/null 2>&1; then
+        if [[ ! -f "${SYS_VENV}/bin/activate" ]]; then
+            python3.12 -m venv "${SYS_VENV}"
+        fi
+
+        source "${SYS_VENV}/bin/activate"
+    fi
+
+    export PATH="${SYS_VENV}/bin:${PATH}"
 fi
 
+# --------------------------------------------------
+# Completion
+# --------------------------------------------------
+
 _pip_completion() {
-    COMPREPLY=( $( COMP_WORDS="${COMP_WORDS[*]}" \
-                   COMP_CWORD=$COMP_CWORD \
-                   PIP_AUTO_COMPLETE=1 $1 2>/dev/null ) )
+    COMPREPLY=($(
+        COMP_WORDS="${COMP_WORDS[*]}" \
+            COMP_CWORD=$COMP_CWORD \
+            PIP_AUTO_COMPLETE=1 \
+            "$1" 2>/dev/null
+    ))
 }
+
 complete -o default -F _pip_completion pip 2>/dev/null
 
 eval "$(register-python-argcomplete serverctl)"
