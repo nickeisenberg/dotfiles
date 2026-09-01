@@ -24,16 +24,11 @@ git_prompt_info() {
 
 set_prompt() {
     local exit_code=$?
-    local arrow
     local git_info
+    local arrow
 
     git_info="$(git_prompt_info)"
-
-    if [[ $exit_code -eq 0 ]]; then
-        arrow="%{$fg_bold[green]%}➜"
-    else
-        arrow="%{$fg_bold[red]%}➜"
-    fi
+    arrow="%{$fg_bold[green]%}➜"
 
     PROMPT="${arrow}  %{$fg_bold[cyan]%}%c%{$reset_color%}${git_info} "
 
