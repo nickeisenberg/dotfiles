@@ -80,10 +80,10 @@ if python3.12 --version > /dev/null 2>&1; then
     SYS_VENV="${HOME}/.sysvenv/venv"
     if python3.12 -m venv --help > /dev/null 2>&1; then
         if [[ -f "${SYS_VENV}/bin/activate" ]]; then
-            source "${SYS_VENV}/bin/activate"
+# source "${SYS_VENV}/bin/activate"  # commented out by conda initialize
         else
             python3.12 -m venv ${SYS_VENV}
-            source "${SYS_VENV}/bin/activate"
+# source "${SYS_VENV}/bin/activate"  # commented out by conda initialize
         fi
     fi
     export PATH="${SYS_VENV}/bin/:${PATH}"
@@ -100,3 +100,4 @@ complete -o default -F _pip_completion pip 2>/dev/null
 # Python argcomplete registrations
 eval "$(register-python-argcomplete serverctl)"
 eval "$(register-python-argcomplete monocommit)"
+

@@ -1,9 +1,13 @@
--- lua/plugins/init.lua
+---@param name string
+---@return nil
+--- Adds local packages defined in 'vim.fn.stdpath("config") .. "/plugins/"'
+local function add_local_pkgs(name)
+  local plugin_root = vim.fn.stdpath("config") .. "/plugins/"
+  vim.opt.runtimepath:prepend(plugin_root .. name)
+end
 
--- Add locally developed plugins.
-local plugin_root = vim.fn.stdpath("config") .. "/plugins"
-vim.opt.runtimepath:prepend(plugin_root .. "/picker.nvim")
-vim.opt.runtimepath:prepend(plugin_root .. "/float-term.nvim")
+add_local_pkgs("picker.nvim")
+add_local_pkgs("float-term.nvim")
 
 -- Add git repo plugins.
 vim.pack.add({
