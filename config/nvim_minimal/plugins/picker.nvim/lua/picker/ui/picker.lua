@@ -4,6 +4,9 @@ local previewer = require("picker.ui.preview")
 local M = {}
 
 function M.open(opts)
+	local SEARCH_DEBOUNCE_MS = 80
+	local PREVIEW_DEBOUNCE_MS = 60
+
 	local layout_type = layout.get()
 
 	local total_width = math.floor(vim.o.columns * 0.85)
@@ -17,19 +20,16 @@ function M.open(opts)
 	if layout_type == "side" then
 		list_width = math.floor(total_width * 0.45)
 		preview_width = total_width - list_width - 2
-
 		list_height = total_height
 		preview_height = total_height
 	elseif layout_type == "bottom" then
 		list_width = total_width
 		preview_width = total_width
-
 		list_height = math.floor(total_height * 0.45)
 		preview_height = total_height - list_height - 2
 	else
 		list_width = total_width
 		list_height = total_height
-
 		preview_width = 0
 		preview_height = 0
 	end
@@ -51,7 +51,7 @@ function M.open(opts)
 		col = col,
 		style = "minimal",
 		border = "rounded",
-		title = " " .. opts.title .. " ",
+		title = " " .. (opts.title or "Picker") .. " ",
 		title_pos = "center",
 	})
 
@@ -114,12 +114,27 @@ function M.open(opts)
 	local selected = 1
 	local scroll_offset = 1
 
+	local closed = false
+	local search_generation = 0
+	local cancel_search
+
+	local preview_file
+	local preview_tick
+	local preview_generation = 0
+
+	-- A sentinel makes the initial empty selection trigger an update.
+	local requested_preview = false
+
+	local function picker_is_valid()
+		return not closed and vim.api.nvim_buf_is_valid(list_buf) and vim.api.nvim_win_is_valid(list_win)
+	end
+
 	--
 	-- Preview
 	--
 
 	local function update_preview()
-		if layout_type == "none" then
+		if not picker_is_valid() then
 			return
 		end
 
@@ -132,58 +147,96 @@ function M.open(opts)
 		end
 
 		local result = results[selected]
-
-		vim.bo[preview_buf].modifiable = true
-
-		if not result then
-			vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, { "No selection" })
-
-			vim.bo[preview_buf].modifiable = false
-			return
-		end
-
-		local preview = opts.preview(result)
+		local preview = result and opts.preview and opts.preview(result)
 
 		if not preview or not preview.file then
-			vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, { "No preview available" })
+			local message = result and "No preview available" or "No selection"
 
+			-- A message replaces the cached file contents.
+			preview_file = nil
+			preview_tick = nil
+
+			vim.bo[preview_buf].modifiable = true
+			vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, { message })
 			vim.bo[preview_buf].modifiable = false
+			vim.bo[preview_buf].filetype = ""
 			return
 		end
 
-		local lines = previewer.read_file(preview.file)
+		local bufnr = vim.fn.bufnr(preview.file)
+		local tick
 
-		vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, lines)
-
-		local ft = vim.filetype.match({
-			filename = preview.file,
-		})
-
-		if ft then
-			vim.bo[preview_buf].filetype = ft
+		-- Loaded buffers can contain unsaved changes. Their changedtick
+		-- tells us whether cached preview contents need to be refreshed.
+		if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+			tick = vim.api.nvim_buf_get_changedtick(bufnr)
 		end
 
-		vim.bo[preview_buf].modifiable = false
+		if preview_file ~= preview.file or preview_tick ~= tick then
+			local lines = previewer.read_file(preview.file)
 
+			vim.bo[preview_buf].modifiable = true
+			vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, lines)
+			vim.bo[preview_buf].modifiable = false
+
+			local ft = vim.filetype.match({
+				filename = preview.file,
+			}) or ""
+
+			-- Avoid repeating filetype setup when it has not changed.
+			if vim.bo[preview_buf].filetype ~= ft then
+				vim.bo[preview_buf].filetype = ft
+			end
+
+			preview_file = preview.file
+			preview_tick = tick
+		end
+
+		-- Moving between matches in the same file only moves the cursor;
+		-- it does not reread and rewrite the file.
 		local line_count = vim.api.nvim_buf_line_count(preview_buf)
-
-		local lnum = math.min(preview.lnum or 1, line_count)
-
+		local lnum = math.max(1, math.min(preview.lnum or 1, line_count))
 		local line = vim.api.nvim_buf_get_lines(preview_buf, lnum - 1, lnum, false)[1] or ""
 
 		local column = math.min(math.max((preview.col or 1) - 1, 0), #line)
 
 		vim.api.nvim_win_set_cursor(preview_win, { lnum, column })
 
-		if preview.lnum then
-			vim.api.nvim_win_call(preview_win, function()
+		vim.api.nvim_win_call(preview_win, function()
+			if preview.lnum then
 				vim.cmd("normal! zz")
-			end)
-		else
-			vim.api.nvim_win_call(preview_win, function()
+			else
 				vim.cmd("normal! zt")
-			end)
+			end
+		end)
+	end
+
+	local function schedule_preview()
+		if layout_type == "none" then
+			return
 		end
+
+		local result = results[selected]
+
+		-- The asynchronous source keeps result objects stable between
+		-- publications. Newly received batches need not refresh an
+		-- unchanged selection.
+		if result == requested_preview then
+			return
+		end
+
+		requested_preview = result
+		preview_generation = preview_generation + 1
+		local generation = preview_generation
+
+		vim.defer_fn(function()
+			-- Ignore delayed previews superseded by navigation or closure.
+			if not picker_is_valid() or generation ~= preview_generation then
+				return
+			end
+
+			update_preview()
+		end, PREVIEW_DEBOUNCE_MS)
 	end
 
 	--
@@ -209,7 +262,6 @@ function M.open(opts)
 		end
 
 		local max_offset = math.max(#results - visible_count + 1, 1)
-
 		scroll_offset = math.max(1, math.min(scroll_offset, max_offset))
 	end
 
@@ -218,7 +270,7 @@ function M.open(opts)
 	--
 
 	local function render()
-		if not vim.api.nvim_buf_is_valid(list_buf) then
+		if not picker_is_valid() then
 			return
 		end
 
@@ -235,51 +287,110 @@ function M.open(opts)
 			"",
 		}
 
+		-- Only format the visible portion of the result list.
 		local visible_count = math.max(list_height - 2, 1)
-
 		local finish = math.min(#results, scroll_offset + visible_count - 1)
 
 		for i = scroll_offset, finish do
 			local prefix = i == selected and "> " or "  "
-
 			lines[#lines + 1] = prefix .. opts.format(results[i])
 		end
 
 		vim.bo[list_buf].modifiable = true
-
 		vim.api.nvim_buf_set_lines(list_buf, 0, -1, false, lines)
-
 		vim.bo[list_buf].modifiable = false
 
-		-- The buffer cursor itself should never scroll our synthetic list.
-		if vim.api.nvim_win_is_valid(list_win) then
-			vim.api.nvim_win_set_cursor(list_win, { 1, 0 })
+		-- The real cursor must not scroll the synthetic result viewport.
+		vim.api.nvim_win_set_cursor(list_win, { 1, 0 })
 
-			vim.api.nvim_win_call(list_win, function()
-				vim.cmd("normal! zt")
-			end)
-		end
+		vim.api.nvim_win_call(list_win, function()
+			vim.cmd("normal! zt")
+		end)
 
-		update_preview()
+		schedule_preview()
 	end
 
 	--
 	-- Search
 	--
 
+	local function cancel_current_search()
+		if cancel_search then
+			local cancel = cancel_search
+			cancel_search = nil
+			cancel()
+		end
+	end
+
 	local function search()
-		results = opts.search(query)
+		if not picker_is_valid() then
+			return
+		end
+
+		search_generation = search_generation + 1
+
+		local generation = search_generation
+		local search_query = query
+
+		-- Stop obsolete work immediately, before the debounce delay.
+		cancel_current_search()
+
+		-- Clear stale matches so Enter cannot open a previous query's result.
+		results = {}
 		selected = 1
 		scroll_offset = 1
-
 		render()
+
+		if search_query == "" then
+			return
+		end
+
+		vim.defer_fn(function()
+			if not picker_is_valid() or generation ~= search_generation then
+				return
+			end
+
+			if opts.search_async then
+				cancel_search = opts.search_async(search_query, function(new_results)
+					-- A stopped job can still have callbacks queued.
+					-- Only the current query may update the picker.
+					if not picker_is_valid() or generation ~= search_generation then
+						return
+					end
+
+					results = new_results or {}
+
+					-- Preserve navigation when another result batch arrives.
+					render()
+				end)
+			elseif opts.search then
+				-- Compatibility only: a synchronous source still blocks.
+				results = opts.search(search_query) or {}
+				render()
+			end
+		end, SEARCH_DEBOUNCE_MS)
 	end
 
 	--
-	-- Close
+	-- Close and cleanup
 	--
 
+	local function stop_work()
+		if closed then
+			return
+		end
+
+		closed = true
+
+		-- Invalidate both search and preview timers before cancellation.
+		search_generation = search_generation + 1
+		preview_generation = preview_generation + 1
+		cancel_current_search()
+	end
+
 	local function close()
+		stop_work()
+
 		if preview_win and vim.api.nvim_win_is_valid(preview_win) then
 			vim.api.nvim_win_close(preview_win, true)
 		end
@@ -289,11 +400,26 @@ function M.open(opts)
 		end
 	end
 
+	vim.api.nvim_create_autocmd("BufWipeout", {
+		buffer = list_buf,
+		once = true,
+		callback = function()
+			-- Also clean up when something outside the picker deletes
+			-- its buffer. Defer window closure to avoid recursive teardown.
+			stop_work()
+			vim.schedule(close)
+		end,
+	})
+
 	--
 	-- Open selection
 	--
 
 	local function open_selected()
+		if not picker_is_valid() then
+			return
+		end
+
 		local result = results[selected]
 
 		if not result then
@@ -309,7 +435,7 @@ function M.open(opts)
 	--
 
 	local function move_down()
-		if #results == 0 then
+		if not picker_is_valid() or #results == 0 then
 			return
 		end
 
@@ -324,7 +450,7 @@ function M.open(opts)
 	end
 
 	local function move_up()
-		if #results == 0 then
+		if not picker_is_valid() or #results == 0 then
 			return
 		end
 
@@ -334,7 +460,6 @@ function M.open(opts)
 			selected = #results
 
 			local visible_count = math.max(list_height - 2, 1)
-
 			scroll_offset = math.max(#results - visible_count + 1, 1)
 		end
 
@@ -345,58 +470,41 @@ function M.open(opts)
 	-- Keymaps
 	--
 
-	vim.keymap.set("n", "<CR>", open_selected, {
-		buffer = list_buf,
-		nowait = true,
-	})
+	local function map(key, callback)
+		vim.keymap.set("n", key, callback, {
+			buffer = list_buf,
+			nowait = true,
+			silent = true,
+		})
+	end
 
-	vim.keymap.set("n", "<C-n>", move_down, {
-		buffer = list_buf,
-		nowait = true,
-	})
+	map("<CR>", open_selected)
+	map("<C-n>", move_down)
+	map("<C-p>", move_up)
+	map("<Down>", move_down)
+	map("<Up>", move_up)
+	map("<Esc>", close)
 
-	vim.keymap.set("n", "<C-p>", move_up, {
-		buffer = list_buf,
-		nowait = true,
-	})
-
-	vim.keymap.set("n", "<Down>", move_down, {
-		buffer = list_buf,
-		nowait = true,
-	})
-
-	vim.keymap.set("n", "<Up>", move_up, {
-		buffer = list_buf,
-		nowait = true,
-	})
-
-	vim.keymap.set("n", "<Esc>", close, {
-		buffer = list_buf,
-		nowait = true,
-	})
-
-	vim.keymap.set("n", "<BS>", function()
+	map("<BS>", function()
 		if #query == 0 then
 			return
 		end
 
 		query = query:sub(1, -2)
 		search()
-	end, {
-		buffer = list_buf,
-		nowait = true,
-	})
+	end)
 
+	-- Preserve your existing printable-ASCII input handling.
 	for i = 32, 126 do
 		local char = string.char(i)
 
-		vim.keymap.set("n", char, function()
+		-- Use Neovim's literal-less-than notation for this mapping.
+		local key = char == "<" and "<lt>" or char
+
+		map(key, function()
 			query = query .. char
 			search()
-		end, {
-			buffer = list_buf,
-			nowait = true,
-		})
+		end)
 	end
 
 	render()
