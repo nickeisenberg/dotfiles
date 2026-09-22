@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+trap 'tput rmcup; exit' INT TERM EXIT
+
+tput smcup
+
+while true; do
+    clear
+    cat "$1"
+    sleep 1
+done

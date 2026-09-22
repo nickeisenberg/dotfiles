@@ -29,6 +29,7 @@ fi
 alias ll='ls -alF --group-directories-first'
 alias l='ls -l --group-directories-first'
 
+export UV_CACHE_DIR="/p/lustre5/eisenbnt/uv-cache"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
