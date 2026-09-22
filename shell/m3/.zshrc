@@ -8,6 +8,7 @@ autoload -Uz add-zsh-hook
 # Prompt
 # --------------------------------------------------
 
+
 git_prompt_info() {
     local branch
     branch=$(git symbolic-ref --short HEAD 2>/dev/null) ||
@@ -30,12 +31,14 @@ set_prompt() {
     git_info="$(git_prompt_info)"
     arrow="%{$fg_bold[green]%}➜"
 
-    PROMPT="${arrow}  %{$fg_bold[cyan]%}%c%{$reset_color%}${git_info} "
+    # CHANGED %c to %~ below to show the full path
+    PROMPT="${arrow}  %{$fg_bold[cyan]%}%~%{$reset_color%}${git_info} "
 
     if [[ -n "$VIRTUAL_ENV_PROMPT" ]]; then
         PROMPT="${VIRTUAL_ENV_PROMPT} ${PROMPT}"
     fi
 }
+
 
 add-zsh-hook precmd set_prompt
 

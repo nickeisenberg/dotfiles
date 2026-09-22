@@ -35,7 +35,7 @@ white = "0xcdcdcd"   # fg
 yellow = "0xf3be7c"  # warning
 
 [colors.primary]
-background = "0x141415"  # bg
+background = "#000000"  # bg
 foreground = "0xcdcdcd"  # fg
 
 [colors.selection]
