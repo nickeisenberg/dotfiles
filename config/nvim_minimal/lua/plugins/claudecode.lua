@@ -1,6 +1,7 @@
 require("claudecode").setup({
   terminal = {
     provider = "native",
+    auto_insert = false,
   },
 })
 
@@ -23,6 +24,8 @@ vim.keymap.set("n", "<leader>ck", "<cmd>ClaudeCodeClose<cr>", {
 vim.keymap.set("n", "<leader>cb", "<cmd>ClaudeCodeAdd %<cr>", {
   desc = "Add current buffer",
 })
+
+vim.keymap.set("n", "<leader>ct", "<cmd>ClaudeCodeTreeAdd<cr>")
 
 vim.keymap.set("v", "<leader>cs", "<cmd>ClaudeCodeSend<cr>", {
   desc = "Send to Claude",
