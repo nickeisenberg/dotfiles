@@ -26,8 +26,15 @@ vim.pack.add({
   {
     src = "https://github.com/lervag/vimtex",
   },
+  {
+    src = "https://github.com/folke/snacks.nvim",
+  },
+  {
+    src = "https://github.com/coder/claudecode.nvim",
+  },
 })
 
+require("plugins.claudecode")
 require("plugins.picker")
 require("plugins.iron")
 require("plugins.gitsigns")
