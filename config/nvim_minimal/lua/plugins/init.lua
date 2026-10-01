@@ -9,28 +9,37 @@ end
 add_local_pkgs("picker.nvim")
 add_local_pkgs("float-term.nvim")
 
+-- NVIM_PLUGIN_HOST: eg github, gitlab
+local plugin_host = vim.env.NVIM_PLUGIN_HOST:gsub("/+$", "")
+
+---@param repo string
+---@return string
+local function gh(repo)
+  return plugin_host .. "/" .. repo
+end
+
 -- Add git repo plugins.
 vim.pack.add({
   {
-    src = "https://github.com/Vigemus/iron.nvim",
+    src = gh("Vigemus/iron.nvim"),
   },
   {
-    src = "https://github.com/lewis6991/gitsigns.nvim",
+    src = gh("lewis6991/gitsigns.nvim"),
   },
   {
-    src = "https://github.com/stevearc/oil.nvim",
+    src = gh("stevearc/oil.nvim"),
   },
   {
-    src = "https://github.com/refractalize/oil-git-status.nvim",
+    src = gh("refractalize/oil-git-status.nvim"),
   },
   {
-    src = "https://github.com/lervag/vimtex",
+    src = gh("lervag/vimtex"),
   },
   {
-    src = "https://github.com/folke/snacks.nvim",
+    src = gh("folke/snacks.nvim"),
   },
   {
-    src = "https://github.com/coder/claudecode.nvim",
+    src = gh("coder/claudecode.nvim"),
   },
 })
 
