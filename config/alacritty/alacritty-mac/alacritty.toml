@@ -8,5 +8,9 @@ size = 16
 opacity = 1
 dimensions = { columns = 100, lines = 50 }
 
+[terminal.shell]
+program = "/bin/zsh"
+args = ["--login"]
+
 [general]
 import = ["~/.config/alacritty/vague.toml"]
