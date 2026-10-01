@@ -1,7 +1,8 @@
 local iron = require("iron")
 local view = require("iron.view")
 local common = require("iron.fts.common")
-local OS = require("utils").get_os_name()
+
+local utils = require("utils")
 
 iron.setup({
   config = {
@@ -13,8 +14,9 @@ iron.setup({
     },
     repl_definition = {
       python = {
-        command = (OS == "Darwin") and { "ipython", "--no-autoindent" }
-          or { "python3" },
+        command = (utils.get_os_name() == "Darwin") and (utils.is_executable(
+          "ipython"
+        )) and { "ipython", "--no-autoindent" } or { "python3" },
         format = common.bracketed_paste_python,
         block_deviders = { "# %%", "#%%" },
         env = { PYTHON_BASIC_REPL = "1" },
