@@ -26,8 +26,8 @@ from utils import (
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-if which("ghostty"):
-    terminal = "ghostty"
+if which("alacritty"):
+    terminal = "alacritty"
 elif which("gnome-terminal"):
     terminal = "gnome-terminal"
 else:
