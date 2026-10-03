@@ -4,9 +4,7 @@ require("codex").setup({
   env = {}, -- passed to terminal and app-server processes
 
   -- "root", "file", "nvim", a directory path, or function(ctx)
-  cwd = function()
-    return vim.fn.getcwd()
-  end,
+  cwd = "nvim",
   root_markers = { ".git" },
   focus_after_send = false, -- applies to both backends
 
@@ -38,7 +36,7 @@ require("codex").setup({
 
   selection = {
     enabled = true,
-    hint = true,
+    hint = false,
     keymaps = { ask = "<leader>aa", edit = "<leader>aE" },
   },
 
