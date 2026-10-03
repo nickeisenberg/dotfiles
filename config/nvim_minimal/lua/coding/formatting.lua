@@ -11,6 +11,12 @@ local M = {}
 -- A formatter is a list of commands run in order.
 -- Each command receives the previous command's output through stdin.
 M.formatters = {
+  tex = {
+    {
+      command = "tex-fmt",
+      args = { "--stdin" },
+    },
+  },
   lua = {
     {
       command = "stylua",
