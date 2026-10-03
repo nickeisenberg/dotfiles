@@ -37,10 +37,46 @@ require("codex").setup({
   selection = {
     enabled = true,
     hint = false,
-    keymaps = { ask = "<leader>aa", edit = "<leader>aE" },
+    keymaps = { ask = "<leader>ga", edit = "<leader>ge" },
   },
 
   app_server = {
     cmd = { "codex", "app-server" },
   },
+})
+
+vim.keymap.set("n", "<leader>gg", "<cmd>Codex<cr>", {
+  desc = "Toggle Codex",
+})
+
+vim.keymap.set("n", "<leader>gr", "<cmd>CodexResume<cr>", {
+  desc = "Resume Codex",
+})
+
+vim.keymap.set("n", "<leader>gC", "<cmd>CodexContinue<cr>", {
+  desc = "Continue Codex",
+})
+
+vim.keymap.set("n", "<leader>gk", "<cmd>CodexStop<cr>", {
+  desc = "Stop Codex",
+})
+
+vim.keymap.set("n", "<leader>gb", "<cmd>CodexAdd<cr>", {
+  desc = "Add current buffer",
+})
+
+vim.keymap.set("v", "<leader>gs", "<cmd>CodexSendVisual<cr>", {
+  desc = "Send to Codex",
+})
+
+vim.keymap.set("n", "<leader>gt", "<cmd>CodexTreeAdd<cr>", {
+  desc = "Add file to Codex",
+})
+
+vim.keymap.set("n", "<leader>ga", "<cmd>CodexAsk<cr>", {
+  desc = "Ask Codex",
+})
+
+vim.keymap.set("v", "<leader>ge", "<cmd>CodexEdit<cr>", {
+  desc = "Edit with Codex",
 })
