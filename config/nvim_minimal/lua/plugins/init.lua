@@ -41,9 +41,6 @@ vim.pack.add({
   {
     src = gh("coder/claudecode.nvim"),
   },
-  {
-    src = gh("nwiizo/codex.nvim"),
-  },
 })
 
 require("plugins.claudecode")
@@ -53,4 +50,3 @@ require("plugins.gitsigns")
 require("plugins.float-term")
 require("plugins.oil")
 require("plugins.vimtex")
-require("plugins.codex")

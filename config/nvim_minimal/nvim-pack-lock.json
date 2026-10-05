@@ -4,10 +4,6 @@
       "rev": "2390c6e45c4789072c293ac69de051d169668b29",
       "src": "https://github.com/coder/claudecode.nvim"
     },
-    "codex.nvim": {
-      "rev": "4b037a861139cc7f277df80dcabc22fa30601fee",
-      "src": "https://www.github.com/nwiizo/codex.nvim"
-    },
     "gitsigns.nvim": {
       "rev": "5be654f2232c10ddcad19c1607a67b6b4b78fc29",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
