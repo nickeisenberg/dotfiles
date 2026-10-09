@@ -20,6 +20,7 @@ iron.setup({
         format = common.bracketed_paste_python,
         block_deviders = { "# %%", "#%%" },
         env = { PYTHON_BASIC_REPL = "1" },
+        image = true,
       },
       sh = { command = { "/bin/bash", "-l" } },
       cpp = { command = { "cling", "-Iinclude" } },

@@ -13,6 +13,7 @@ add_local_pkgs("float-term.nvim")
 vim.pack.add({
   {
     src = "https://www.github.com/Vigemus/iron.nvim",
+    version = "dev-gregborane/master",
   },
   {
     src = "https://www.github.com/lewis6991/gitsigns.nvim",

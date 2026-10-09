@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import getpass
+import platform
 import subprocess
 from dataclasses import dataclass
+from pathlib import Path
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.widgets import Label, ListItem, ListView
+from textual.containers import Vertical
+from textual.widgets import Label, ListItem, ListView, Static
 
 
 @dataclass(frozen=True)
@@ -27,36 +31,112 @@ MENU = (
 )
 
 
+def get_uptime() -> str:
+    try:
+        seconds = float(Path("/proc/uptime").read_text().split()[0])
+    except (OSError, ValueError, IndexError):
+        return "unknown"
+
+    minutes = int(seconds // 60)
+    days, minutes = divmod(minutes, 1440)
+    hours, minutes = divmod(minutes, 60)
+
+    parts = []
+
+    if days:
+        parts.append(f"{days}d")
+
+    if hours or days:
+        parts.append(f"{hours}h")
+
+    parts.append(f"{minutes}m")
+
+    return " ".join(parts)
+
+
 class PowerMenu(App[tuple[str, ...] | None]):
     CSS = """
     Screen {
-        background: #1e1e2e;
+        background: ansi_black;
         align: center middle;
     }
-
-    ListView {
-        width: 34;
+    
+    #panel {
+        width: 46;
         height: auto;
-        max-height: 14;
         padding: 1 2;
-        background: #1e1e2e;
+        background: ansi_black;
+        border: solid ansi_bright_black;
+    }
+    
+    #header {
+        width: 100%;
+        height: 1;
+        color: ansi_green;
+        text-style: bold;
+    }
+    
+    #uptime {
+        width: 100%;
+        height: 1;
+        color: ansi_bright_black;
+        margin-bottom: 1;
+    }
+    
+    .separator {
+        width: 100%;
+        height: 1;
+        color: ansi_bright_black;
+    }
+    
+    #description {
+        height: 1;
+        color: ansi_bright_black;
+        margin: 1 0;
+    }
+    
+    ListView {
+        width: 100%;
+        height: auto;
+        background: transparent;
         border: none;
+        padding: 0;
     }
-
+    
     ListItem {
-        height: 2;
+        height: 1;
         padding: 0 1;
-        color: #cdd6f4;
-        background: #1e1e2e;
+        color: ansi_white;
+        background: transparent;
     }
-
-    ListItem.--highlight {
-        color: #11111b;
-        background: #89b4fa;
+    
+    ListItem Label {
+        width: 100%;
+        color: ansi_white;
+        background: transparent;
     }
-
+    
+    ListItem.-highlight {
+        color: ansi_black;
+        background: ansi_blue;
+        text-style: bold;
+    }
+    
+    ListItem.-highlight Label {
+        color: ansi_black;
+        background: ansi_blue;
+        text-style: bold;
+    }
+    
     ListView:focus {
         border: none;
+    }
+    
+    #footer {
+        width: 100%;
+        height: 1;
+        color: ansi_bright_black;
+        margin-top: 1;
     }
     """
 
@@ -71,10 +151,37 @@ class PowerMenu(App[tuple[str, ...] | None]):
     ]
 
     def compose(self) -> ComposeResult:
-        yield ListView(
-            *(ListItem(Label(item.text)) for item in MENU),
-            id="menu",
-        )
+        username = getpass.getuser()
+        hostname = platform.node().split(".")[0]
+        uptime = get_uptime()
+
+        with Vertical(id="panel"):
+            yield Static(
+                f"{username}@{hostname}",
+                id="header",
+            )
+
+            yield Static(
+                f"uptime  {uptime}",
+                id="uptime",
+            )
+
+            yield Static("─" * 38, classes="separator")
+            yield Static("Select an action:", id="description")
+
+            yield ListView(
+                *(
+                    ListItem(Label(f"  {i:02d}   {item.text}"))
+                    for i, item in enumerate(MENU, start=1)
+                ),
+                id="menu",
+            )
+
+            yield Static("─" * 38, classes="separator")
+            yield Static(
+                "j/k navigate  ·  enter select  ·  q quit",
+                id="footer",
+            )
 
     def on_mount(self) -> None:
         menu = self.query_one(ListView)
@@ -110,4 +217,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    app = PowerMenu(ansi_color=True)
+    command = app.run()

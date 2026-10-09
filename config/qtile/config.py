@@ -3,6 +3,7 @@ import subprocess
 import sys
 from shutil import which
 
+from colors.vague import Colors
 from libqtile import hook, widget
 from libqtile.bar import Bar
 from libqtile.config import Click, Drag, DropDown, Group, Key, ScratchPad, Screen
@@ -12,8 +13,6 @@ from libqtile.layout.matrix import Matrix
 from libqtile.layout.xmonad import MonadTall
 from libqtile.lazy import lazy
 from libqtile.log_utils import logger
-
-from colors.vague import Colors
 from utils import (
     NvidiaSensors2,
     go_to_group,
@@ -27,7 +26,9 @@ from utils import (
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-if which("alacritty"):
+if which("ghostty"):
+    terminal = "ghostty"
+elif which("alacritty"):
     terminal = "alacritty"
 elif which("gnome-terminal"):
     terminal = "gnome-terminal"
@@ -71,12 +72,14 @@ selected = colors.selected
 
 powermenu_script = os.path.expanduser("~/.config/qtile/scripts/powermenu.py")
 
-powermenu_command = (
-    f"alacritty -e {sys.executable} {powermenu_script}"
-    if terminal == "alacritty"
-    else f"gnome-terminal -- {sys.executable} {powermenu_script}"
-)
-
+if terminal == "ghostty":
+    powermenu_command = (
+        f"{terminal} --window-decoration=false -e {sys.executable} {powermenu_script}"
+    )
+elif terminal == "alacritty":
+    powermenu_command = f"{terminal} -e {sys.executable} {powermenu_script}"
+else:
+    powermenu_command = f"gnome-terminal -- {sys.executable} {powermenu_script}"
 
 keys = [
     Key(["control"], "h", lazy.layout.left(), desc="focus to left"),
