@@ -67,6 +67,16 @@ selected = colors.selected
 # Key Bindings
 # --------------------------------------------------
 
+
+powermenu_script = os.path.expanduser("~/.config/qtile/scripts/powermenu.py")
+
+powermenu_command = (
+    f"alacritty -e python3 {powermenu_script}"
+    if terminal == "alacritty"
+    else f"gnome-terminal -- python3 {powermenu_script}"
+)
+
+
 keys = [
     Key(["control"], "h", lazy.layout.left(), desc="focus to left"),
     Key(["control"], "l", lazy.layout.right(), desc="focus to right"),
@@ -122,9 +132,8 @@ keys = [
     Key(
         [mod0, "control"],
         "q",
-        # lazy.spawn(os.path.expanduser("~/.config/rofi/powermenu.sh")),
-        lazy.spawn(os.path.expanduser("~/.config/qtile/scripts/powermenu.py")),
-        desc="Launch the Rofi file explorer",
+        lazy.spawn(powermenu_command),
+        desc="Launch power menu",
     ),
     Key(
         [mod0, "control"],

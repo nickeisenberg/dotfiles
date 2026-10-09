@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import subprocess
-import tkinter as tk
 from dataclasses import dataclass
-from tkinter import font
+
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Center, Middle
+from textual.widgets import Label, ListItem, ListView
 
 ###############################################################################
 # Configuration
 ###############################################################################
 
 LOCK_COMMAND = ["i3lock", "--color", "000000"]
-
 
 LOGOUT_COMMAND = ["qtile", "cmd-obj", "-o", "cmd", "-f", "shutdown"]
 
@@ -21,7 +23,7 @@ SHUTDOWN_COMMAND = ["systemctl", "poweroff"]
 REBOOT_COMMAND = ["systemctl", "reboot"]
 
 
-@dataclass
+@dataclass(frozen=True)
 class MenuItem:
     text: str
     command: list[str]
@@ -40,152 +42,106 @@ MENU = [
 ###############################################################################
 
 
-class PowerMenu:
-    WIDTH = 340
-    HEIGHT = 180
+class PowerMenu(App[None]):
+    CSS = """
+    Screen {
+        background: #1e1e2e;
+        align: center middle;
+    }
 
-    BG = "#1e1e2e"
-    FG = "#cdd6f4"
+    #menu {
+        width: 34;
+        height: auto;
+        max-height: 14;
+        padding: 1 2;
+        background: #1e1e2e;
+        border: none;
+    }
 
-    SELECT_BG = "#89b4fa"
-    SELECT_FG = "#11111b"
+    ListView {
+        height: auto;
+        background: #1e1e2e;
+        border: none;
+    }
 
-    FONT_SIZE = 18
+    ListItem {
+        height: 2;
+        padding: 0 1;
+        color: #cdd6f4;
+        background: #1e1e2e;
+    }
 
-    def __init__(self) -> None:
-        self.selection = 0
+    ListItem.--highlight {
+        color: #11111b;
+        background: #89b4fa;
+    }
 
-        self.root = tk.Tk()
+    ListView:focus {
+        border: none;
+    }
+    """
 
-        # self.root.overrideredirect(True)
-        self.root.configure(bg=self.BG)
+    BINDINGS = [
+        Binding("escape", "quit", "Quit", show=False),
+        Binding("q", "quit", "Quit", show=False),
+        Binding("j", "down", "Down", show=False, priority=True),
+        Binding("k", "up", "Up", show=False, priority=True),
+        Binding("ctrl+n", "down", "Down", show=False, priority=True),
+        Binding("ctrl+p", "up", "Up", show=False, priority=True),
+        Binding("enter", "execute", "Execute", show=False, priority=True),
+    ]
 
-        self.root.attributes("-topmost", True)
-
-        try:
-            self.root.attributes("-alpha", 0.97)
-        except tk.TclError:
-            pass
-
-        self.center_window()
-
-        self.font = font.Font(
-            family="Noto Sans",
-            size=self.FONT_SIZE,
-        )
-
-        self.labels: list[tk.Label] = []
-
-        frame = tk.Frame(
-            self.root,
-            bg=self.BG,
-            padx=25,
-            pady=25,
-        )
-
-        frame.pack(fill="both", expand=True)
-
-        for item in MENU:
-            label = tk.Label(
-                frame,
-                text=item.text,
-                anchor="w",
-                bg=self.BG,
-                fg=self.FG,
-                font=self.font,
-                padx=15,
-                pady=6,
+    def compose(self) -> ComposeResult:
+        with Center(), Middle():
+            yield ListView(
+                *(ListItem(Label(item.text)) for item in MENU),
+                id="menu",
             )
 
-            label.pack(fill="x", pady=2)
+    def on_mount(self) -> None:
+        menu = self.query_one("#menu", ListView)
+        menu.index = 0
+        menu.focus()
 
-            self.labels.append(label)
+    def action_up(self) -> None:
+        menu = self.query_one("#menu", ListView)
+        index = menu.index if menu.index is not None else 0
+        menu.index = (index - 1) % len(MENU)
 
-        self.update_selection()
+    def action_down(self) -> None:
+        menu = self.query_one("#menu", ListView)
+        index = menu.index if menu.index is not None else 0
+        menu.index = (index + 1) % len(MENU)
 
-        #######################################################################
-        # Keys
-        #######################################################################
+    def action_execute(self) -> None:
+        menu = self.query_one("#menu", ListView)
 
-        self.root.bind("<Up>", self.up)
-        self.root.bind("<Down>", self.down)
-        self.root.bind("<Control-n>", self.down)
-        self.root.bind("<Control-p>", self.up)
-        self.root.bind("k", self.up)
-        self.root.bind("j", self.down)
-        self.root.bind("<Return>", self.execute)
-        self.root.bind("<FocusOut>", self.quit)
-        self.root.focus_force()
+        if menu.index is None:
+            return
 
-    ###########################################################################
+        command = MENU[menu.index].command
+        self.exit(result=None)
+        subprocess.Popen(
+            command,
+            start_new_session=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
-    def center_window(self) -> None:
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-
-        x = (screen_width - self.WIDTH) // 2
-        y = (screen_height - self.HEIGHT) // 2
-
-        self.root.geometry(f"{self.WIDTH}x{self.HEIGHT}+{x}+{y}")
-
-    ###########################################################################
-
-    def update_selection(self) -> None:
-        for i, label in enumerate(self.labels):
-            if i == self.selection:
-                label.configure(
-                    bg=self.SELECT_BG,
-                    fg=self.SELECT_FG,
-                )
-
-            else:
-                label.configure(
-                    bg=self.BG,
-                    fg=self.FG,
-                )
-
-    ###########################################################################
-
-    def up(self, event=None):
-        self.selection -= 1
-
-        if self.selection < 0:
-            self.selection = len(MENU) - 1
-
-        self.update_selection()
-
-    ###########################################################################
-
-    def down(self, event=None):
-        self.selection += 1
-
-        if self.selection >= len(MENU):
-            self.selection = 0
-
-        self.update_selection()
-
-    ###########################################################################
-
-    def execute(self, event=None):
-        self.root.destroy()
-
-        subprocess.Popen(MENU[self.selection].command)
-
-    ###########################################################################
-
-    def quit(self, event=None):
-        self.root.destroy()
-
-    ###########################################################################
-
-    def run(self):
-        self.root.mainloop()
+    def on_list_view_selected(
+        self,
+        event: ListView.Selected,
+    ) -> None:
+        self.action_execute()
 
 
 ###############################################################################
+# Entry point
+###############################################################################
 
 
-def main():
+def main() -> None:
     PowerMenu().run()
 
 
