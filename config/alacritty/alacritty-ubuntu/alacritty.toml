@@ -28,3 +28,8 @@ opacity = 1
 import = ["~/.config/alacritty/vague.toml"]
 
 [terminal]
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"

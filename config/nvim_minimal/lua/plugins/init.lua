@@ -18,6 +18,9 @@ vim.pack.add({
     src = "https://www.github.com/lewis6991/gitsigns.nvim",
   },
   {
+    src = "https://www.github.com/tpope/vim-fugitive",
+  },
+  {
     src = "https://www.github.com/stevearc/oil.nvim",
   },
   {

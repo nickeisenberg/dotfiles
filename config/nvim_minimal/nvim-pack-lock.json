@@ -12,6 +12,10 @@
       "rev": "0168b419bc7df70cd2d97c2ec8158b6b002450b2",
       "src": "https://www.github.com/Vigemus/iron.nvim"
     },
+    "markview.nvim": {
+      "rev": "5d9fc2aa6dd1c2fbdc7a68bc79b300e9967b21ff",
+      "src": "https://github.com/OXY2DEV/markview.nvim"
+    },
     "oil-git-status.nvim": {
       "rev": "a3e2ccb00cb8822115e28a9a1791eda051d940c9",
       "src": "https://www.github.com/refractalize/oil-git-status.nvim"
@@ -23,6 +27,10 @@
     "snacks.nvim": {
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
       "src": "https://www.github.com/folke/snacks.nvim"
+    },
+    "vim-fugitive": {
+      "rev": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0",
+      "src": "https://www.github.com/tpope/vim-fugitive"
     },
     "vimtex": {
       "rev": "c1b96604d9a387cde5a98bec8f6687ae3078b571",

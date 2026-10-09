@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 from shutil import which
 
 from libqtile import hook, widget
@@ -71,9 +72,9 @@ selected = colors.selected
 powermenu_script = os.path.expanduser("~/.config/qtile/scripts/powermenu.py")
 
 powermenu_command = (
-    f"alacritty -e python3 {powermenu_script}"
+    f"alacritty -e {sys.executable} {powermenu_script}"
     if terminal == "alacritty"
-    else f"gnome-terminal -- python3 {powermenu_script}"
+    else f"gnome-terminal -- {sys.executable} {powermenu_script}"
 )
 
 
