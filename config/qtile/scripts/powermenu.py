@@ -60,7 +60,7 @@ class PowerMenu(App[tuple[str, ...] | None]):
         background: ansi_black;
         align: center middle;
     }
-    
+
     #panel {
         width: 46;
         height: auto;
@@ -68,33 +68,33 @@ class PowerMenu(App[tuple[str, ...] | None]):
         background: ansi_black;
         border: solid ansi_bright_black;
     }
-    
+
     #header {
         width: 100%;
         height: 1;
         color: ansi_green;
         text-style: bold;
     }
-    
+
     #uptime {
         width: 100%;
         height: 1;
         color: ansi_bright_black;
         margin-bottom: 1;
     }
-    
+
     .separator {
         width: 100%;
         height: 1;
         color: ansi_bright_black;
     }
-    
+
     #description {
         height: 1;
         color: ansi_bright_black;
         margin: 1 0;
     }
-    
+
     ListView {
         width: 100%;
         height: auto;
@@ -102,36 +102,36 @@ class PowerMenu(App[tuple[str, ...] | None]):
         border: none;
         padding: 0;
     }
-    
+
     ListItem {
         height: 1;
         padding: 0 1;
         color: ansi_white;
         background: transparent;
     }
-    
+
     ListItem Label {
         width: 100%;
         color: ansi_white;
         background: transparent;
     }
-    
+
     ListItem.-highlight {
         color: ansi_black;
         background: ansi_blue;
         text-style: bold;
     }
-    
+
     ListItem.-highlight Label {
         color: ansi_black;
         background: ansi_blue;
         text-style: bold;
     }
-    
+
     ListView:focus {
         border: none;
     }
-    
+
     #footer {
         width: 100%;
         height: 1;
@@ -204,7 +204,8 @@ class PowerMenu(App[tuple[str, ...] | None]):
 
 
 def main() -> None:
-    command = PowerMenu().run()
+    app = PowerMenu(ansi_color=True)
+    command = app.run()
 
     if command is not None:
         subprocess.Popen(
@@ -217,5 +218,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    app = PowerMenu(ansi_color=True)
-    command = app.run()
+    main()
