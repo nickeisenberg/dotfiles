@@ -1,7 +1,9 @@
 from os import system
+
 clear = lambda : system('clear')
-import libqtile.widget.volume as vol
 import subprocess
+
+import libqtile.widget.volume as vol
 
 cmd = [
 'amixer', '-D', 'pulse', 'get', 'Master',

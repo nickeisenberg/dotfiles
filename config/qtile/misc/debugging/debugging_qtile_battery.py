@@ -1,8 +1,9 @@
-from os import system
-import libqtile.widget.battery as bat
-
 # this correctly loads the system
 import platform
+from os import system
+
+import libqtile.widget.battery as bat
+
 platform.system()
 
 # Linux battery class seems to work except. There is not "Not charging" status

@@ -1,5 +1,6 @@
-from libqtile.bar import Bar
 from libqtile import hook
+from libqtile.bar import Bar
+
 
 @hook.subscribe.startup
 def _(bars: list[Bar]):

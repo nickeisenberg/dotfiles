@@ -1,9 +1,10 @@
 from os import system
-clear = lambda : system('clear')
-import libqtile.widget.volume as vol
-import subprocess
-import re
 
+clear = lambda : system('clear')
+import re
+import subprocess
+
+import libqtile.widget.volume as vol
 
 # Get the volume percent
 cmd = 'amixer -D pulse get Master | awk -F \'Left:|[][]\' \'BEGIN {RS=\"\"}{ print $3 }\''

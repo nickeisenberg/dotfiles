@@ -3,6 +3,7 @@
 import re
 import subprocess
 
+
 def get_active_monitors():
     verbose = [
         x for x in subprocess.run(

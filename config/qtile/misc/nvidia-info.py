@@ -1,7 +1,7 @@
 from pynvml import (
-    nvmlInit,
     nvmlDeviceGetHandleByIndex,
     nvmlDeviceGetMemoryInfo,
+    nvmlInit,
     nvmlShutdown,
 )
 

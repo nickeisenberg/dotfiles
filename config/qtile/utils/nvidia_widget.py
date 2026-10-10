@@ -10,6 +10,7 @@ for now.
 import csv
 import re
 from subprocess import CalledProcessError
+
 from libqtile.widget import base
 
 try:

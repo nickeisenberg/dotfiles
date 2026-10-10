@@ -1,6 +1,6 @@
 import numpy as np
-from libqtile.core.manager import Qtile
 from libqtile.config import Group
+from libqtile.core.manager import Qtile
 
 
 def debug_log(x, get="type"):

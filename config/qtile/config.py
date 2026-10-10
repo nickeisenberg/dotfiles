@@ -3,16 +3,25 @@ import subprocess
 import sys
 from shutil import which
 
-from colors.vague import Colors
 from libqtile import hook, widget
 from libqtile.bar import Bar
-from libqtile.config import Click, Drag, DropDown, Group, Key, ScratchPad, Screen
+from libqtile.config import (
+    Click,
+    Drag,
+    DropDown,
+    Group,
+    Key,
+    ScratchPad,
+    Screen,
+)
 from libqtile.layout.columns import Columns
 from libqtile.layout.floating import Floating
 from libqtile.layout.matrix import Matrix
 from libqtile.layout.xmonad import MonadTall
 from libqtile.lazy import lazy
 from libqtile.log_utils import logger
+
+from colors.vague import Colors
 from utils import (
     NvidiaSensors2,
     go_to_group,
@@ -73,37 +82,79 @@ selected = colors.selected
 powermenu_script = os.path.expanduser("~/.config/qtile/scripts/powermenu.py")
 
 if terminal == "ghostty":
-    powermenu_command = (
-        f"{terminal} --window-decoration=false -e {sys.executable} {powermenu_script}"
-    )
+    powermenu_command = f"{terminal} --window-decoration=false -e {sys.executable} {powermenu_script}"
 elif terminal == "alacritty":
     powermenu_command = f"{terminal} -e {sys.executable} {powermenu_script}"
 else:
-    powermenu_command = f"gnome-terminal -- {sys.executable} {powermenu_script}"
+    powermenu_command = (
+        f"gnome-terminal -- {sys.executable} {powermenu_script}"
+    )
 
 keys = [
     Key(["control"], "h", lazy.layout.left(), desc="focus to left"),
     Key(["control"], "l", lazy.layout.right(), desc="focus to right"),
     Key(["control"], "j", lazy.layout.down(), desc="focus down"),
     Key(["control"], "k", lazy.layout.up(), desc="focus up"),
-    Key([mod0, "control"], "h", lazy.layout.shuffle_left(), desc="Move window left"),
-    Key([mod0, "control"], "l", lazy.layout.shuffle_right(), desc="Move window right"),
-    Key([mod0, "control"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod0, "control"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-    Key([mod0, "shift"], "h", lazy.layout.grow_left(), desc="Grow window left"),
-    Key([mod0, "shift"], "l", lazy.layout.grow_right(), desc="Grow window right"),
-    Key([mod0, "shift"], "j", lazy.layout.grow_down(), desc="Grow window down"),
+    Key(
+        [mod0, "control"],
+        "h",
+        lazy.layout.shuffle_left(),
+        desc="Move window left",
+    ),
+    Key(
+        [mod0, "control"],
+        "l",
+        lazy.layout.shuffle_right(),
+        desc="Move window right",
+    ),
+    Key(
+        [mod0, "control"],
+        "j",
+        lazy.layout.shuffle_down(),
+        desc="Move window down",
+    ),
+    Key(
+        [mod0, "control"], "k", lazy.layout.shuffle_up(), desc="Move window up"
+    ),
+    Key(
+        [mod0, "shift"], "h", lazy.layout.grow_left(), desc="Grow window left"
+    ),
+    Key(
+        [mod0, "shift"],
+        "l",
+        lazy.layout.grow_right(),
+        desc="Grow window right",
+    ),
+    Key(
+        [mod0, "shift"], "j", lazy.layout.grow_down(), desc="Grow window down"
+    ),
     Key([mod0, "shift"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod0], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
     Key([mod0], "f", lazy.window.toggle_fullscreen()),
     Key([mod0], "t", lazy.window.toggle_floating()),
     Key(
-        [mod0], "l", grow_right_floating_window(width=15), desc="grow floating to right"
+        [mod0],
+        "l",
+        grow_right_floating_window(width=15),
+        desc="grow floating to right",
     ),
-    Key([mod0], "h", grow_left_floating_window(width=15), desc="grow floating to left"),
-    Key([mod0], "k", grow_up_floating_window(height=15), desc="grow floating to up"),
     Key(
-        [mod0], "j", grow_down_floating_window(height=15), desc="grow floating to down"
+        [mod0],
+        "h",
+        grow_left_floating_window(width=15),
+        desc="grow floating to left",
+    ),
+    Key(
+        [mod0],
+        "k",
+        grow_up_floating_window(height=15),
+        desc="grow floating to up",
+    ),
+    Key(
+        [mod0],
+        "j",
+        grow_down_floating_window(height=15),
+        desc="grow floating to down",
     ),
     Key([mod0, mod1], "h", grow_right_floating_window(width=-15)),
     Key([mod0, mod1], "l", grow_left_floating_window(width=-15)),
@@ -161,7 +212,11 @@ keys = [
         "XF86AudioLowerVolume",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%"),
     ),
-    Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")),
+    Key(
+        [],
+        "XF86AudioMute",
+        lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle"),
+    ),
     Key(
         [],
         "XF86MonBrightnessUp",
@@ -347,7 +402,7 @@ floating_layout_theme = {
     # ]
 }
 
-floating_layout = Floating(**floating_layout_theme)
+floating_layout = Floating(float_rules=None, **floating_layout_theme)
 
 layout_theme = {
     "border_width": 2,
@@ -361,7 +416,7 @@ layouts = [
     Columns(**layout_theme),
     MonadTall(**layout_theme),
     Matrix(**layout_theme),
-    Floating(**layout_theme),
+    Floating(float_rules=None, **layout_theme),
 ]
 
 # --------------------------------------------------
@@ -375,7 +430,10 @@ mouse = [
         start=lazy.window.get_position(),
     ),
     Drag(
-        [mod0], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
+        [mod0],
+        "Button3",
+        lazy.window.set_size_floating(),
+        start=lazy.window.get_size(),
     ),
     Click([mod0], "Button2", lazy.window.bring_to_front()),
 ]
