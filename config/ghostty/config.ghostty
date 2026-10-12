@@ -1,0 +1,35 @@
+command = /bin/bash --login
+confirm-close-surface = false
+window-decoration = false
+
+# Primary
+background = #141415
+foreground = #cdcdcd
+
+# Cursor
+cursor-color = #878787
+cursor-text = #cdcdcd
+
+# Selection
+selection-background = #333738
+selection-foreground = #cdcdcd
+
+# Normal colors
+palette = 0=#141415
+palette = 1=#df6882
+palette = 2=#8cb66d
+palette = 3=#f3be7c
+palette = 4=#7e98e8
+palette = 5=#bb9dbd
+palette = 6=#b4d4cf
+palette = 7=#cdcdcd
+
+# Bright colors
+palette = 8=#606079
+palette = 9=#df6882
+palette = 10=#8cb66d
+palette = 11=#f3be7c
+palette = 12=#7e98e8
+palette = 13=#bb9dbd
+palette = 14=#b4d4cf
+palette = 15=#cdcdcd
