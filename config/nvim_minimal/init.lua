@@ -5,5 +5,8 @@ vim.g.maplocalleader = " "
 require("core")
 require("ui")
 require("coding")
-require("plugins")
 require("utils")
+
+-- Load plugins: every file in lua/plugins/ returns a spec for pack.nvim.
+vim.opt.runtimepath:prepend(vim.fn.stdpath("config") .. "/plugins/pack.nvim")
+require("pack").setup()

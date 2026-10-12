@@ -1,11 +1,17 @@
-require("oil").setup({
-  view_options = {
-    show_hidden = true,
-  },
-  win_options = {
-    signcolumn = "yes:2",
-  },
-})
-require("oil-git-status").setup()
+return {
+  "stevearc/oil.nvim",
+  deps = { "refractalize/oil-git-status.nvim" },
+  config = function()
+    require("oil").setup({
+      view_options = {
+        show_hidden = true,
+      },
+      win_options = {
+        signcolumn = "yes:2",
+      },
+    })
+    require("oil-git-status").setup()
 
-vim.keymap.set("n", "<leader>O", "<CMD>Oil<CR>")
+    vim.keymap.set("n", "<leader>O", "<CMD>Oil<CR>")
+  end,
+}
