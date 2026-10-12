@@ -5,7 +5,7 @@
       "src": "https://github.com/coder/claudecode.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "5be654f2232c10ddcad19c1607a67b6b4b78fc29",
+      "rev": "070a5d7b985546cc57e1fc61e5bc507fecac6045",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "iron.nvim": {
@@ -30,7 +30,7 @@
       "src": "https://github.com/tpope/vim-fugitive"
     },
     "vimtex": {
-      "rev": "c1b96604d9a387cde5a98bec8f6687ae3078b571",
+      "rev": "16a5609d17a436db7f48046d91747fd6a9d75c74",
       "src": "https://github.com/lervag/vimtex"
     }
   }
