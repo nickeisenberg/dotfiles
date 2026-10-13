@@ -1,6 +1,6 @@
 return {
   "Vigemus/iron.nvim",
-  version = "dev-gregborane/master",
+  version = "dev-image",
   config = function()
     local iron = require("iron")
     local view = require("iron.view")
@@ -18,9 +18,13 @@ return {
         },
         repl_definition = {
           python = {
+            -- command = { "ipython", "--no-autoindent" },
             command = (utils.get_os_name() == "Darwin")
                 and (utils.is_executable("ipython"))
-                and { "ipython", "--no-autoindent" }
+                and {
+                  "ipython",
+                  "--no-autoindent",
+                }
               or { "python3" },
             format = common.bracketed_paste_python,
             block_deviders = { "# %%", "#%%" },

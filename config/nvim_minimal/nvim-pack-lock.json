@@ -9,9 +9,9 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "iron.nvim": {
-      "rev": "82439ed143c0efb273fec18c31a21255d2481997",
+      "rev": "49b920fd4b48013f9b5f1a871680b8893b0b7cd8",
       "src": "https://github.com/Vigemus/iron.nvim",
-      "version": "'dev-gregborane/master'"
+      "version": "'dev-image'"
     },
     "oil-git-status.nvim": {
       "rev": "a3e2ccb00cb8822115e28a9a1791eda051d940c9",

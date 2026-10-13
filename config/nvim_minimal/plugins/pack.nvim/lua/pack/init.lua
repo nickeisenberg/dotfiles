@@ -4,10 +4,10 @@
 -- of specs. A spec looks like:
 --
 --   {
---     "owner/repo",            -- or a full git URL, or `src = ...`
+--     "owner/repo",            -- or a git URL, `src = ...`, or a local path
 --     name = "repo",           -- optional, defaults to the repo name
 --     version = "main",        -- optional, passed through to vim.pack
---     dir = "picker.nvim",     -- local plugin instead of a git one
+--     dir = "picker.nvim",     -- local plugin; relative to `local_dir`
 --     deps = { "owner/dep" },  -- specs added before this one
 --     build = "make",          -- shell cmd, ":VimCmd", or function(plugin)
 --     config = function() end, -- run after every plugin is added
@@ -49,6 +49,11 @@ local function normalize(raw)
     raw = { raw }
   end
   local spec = vim.tbl_extend("force", {}, raw)
+
+  -- Paths like "/abc", "~/abc" or "./abc" are shorthand for `dir`.
+  if not spec.dir and type(spec[1]) == "string" and spec[1]:match("^[/~.]") then
+    spec.dir = spec[1]
+  end
 
   if spec.dir then
     local path = vim.fs.normalize(spec.dir)
