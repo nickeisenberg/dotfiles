@@ -5,11 +5,11 @@
       "src": "https://github.com/coder/claudecode.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "070a5d7b985546cc57e1fc61e5bc507fecac6045",
+      "rev": "fd780920613e541cbdfac41bf711583ed49f9249",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "iron.nvim": {
-      "rev": "49b920fd4b48013f9b5f1a871680b8893b0b7cd8",
+      "rev": "b9685ffddbc3beef1666bf2d1b8f132b65b9fec6",
       "src": "https://github.com/Vigemus/iron.nvim",
       "version": "'dev-image'"
     },
@@ -18,7 +18,7 @@
       "src": "https://github.com/refractalize/oil-git-status.nvim"
     },
     "oil.nvim": {
-      "rev": "b73018b75affd13fa38e2fc94ef753b465f770d7",
+      "rev": "d3733d933833a0e59b813ecec99341527adf0c28",
       "src": "https://github.com/stevearc/oil.nvim"
     },
     "snacks.nvim": {
@@ -30,7 +30,7 @@
       "src": "https://github.com/tpope/vim-fugitive"
     },
     "vimtex": {
-      "rev": "16a5609d17a436db7f48046d91747fd6a9d75c74",
+      "rev": "98615cefc441aaa5721c144ecfeacddcdf78816d",
       "src": "https://github.com/lervag/vimtex"
     }
   }
