@@ -81,6 +81,7 @@ fi
 # geant
 if [[ -f "${HOME}/.local/src/geant4/geant4-11.3/install/bin/geant4.sh" ]]; then
     source "${HOME}/.local/src/geant4/geant4-11.3/install/bin/geant4.sh"
+    export LD_LIBRARY_PATH="$(printf '%s' "$LD_LIBRARY_PATH" | tr ':' '\n' | grep -vx '/usr/lib/x86_64-linux-gnu' | grep -v '^$' | paste -sd ':' -)"
 fi
 
 # default sys venv
