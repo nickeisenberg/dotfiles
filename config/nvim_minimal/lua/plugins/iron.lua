@@ -1,6 +1,7 @@
 return {
-  "Vigemus/iron.nvim",
-  version = "dev-image",
+  "~/gitrepos/iron.nvim",
+  -- "Vigemus/iron.nvim",
+  -- version = "dev-image",
   config = function()
     local iron = require("iron")
     local view = require("iron.view")
@@ -27,7 +28,7 @@ return {
             --     }
             --   or { "python3" },
             format = common.bracketed_paste_python,
-            block_deviders = { "# %%", "#%%" },
+            block_dividers = { "# %%", "#%%" },
             env = { PYTHON_BASIC_REPL = "1" },
             image = true,
           },
