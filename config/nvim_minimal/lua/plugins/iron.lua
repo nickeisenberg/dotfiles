@@ -1,7 +1,6 @@
 return {
-  "~/gitrepos/iron.nvim",
-  -- "Vigemus/iron.nvim",
-  -- version = "dev-image",
+  "Vigemus/iron.nvim",
+  version = "dev-image",
   config = function()
     local iron = require("iron")
     local view = require("iron.view")
