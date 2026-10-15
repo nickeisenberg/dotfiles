@@ -1,9 +1,17 @@
 """Live markdown viewer driven by Neovim over a Unix socket.
 
-Neovim sends two kinds of messages:
+Neovim sends three kinds of messages:
 
   T <cursor> <nbytes>\n<bytes>   new buffer text (cursor is 1-based)
   C <cursor>\n                   cursor moved, text unchanged
+  S <rows|top|bottom>\n          scroll by rows, from the preview window
+
+Text and cursor messages make the view follow the cursor again; scroll
+messages pin it until the next one. After a scroll the viewer replies with
+
+  L <topline> <cursorline>\n     source lines to show, so Neovim can match
+
+using the same anchor as following: the cursor sits a third of the way down.
 
 The document is split into top-level markdown blocks. Each block is rendered
 with rich on its own and cached by its source text, so a keystroke only
@@ -40,6 +48,8 @@ cache = {}  # block source -> rendered lines
 lines = []  # rendered document, one ANSI string per row
 spans = []  # (src_start, src_end, out_start, out_len) per block
 cursor = 1
+top = 0  # first visible row, as last drawn
+pinned = None  # row set by scrolling; None follows the cursor
 
 
 def split_blocks(text):
@@ -105,17 +115,45 @@ def target_row():
     return 0
 
 
-def draw():
+def source_line(row):
+    """Map a row of rendered output to a 1-based source line."""
+    for start, end, out_start, out_len in reversed(spans):
+        if row >= out_start:
+            frac = min((row - out_start) / max(out_len, 1), 1.0)
+            return start + int(frac * (end - start)) + 1
+    return 1
+
+
+def clamp(row, height):
+    return max(0, min(row, len(lines) - height))
+
+
+def scroll(arg):
+    global pinned
     height = os.get_terminal_size().lines
-    top = target_row() - height // 3
-    top = max(0, min(top, len(lines) - height))
+    if arg == b"top":
+        row = 0
+    elif arg == b"bottom":
+        row = len(lines)
+    else:
+        row = (top if pinned is None else pinned) + int(arg)
+    pinned = clamp(row, height)
+
+
+def draw():
+    global top, pinned
+    height = os.get_terminal_size().lines
+    if pinned is None:
+        top = clamp(target_row() - height // 3, height)
+    else:
+        top = pinned = clamp(pinned, height)
     rows = lines[top : top + height]
     sys.stdout.write("\x1b[H" + "\x1b[K\r\n".join(rows) + "\x1b[K\x1b[J")
     sys.stdout.flush()
 
 
 def main():
-    global cursor
+    global cursor, pinned
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     sock.connect(sys.argv[1])
@@ -136,7 +174,7 @@ def main():
     text = ""
     try:
         while True:
-            dirty = False
+            dirty = scrolled = False
             for key, _ in sel.select():
                 if key.fileobj is wake_r:
                     wake_r.recv(4096)
@@ -155,13 +193,19 @@ def main():
             while b"\n" in buf:
                 header, rest = buf.split(b"\n", 1)
                 parts = header.split()
-                if parts[0] == b"T":
-                    n = int(parts[2])
-                    if len(rest) < n:
-                        break
-                    new_text = rest[:n].decode("utf-8", "replace")
-                    rest = rest[n:]
-                cursor = int(parts[1])
+                if parts[0] == b"S":
+                    scroll(parts[1])
+                    scrolled = True
+                else:
+                    if parts[0] == b"T":
+                        n = int(parts[2])
+                        if len(rest) < n:
+                            break
+                        new_text = rest[:n].decode("utf-8", "replace")
+                        rest = rest[n:]
+                    cursor = int(parts[1])
+                    pinned = None
+                    scrolled = False
                 buf = rest
                 dirty = True
 
@@ -170,6 +214,10 @@ def main():
                 render(text)
             if dirty:
                 draw()
+            if scrolled:
+                height = os.get_terminal_size().lines
+                anchor = source_line(top + height // 3)
+                sock.sendall(f"L {source_line(top)} {anchor}\n".encode())
     finally:
         sys.stdout.write("\x1b[?25h\x1b[?1049l")
         sys.stdout.flush()

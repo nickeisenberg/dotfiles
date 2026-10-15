@@ -12,6 +12,9 @@ local script = vim.fs.joinpath(
   "mark_tui.py"
 )
 
+-- Open preview: source/preview buffers, socket, viewer job. Nil when closed;
+-- every entry point checks is_open() first.
+---@type table
 local state = nil
 
 local function is_open()
@@ -52,6 +55,45 @@ local function schedule_send(full)
   )
 end
 
+-- Scroll the source window to match the preview after it was scrolled.
+local function sync_source(topline, cursor)
+  local win = vim.fn.bufwinid(state.src_buf)
+  if win == -1 then
+    return
+  end
+  local last = vim.api.nvim_buf_line_count(state.src_buf)
+  vim.api.nvim_win_call(win, function()
+    vim.fn.winrestview({
+      topline = math.min(topline, last),
+      lnum = math.min(cursor, last),
+      col = 0,
+    })
+  end)
+end
+
+-- Handle "L <topline> <cursor>" replies from the viewer.
+local function read_replies(client)
+  local pending = ""
+  client:read_start(function(err, data)
+    if err or not data then
+      return
+    end
+    pending = pending .. data
+    local latest
+    for topline, cursor in pending:gmatch("L (%d+) (%d+)\n") do
+      latest = { tonumber(topline), tonumber(cursor) }
+    end
+    pending = pending:match("[^\n]*$")
+    if latest then
+      vim.schedule(function()
+        if is_open() then
+          sync_source(latest[1], latest[2])
+        end
+      end)
+    end
+  end)
+end
+
 local function listen(sock_path)
   local server = assert(vim.uv.new_pipe(false))
   assert(server:bind(sock_path))
@@ -67,6 +109,7 @@ local function listen(sock_path)
         return
       end
       state.client = client
+      read_replies(client)
       send(true)
     end)
   end)
@@ -108,6 +151,62 @@ local function create_autocmds()
   vim.api.nvim_create_autocmd("VimLeavePre", {
     group = group,
     callback = M.close,
+  })
+end
+
+---Scroll the preview by `rows`, or to "top" / "bottom".
+---@param rows integer|"top"|"bottom"
+function M.scroll(rows)
+  if is_open() and state.client then
+    state.client:write(("S %s\n"):format(rows))
+  end
+end
+
+-- The viewer draws on the alternate screen, so the terminal buffer has no
+-- scrollback of its own; scrolling keys in the preview go to the viewer.
+local function set_keymaps(buf)
+  local function page(frac)
+    return function()
+      local height = vim.api.nvim_win_get_height(0)
+      M.scroll(math.floor(height * frac) * vim.v.count1)
+    end
+  end
+  local function rows(n)
+    return function()
+      M.scroll(n * vim.v.count1)
+    end
+  end
+
+  local maps = {
+    j = rows(1),
+    k = rows(-1),
+    ["<Down>"] = rows(1),
+    ["<Up>"] = rows(-1),
+    ["<C-e>"] = rows(1),
+    ["<C-y>"] = rows(-1),
+    ["<ScrollWheelDown>"] = rows(3),
+    ["<ScrollWheelUp>"] = rows(-3),
+    ["<C-d>"] = page(0.5),
+    ["<C-u>"] = page(-0.5),
+    ["<C-f>"] = page(1),
+    ["<C-b>"] = page(-1),
+    gg = function()
+      M.scroll("top")
+    end,
+    G = function()
+      M.scroll("bottom")
+    end,
+  }
+  for lhs, rhs in pairs(maps) do
+    vim.keymap.set("n", lhs, rhs, {
+      buffer = buf,
+      desc = "Markdown preview: Scroll",
+    })
+  end
+
+  vim.keymap.set("n", "q", M.close, {
+    buffer = buf,
+    desc = "Markdown preview: Close",
   })
 end
 
@@ -166,6 +265,7 @@ function M.open()
     })
   end)
 
+  set_keymaps(buf)
   vim.api.nvim_set_current_win(src_win)
   create_autocmds()
 end
@@ -175,7 +275,7 @@ function M.close()
     return
   end
   local s = state
-  state = nil
+  state = nil ---@diagnostic disable-line: cast-local-type
 
   pcall(vim.api.nvim_del_augroup_by_name, "mark_tui")
   s.timer:stop()
