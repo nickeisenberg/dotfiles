@@ -2,14 +2,34 @@
 
 local M = {}
 
-local function commit_message(path, sha)
-  local res = vim
-    .system({ "git", "-C", path, "log", "-1", "--format=%s (%cr)", sha })
-    :wait()
-  if res.code ~= 0 then
-    return nil
+local group = vim.api.nvim_create_augroup("pack_confirm", { clear = true })
+
+-- Start one `git log` per "Revision...:" line, all at once, so a long
+-- plugin list doesn't wait on each process in turn. Keyed by line number.
+local function start_lookups(lines)
+  local jobs, path = {}, nil
+
+  for i, line in ipairs(lines) do
+    path = line:match("^Path:%s+(.+)$") or path
+
+    local label, sha = line:match("^(Revision[^:]*:%s+)(%x+)")
+    if label and path then
+      jobs[i] = {
+        label = label,
+        proc = vim.system({
+          "git",
+          "-C",
+          path,
+          "log",
+          "-1",
+          "--format=%s (%cr)",
+          sha,
+        }),
+      }
+    end
   end
-  return vim.trim(res.stdout)
+
+  return jobs
 end
 
 -- Add a "Message:" line under every "Revision...:" line of the vim.pack
@@ -17,18 +37,19 @@ end
 -- so the extra lines are safe.
 local function add_commit_messages(bufnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  local out, path = {}, nil
+  local jobs = start_lookups(lines)
+  local out = {}
 
-  for _, line in ipairs(lines) do
+  for i, line in ipairs(lines) do
     out[#out + 1] = line
-    path = line:match("^Path:%s+(.+)$") or path
 
-    local label, sha = line:match("^(Revision[^:]*:%s+)(%x+)")
-    local msg = label and path and commit_message(path, sha)
-    if msg then
-      local suffix = label:match("^Revision([^:]*):")
-      local width = "%-" .. #label .. "s"
-      out[#out + 1] = width:format("Message" .. suffix .. ":") .. msg
+    local job = jobs[i]
+    local res = job and job.proc:wait()
+    if res and res.code == 0 then
+      local suffix = job.label:match("^Revision([^:]*):")
+      local width = "%-" .. #job.label .. "s"
+      out[#out + 1] = width:format("Message" .. suffix .. ":")
+        .. vim.trim(res.stdout)
     end
   end
 
@@ -40,7 +61,12 @@ end
 
 ---Decorate the next confirmation buffer vim.pack opens.
 function M.decorate_next()
+  -- vim.pack.update() can return without opening a buffer ("Nothing to
+  -- update", or an error). Clearing the group keeps at most one pending
+  -- autocmd, so a later buffer is never decorated twice.
+  vim.api.nvim_clear_autocmds({ group = group })
   vim.api.nvim_create_autocmd("FileType", {
+    group = group,
     pattern = "nvim-pack",
     once = true,
     callback = function(ev)
