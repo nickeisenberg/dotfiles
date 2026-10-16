@@ -10,11 +10,11 @@ M.config = {
 
 local kitty = require("mark-tui.kitty")
 
-local script = vim.fs.joinpath(
-  vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, "S").source:sub(2))),
-  "python",
-  "mark_tui.py"
+-- lua/mark-tui/init.lua -> plugin root
+local root = vim.fs.dirname(
+  vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, "S").source:sub(2)))
 )
+local script = vim.fs.joinpath(root, "python", "mark_tui.py")
 
 -- Open preview: source/preview buffers, socket, viewer job. Nil when closed;
 -- every entry point checks is_open() first.
