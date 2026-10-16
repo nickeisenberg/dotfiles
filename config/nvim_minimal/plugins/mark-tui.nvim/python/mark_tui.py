@@ -29,12 +29,14 @@ import selectors
 import signal
 import socket
 import sys
+from typing import TYPE_CHECKING
 
 from rich.console import Console
 from rich.theme import Theme
 
 try:
-    from mark_math import MathMarkdown as Markdown, parser
+    from mark_math import MathMarkdown as Markdown
+    from mark_math import parser
 except ImportError:
     # Without mdit-py-plugins/pylatexenc, math is shown as raw source.
     from markdown_it import MarkdownIt
@@ -43,22 +45,41 @@ except ImportError:
     # Same parser config as rich.markdown, so block boundaries agree.
     parser = MarkdownIt().enable("strikethrough").enable("table")
 
+if TYPE_CHECKING:
+    # Imported in main() only with --images, so Pillow stays optional.
+    from mark_image import Images
+
 console = Console(
-    force_terminal=True, theme=Theme({"markdown.latex": "italic magenta"})
+    force_terminal=True,
+    theme=Theme(
+        {
+            "markdown.latex": "italic magenta",
+            # h1's border is the band color, drawn as half blocks around it.
+            "markdown.h1": "bold bright_white on blue",
+            "markdown.h1.border": "blue",
+            "markdown.h2": "bold magenta",
+            "markdown.h2.border": "magenta",
+            "markdown.h3": "bold cyan",
+            "markdown.h4": "bold yellow",
+            "markdown.h5": "italic",
+            "markdown.h6": "dim italic",
+        }
+    ),
 )
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
-cache = {}  # block source -> rendered lines
-lines = []  # rendered document, one ANSI string per row
-spans = []  # (src_start, src_end, out_start, out_len) per block
+cache: dict[str, list[str]] = {}  # block source -> rendered lines
+lines: list[str] = []  # rendered document, one ANSI string per row
+# (src_start, src_end, out_start, out_len) per block
+spans: list[tuple[int, int, int, int]] = []
 cursor = 1
 top = 0  # first visible row, as last drawn
-pinned = None  # row set by scrolling; None follows the cursor
-images = None  # mark_image.Images when inline images are on
+pinned: int | None = None  # row set by scrolling; None follows the cursor
+images: "Images | None" = None  # set when inline images are on
 
 
-def split_blocks(text):
+def split_blocks(text: str) -> list[tuple[int, int, str]]:
     src = text.split("\n")
     # Level-0 openers and leaf blocks (fence, hr, ...) carry line maps.
     starts = [
@@ -77,11 +98,11 @@ def split_blocks(text):
     return out
 
 
-def is_blank(line):
+def is_blank(line: str) -> bool:
     return not ANSI.sub("", line).strip()
 
 
-def render_block(src):
+def render_block(src: str) -> list[str]:
     rendered = cache.get(src)
     if rendered is None and images:
         rendered = images.render(src, console.width)
@@ -98,7 +119,7 @@ def render_block(src):
     return rendered
 
 
-def render(text):
+def render(text: str) -> None:
     global lines, spans, cache
     old, cache = cache, {}
     new_lines, new_spans = [], []
@@ -113,7 +134,7 @@ def render(text):
     lines, spans = new_lines, new_spans
 
 
-def target_row():
+def target_row() -> int:
     """Map the source cursor line to a row of rendered output."""
     cur = cursor - 1
     for start, end, out_start, out_len in reversed(spans):
@@ -123,7 +144,7 @@ def target_row():
     return 0
 
 
-def source_line(row):
+def source_line(row: int) -> int:
     """Map a row of rendered output to a 1-based source line."""
     for start, end, out_start, out_len in reversed(spans):
         if row >= out_start:
@@ -132,11 +153,11 @@ def source_line(row):
     return 1
 
 
-def clamp(row, height):
+def clamp(row: int, height: int) -> int:
     return max(0, min(row, len(lines) - height))
 
 
-def scroll(arg):
+def scroll(arg: bytes) -> None:
     global pinned
     height = os.get_terminal_size().lines
     if arg == b"top":
@@ -148,7 +169,7 @@ def scroll(arg):
     pinned = clamp(row, height)
 
 
-def draw():
+def draw() -> None:
     global top, pinned
     height = os.get_terminal_size().lines
     if pinned is None:
@@ -160,7 +181,7 @@ def draw():
     sys.stdout.flush()
 
 
-def main():
+def main() -> None:
     global cursor, pinned, images
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -169,7 +190,9 @@ def main():
     if "--images" in sys.argv[2:]:
         from mark_image import Images
 
-        def send_image(image_id, cols, rows, png):
+        def send_image(
+            image_id: int, cols: int, rows: int, png: bytes
+        ) -> None:
             header = f"I {image_id} {cols} {rows} {len(png)}\n"
             sock.sendall(header.encode() + png)
 

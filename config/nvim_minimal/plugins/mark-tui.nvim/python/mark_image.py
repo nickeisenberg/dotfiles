@@ -13,6 +13,7 @@ import math
 import os
 import re
 import urllib.parse
+from collections.abc import Callable
 
 from PIL import Image
 
@@ -41,14 +42,15 @@ IMAGE_LINE = re.compile(
 
 
 class Images:
-    def __init__(self, send):
+    def __init__(self, send: Callable[[int, int, int, bytes], None]) -> None:
         # send(id, cols, rows, png) hands an image to Neovim to upload.
         self.send = send
         self.base = os.getcwd()  # relative paths resolve against this
-        self.ids = {}  # (path, mtime, cols, rows) -> uploaded image id
+        # (path, mtime, cols, rows) -> uploaded image id
+        self.ids: dict[tuple[str, int, int, int], int] = {}
         self.serial = 0
 
-    def render(self, src, width):
+    def render(self, src: str, width: int) -> list[str] | None:
         """Placeholder rows for an image-only block, else None."""
         refs = []
         for line in src.split("\n"):
@@ -66,7 +68,7 @@ class Images:
             rows.extend(block)
         return rows
 
-    def _image(self, ref, width):
+    def _image(self, ref: str, width: int) -> list[str] | None:
         if "://" in ref:
             return None
         path = os.path.join(
@@ -86,7 +88,7 @@ class Images:
             return None
         return placeholders(image_id, cols, rows, (width - cols) // 2)
 
-    def _box(self, size, width):
+    def _box(self, size: tuple[int, int], width: int) -> tuple[int, int]:
         w, h = size
         cols = max(1, min(width - 2, math.ceil(w / CELL_W)))
         rows = math.ceil(cols * CELL_W * h / w / CELL_H)
@@ -95,7 +97,7 @@ class Images:
             cols = max(1, round(rows * CELL_H * w / h / CELL_W))
         return cols, max(1, rows)
 
-    def _upload(self, im, cols, rows):
+    def _upload(self, im: Image.Image, cols: int, rows: int) -> int:
         # Twice the assumed cell size stays sharp on HiDPI screens without
         # sending a full-size photo through the socket.
         im.thumbnail((cols * CELL_W * 2, rows * CELL_H * 2))
@@ -109,7 +111,9 @@ class Images:
         return image_id
 
 
-def placeholders(image_id, cols, rows, indent):
+def placeholders(
+    image_id: int, cols: int, rows: int, indent: int
+) -> list[str]:
     red, green, blue = image_id >> 16, (image_id >> 8) & 255, image_id & 255
     color = f"\x1b[38;2;{red};{green};{blue}m"
     # Later cells in a row inherit row and column from their left neighbor.
