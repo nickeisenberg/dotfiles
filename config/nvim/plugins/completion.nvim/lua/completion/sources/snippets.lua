@@ -147,32 +147,6 @@ local function matches(snippets, base)
   end, snippets)
 end
 
----@param findstart integer
----@param base string
----@return integer|table
-function M.complete(findstart, base)
-  if findstart == 1 then
-    local col = vim.api.nvim_win_get_cursor(0)[2]
-    local line = vim.api.nvim_get_current_line():sub(1, col)
-    local start = vim.fn.match(line, [[\k*$]])
-    -- -3: no word typed yet, so offer nothing rather than every snippet.
-    return start < col and start or -3
-  end
-
-  local items = {}
-  for _, s in ipairs(matches(for_filetype(vim.bo.filetype), base)) do
-    items[#items + 1] = {
-      word = s.prefix,
-      kind = "Snippet",
-      menu = "[snip]",
-      info = s.description .. "\n\n" .. s.body,
-      dup = 1,
-      user_data = { completion_snippet = s.body },
-    }
-  end
-  return items
-end
-
 -- Neovim's snippet parser rejects a placeholder that holds text and
 -- another tabstop, like ${3:yield $4} or ${2:raise $1}, though the LSP
 -- grammar allows it. This drops tabstops nested inside a placeholder and
@@ -217,6 +191,62 @@ local function flatten(body)
   return table.concat(out)
 end
 
+-- The text a snippet expands to with every field left at its default.
+-- Uses the parser vim.snippet and LSP completion previews use; a body it
+-- can't parse is shown as written.
+local function render(body)
+  for _, candidate in ipairs({ body, flatten(body) }) do
+    local ok, parsed = pcall(vim.lsp._snippet_grammar.parse, candidate)
+    if ok then
+      body = tostring(parsed)
+      break
+    end
+  end
+
+  -- Snippet bodies indent with tabs; show the buffer's own indent.
+  if vim.bo.expandtab then
+    body = body:gsub("\t", string.rep(" ", vim.fn.shiftwidth()))
+  end
+  return body
+end
+
+-- The popup text for a snippet: its description, then the expanded text
+-- as a code block in the buffer's language, the same Markdown that LSP
+-- completion previews use.
+local function preview(s)
+  return ("%s\n\n```%s\n%s\n```"):format(
+    s.description,
+    vim.bo.filetype,
+    render(s.body)
+  )
+end
+
+---@param findstart integer
+---@param base string
+---@return integer|table
+function M.complete(findstart, base)
+  if findstart == 1 then
+    local col = vim.api.nvim_win_get_cursor(0)[2]
+    local line = vim.api.nvim_get_current_line():sub(1, col)
+    local start = vim.fn.match(line, [[\k*$]])
+    -- -3: no word typed yet, so offer nothing rather than every snippet.
+    return start < col and start or -3
+  end
+
+  local items = {}
+  for _, s in ipairs(matches(for_filetype(vim.bo.filetype), base)) do
+    items[#items + 1] = {
+      word = s.prefix,
+      kind = "Snippet",
+      menu = "[snip]",
+      info = preview(s),
+      dup = 1,
+      user_data = { completion_snippet = s.body },
+    }
+  end
+  return items
+end
+
 -- Expand `body` at the cursor, falling back to a flattened body when
 -- Neovim can't parse it. Returns false when neither parses; nothing is
 -- inserted then, since parsing happens before any text changes.
@@ -254,6 +284,30 @@ function M.expand_on_accept()
       vim.log.levels.WARN
     )
   end
+end
+
+-- Show a selected snippet's popup as Markdown: hide the ``` fences and
+-- highlight the code block in the buffer's language. LSP completion does
+-- this for every item in buffers with a server; this covers the rest.
+function M.style_preview()
+  local item = vim.v.event.completed_item or {}
+  if not vim.tbl_get(item, "user_data", "completion_snippet") then
+    return
+  end
+
+  -- complete_info() reports the popup only when asked for "selected".
+  local info = vim.fn.complete_info({ "selected" })
+  local win, buf = info.preview_winid, info.preview_bufnr
+  if
+    not (win and vim.api.nvim_win_is_valid(win))
+    or not (buf and vim.api.nvim_buf_is_valid(buf))
+  then
+    return
+  end
+
+  vim.wo[win].conceallevel = 2
+  vim.treesitter.start(buf, "markdown")
+  vim.api.nvim_win_set_height(win, vim.api.nvim_win_text_height(win, {}).all)
 end
 
 return M

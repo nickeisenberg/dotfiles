@@ -68,6 +68,7 @@ function M.setup(opts)
   vim.o.autocompletedelay = config.options.delay_ms
   vim.o.complete = complete_option()
   vim.o.completeopt = completeopt()
+  vim.o.pummaxwidth = config.options.max_width
 
   -- Clearing the group makes calling setup() again safe.
   local group = vim.api.nvim_create_augroup("completion", { clear = true })
@@ -84,6 +85,14 @@ function M.setup(opts)
       desc = "Expand accepted snippets",
       callback = snippets.expand_on_accept,
     })
+
+    if config.options.docs then
+      vim.api.nvim_create_autocmd("CompleteChanged", {
+        group = group,
+        desc = "Highlight snippet previews",
+        callback = snippets.style_preview,
+      })
+    end
   end
 
   if config.options.signature.enabled then

@@ -13,6 +13,7 @@ require("completion").setup({
   delay_ms = 0, -- wait after typing before the menu opens
   fuzzy = true, -- 'completeopt' "fuzzy"
   docs = true, -- 'completeopt' "popup": docs for the selected item
+  max_width = 60, -- 'pummaxwidth': cap the menu so docs have room
   path = { relative_to = "buffer", hidden = true },
   snippets = {
     paths = { vim.fn.stdpath("config") .. "/snippets" },
@@ -41,6 +42,7 @@ gives slow sources a decaying time budget so typing never waits on them.
 | `'autocompletedelay'` | `delay_ms` |
 | `'complete'` | one or more flags per source, in `sources` order |
 | `'completeopt'` | `menuone,noselect`, plus `fuzzy` and `popup` |
+| `'pummaxwidth'` | `max_width` |
 
 The sources:
 
@@ -79,6 +81,10 @@ are the same either way, in the VSCode format:
 `body` uses LSP snippet syntax, which `vim.snippet.expand()` understands:
 `$1`, `${1:default}`, `$0` for the final cursor position. A file is read
 again when it changes, so edits show up without a restart.
+
+With `docs` on, selecting a snippet in the menu previews it: its
+description, then the text it expands to with every field at its default,
+highlighted in the buffer's language.
 
 Neovim's parser has two gaps worth knowing about when writing or
 borrowing snippets:
