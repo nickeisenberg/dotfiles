@@ -9,6 +9,7 @@ M.config = {
 }
 
 local kitty = require("mark-tui.kitty")
+local protocol = require("mark-tui.protocol")
 
 -- lua/mark-tui/init.lua -> plugin root
 local root = vim.fs.dirname(
@@ -36,12 +37,10 @@ local function send(full)
   if full then
     local name = vim.api.nvim_buf_get_name(state.src_buf)
     local dir = name ~= "" and vim.fs.dirname(name) or vim.fn.getcwd()
-    state.client:write(("D %d\n%s"):format(#dir, dir))
     local lines = vim.api.nvim_buf_get_lines(state.src_buf, 0, -1, false)
-    local text = table.concat(lines, "\n")
-    state.client:write(("T %d %d\n%s"):format(cursor, #text, text))
+    state.client:write(protocol.text(cursor, dir, table.concat(lines, "\n")))
   else
-    state.client:write(("C %d\n"):format(cursor))
+    state.client:write(protocol.cursor(cursor))
   end
 end
 
@@ -78,58 +77,37 @@ local function sync_source(topline, cursor)
   end)
 end
 
--- Handle replies from the viewer:
---   L <topline> <cursor>\n               scroll position to match
---   I <id> <cols> <rows> <nbytes>\n<png>  image to upload to the terminal
+-- Replies from the viewer, by kind; see python/mark_protocol.py.
+---@type table<string, fun(msg: MarkTui.Message)>
+local handlers = {
+  L = function(msg)
+    sync_source(tonumber(msg.args[1]), tonumber(msg.args[2]))
+  end,
+  I = function(msg)
+    local id, cols, rows = unpack(vim.tbl_map(tonumber, msg.args))
+    kitty.render(id, msg.payload, rows, cols)
+    state.images[id] = true
+  end,
+}
+
 local function read_replies(client)
-  local pending = ""
+  local feed = protocol.decoder()
   client:read_start(function(err, data)
     if err or not data then
       return
     end
-    pending = pending .. data
-    local latest, uploads = nil, {}
-    while true do
-      local nl = pending:find("\n", 1, true)
-      if not nl then
-        break
-      end
-      local header = pending:sub(1, nl - 1)
-      local id, cols, rows, n = header:match("^I (%d+) (%d+) (%d+) (%d+)$")
-      if id then
-        n = tonumber(n)
-        if #pending - nl < n then
-          break
-        end
-        table.insert(uploads, {
-          id = tonumber(id),
-          cols = tonumber(cols),
-          rows = tonumber(rows),
-          png = pending:sub(nl + 1, nl + n),
-        })
-        pending = pending:sub(nl + n + 1)
-      else
-        local topline, cursor = header:match("^L (%d+) (%d+)$")
-        if topline then
-          latest = { tonumber(topline), tonumber(cursor) }
-        end
-        pending = pending:sub(nl + 1)
-      end
+    local messages = feed(data)
+    if #messages == 0 then
+      return
     end
-    if latest or #uploads > 0 then
-      vim.schedule(function()
+    vim.schedule(function()
+      for _, msg in ipairs(messages) do
         if not is_open() then
           return
         end
-        for _, img in ipairs(uploads) do
-          kitty.render(img.id, img.png, img.rows, img.cols)
-          state.images[img.id] = true
-        end
-        if latest then
-          sync_source(latest[1], latest[2])
-        end
-      end)
-    end
+        handlers[msg.kind](msg)
+      end
+    end)
   end)
 end
 
@@ -197,7 +175,7 @@ end
 ---@param rows integer|"top"|"bottom"
 function M.scroll(rows)
   if is_open() and state.client then
-    state.client:write(("S %s\n"):format(rows))
+    state.client:write(protocol.scroll(rows))
   end
 end
 

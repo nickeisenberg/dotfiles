@@ -1,22 +1,11 @@
 """Live markdown viewer driven by Neovim over a Unix socket.
 
-Neovim sends four kinds of messages:
-
-  D <nbytes>\n<bytes>            directory of the buffer, before each T
-  T <cursor> <nbytes>\n<bytes>   new buffer text (cursor is 1-based)
-  C <cursor>\n                   cursor moved, text unchanged
-  S <rows|top|bottom>\n          scroll by rows, from the preview window
-
-Text and cursor messages make the view follow the cursor again; scroll
-messages pin it until the next one. After a scroll the viewer replies with
-
-  L <topline> <cursorline>\n     source lines to show, so Neovim can match
-
-using the same anchor as following: the cursor sits a third of the way down.
-With --images, image-only blocks become kitty placeholders (mark_image) and
-each new image is sent for Neovim to upload to the host terminal:
-
-  I <id> <cols> <rows> <nbytes>\n<png bytes>
+Neovim sends the buffer text, cursor moves and scrolls of the preview window
+(see mark_protocol). The view follows the source cursor, which sits a third
+of the way down, until the preview is scrolled; then Neovim is told which
+source lines to show so it can follow the preview instead. With --images,
+image-only blocks become kitty placeholders (mark_image) and each new image
+is sent for Neovim to upload to the host terminal.
 
 The document is split into top-level markdown blocks. Each block is rendered
 with rich on its own and cached by its source text, so a keystroke only
@@ -32,6 +21,7 @@ import sys
 from typing import TYPE_CHECKING
 
 from mark_markdown import THEME, TuiMarkdown, parser
+from mark_protocol import decode, encode
 from rich.console import Console
 
 if TYPE_CHECKING:
@@ -130,12 +120,12 @@ def clamp(row: int, height: int) -> int:
     return max(0, min(row, len(lines) - height))
 
 
-def scroll(arg: bytes) -> None:
+def scroll(arg: str) -> None:
     global pinned
     height = os.get_terminal_size().lines
-    if arg == b"top":
+    if arg == "top":
         row = 0
-    elif arg == b"bottom":
+    elif arg == "bottom":
         row = len(lines)
     else:
         row = (top if pinned is None else pinned) + int(arg)
@@ -166,8 +156,7 @@ def main() -> None:
         def send_image(
             image_id: int, cols: int, rows: int, png: bytes
         ) -> None:
-            header = f"I {image_id} {cols} {rows} {len(png)}\n"
-            sock.sendall(header.encode() + png)
+            sock.sendall(encode("I", image_id, cols, rows, payload=png))
 
         images = Images(send_image)
 
@@ -202,31 +191,21 @@ def main() -> None:
                 buf += chunk
 
             # Apply every complete message; only the latest text matters.
+            messages, buf = decode(buf)
             new_text = new_dir = None
-            while b"\n" in buf:
-                header, rest = buf.split(b"\n", 1)
-                parts = header.split()
-                if parts[0] == b"D":
-                    n = int(parts[1])
-                    if len(rest) < n:
-                        break
-                    new_dir = rest[:n].decode("utf-8", "replace")
-                    rest = rest[n:]
-                elif parts[0] == b"S":
-                    scroll(parts[1])
+            for msg in messages:
+                if msg.kind == "S":
+                    scroll(msg.args[0])
                     scrolled = True
-                else:
-                    if parts[0] == b"T":
-                        n = int(parts[2])
-                        if len(rest) < n:
-                            break
-                        new_text = rest[:n].decode("utf-8", "replace")
-                        rest = rest[n:]
-                    cursor = int(parts[1])
-                    pinned = None
-                    scrolled = False
-                buf = rest
-                dirty = True
+                    continue
+                if msg.kind == "T":
+                    ndir = int(msg.args[1])
+                    new_dir = msg.payload[:ndir].decode("utf-8", "replace")
+                    new_text = msg.payload[ndir:].decode("utf-8", "replace")
+                cursor = int(msg.args[0])
+                pinned = None
+                scrolled = False
+            dirty = dirty or bool(messages)
 
             changed = new_text is not None and new_text != text
             if new_text is not None:
@@ -243,7 +222,7 @@ def main() -> None:
             if scrolled:
                 height = os.get_terminal_size().lines
                 anchor = source_line(top + height // 3)
-                sock.sendall(f"L {source_line(top)} {anchor}\n".encode())
+                sock.sendall(encode("L", source_line(top), anchor))
     finally:
         sys.stdout.write("\x1b[?25h\x1b[?1049l")
         sys.stdout.flush()
