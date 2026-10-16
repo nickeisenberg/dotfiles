@@ -31,41 +31,14 @@ import socket
 import sys
 from typing import TYPE_CHECKING
 
+from mark_markdown import THEME, TuiMarkdown, parser
 from rich.console import Console
-from rich.theme import Theme
-
-try:
-    from mark_math import MathMarkdown as Markdown
-    from mark_math import parser
-except ImportError:
-    # Without mdit-py-plugins/pylatexenc, math is shown as raw source.
-    from markdown_it import MarkdownIt
-    from rich.markdown import Markdown
-
-    # Same parser config as rich.markdown, so block boundaries agree.
-    parser = MarkdownIt().enable("strikethrough").enable("table")
 
 if TYPE_CHECKING:
     # Imported in main() only with --images, so Pillow stays optional.
     from mark_image import Images
 
-console = Console(
-    force_terminal=True,
-    theme=Theme(
-        {
-            "markdown.latex": "italic magenta",
-            # h1's border is the band color, drawn as half blocks around it.
-            "markdown.h1": "bold bright_white on blue",
-            "markdown.h1.border": "blue",
-            "markdown.h2": "bold magenta",
-            "markdown.h2.border": "magenta",
-            "markdown.h3": "bold cyan",
-            "markdown.h4": "bold yellow",
-            "markdown.h5": "italic",
-            "markdown.h6": "dim italic",
-        }
-    ),
-)
+console = Console(force_terminal=True, theme=THEME)
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -108,7 +81,7 @@ def render_block(src: str) -> list[str]:
         rendered = images.render(src, console.width)
     if rendered is None:
         with console.capture() as cap:
-            console.print(Markdown(src))
+            console.print(TuiMarkdown(src))
         rendered = cap.get().rstrip("\n").split("\n")
         # rich pads some blocks (lists) with blank lines; render() adds its own.
         while len(rendered) > 1 and is_blank(rendered[0]):
