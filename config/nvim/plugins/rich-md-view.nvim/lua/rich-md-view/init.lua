@@ -1,7 +1,8 @@
 local M = {}
 
 M.config = {
-  python = "python3",
+  -- nil: the venv `build.run()` creates if it exists, else "python3".
+  python = nil,
   -- Delay before sending changes, so bursts of typing render once.
   debounce_ms = 30,
   -- Draw local images inline (kitty/ghostty, needs termguicolors).
@@ -17,6 +18,14 @@ local root = vim.fs.dirname(
 )
 -- Run from here, so `-m` finds the package without it being installed.
 local python_dir = vim.fs.joinpath(root, "python")
+
+local function python()
+  if M.config.python then
+    return M.config.python
+  end
+  local venv_python = require("rich-md-view.build").python
+  return vim.uv.fs_stat(venv_python) and venv_python or "python3"
+end
 
 ---@class RichMdView.State
 ---@field src_buf integer markdown buffer being previewed
@@ -284,7 +293,7 @@ function M.open()
     vim.wo[win][opt] = val
   end
 
-  local cmd = { M.config.python, "-m", "richmdviewnvim", sock_path }
+  local cmd = { python(), "-m", "richmdviewnvim", sock_path }
   if M.config.images and images.available() then
     table.insert(cmd, "--images")
   end

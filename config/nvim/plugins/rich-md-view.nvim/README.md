@@ -31,29 +31,43 @@ scrolls the source back.
 
 ## Installation
 
-Install the plugin with your plugin manager, then install the Python
-dependencies into the interpreter the plugin will use:
+Install the plugin with your plugin manager, then install its Python
+dependencies. The simplest way is the plugin's own venv, under
+`stdpath("data")/rich-md-view/venv`, which it uses automatically:
 
-```sh
-/path/to/python -m pip install /path/to/rich-md-view.nvim
+```vim
+:lua require("rich-md-view.build").run()
 ```
 
-This also installs the `richmdviewnvim` package, but the plugin doesn't need
-it: it runs the copy in its own `python/` directory.
-
-With [lazy.nvim](https://github.com/folke/lazy.nvim):
+That creates the venv with `python3.12` or `python3` (`py -3` on Windows)
+and pip installs the plugin into it. Run it as a build step so updates
+reinstall the dependencies. With lazy.nvim:
 
 ```lua
 {
   dir = "~/path/to/rich-md-view.nvim",
   ft = "markdown",
-  opts = {
-    python = vim.fn.expand("~/.venvs/nvim/bin/python"),
-  },
+  build = function()
+    require("rich-md-view.build").run()
+  end,
+  opts = {},
 }
 ```
 
-Or call `setup()` yourself:
+With pack.nvim, pass the build's `plugin` so it runs asynchronously:
+
+```lua
+build = function(plugin)
+  require("rich-md-view.build").run(plugin)
+end,
+```
+
+To use an interpreter of your own instead, install into it and set
+`python`:
+
+```sh
+/path/to/python -m pip install /path/to/rich-md-view.nvim
+```
 
 ```lua
 require("rich-md-view").setup({
@@ -61,9 +75,8 @@ require("rich-md-view").setup({
 })
 ```
 
-Setting `python` to a fixed interpreter is recommended: the default,
-`python3`, is whatever is first on `$PATH`, which changes with the active
-venv.
+Either way the plugin runs the copy of `richmdviewnvim` in its own `python/`
+directory; the install is for the dependencies.
 
 ## Usage
 
@@ -118,8 +131,9 @@ These are the defaults:
 
 ```lua
 require("rich-md-view").setup({
-  -- Interpreter that runs the viewer (`python -m richmdviewnvim`).
-  python = "python3",
+  -- Interpreter that runs the viewer (`python -m richmdviewnvim`). nil
+  -- means the plugin's venv if it exists, else `python3` from $PATH.
+  python = nil,
   -- Wait this long after a change or cursor move before updating, so a
   -- burst of typing renders once.
   debounce_ms = 30,
