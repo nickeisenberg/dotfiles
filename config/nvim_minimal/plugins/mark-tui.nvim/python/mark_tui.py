@@ -1,7 +1,8 @@
 """Live markdown viewer driven by Neovim over a Unix socket.
 
-Neovim sends three kinds of messages:
+Neovim sends four kinds of messages:
 
+  D <nbytes>\n<bytes>            directory of the buffer, before each T
   T <cursor> <nbytes>\n<bytes>   new buffer text (cursor is 1-based)
   C <cursor>\n                   cursor moved, text unchanged
   S <rows|top|bottom>\n          scroll by rows, from the preview window
@@ -12,6 +13,10 @@ messages pin it until the next one. After a scroll the viewer replies with
   L <topline> <cursorline>\n     source lines to show, so Neovim can match
 
 using the same anchor as following: the cursor sits a third of the way down.
+With --images, image-only blocks become kitty placeholders (mark_image) and
+each new image is sent for Neovim to upload to the host terminal:
+
+  I <id> <cols> <rows> <nbytes>\n<png bytes>
 
 The document is split into top-level markdown blocks. Each block is rendered
 with rich on its own and cached by its source text, so a keystroke only
@@ -50,6 +55,7 @@ spans = []  # (src_start, src_end, out_start, out_len) per block
 cursor = 1
 top = 0  # first visible row, as last drawn
 pinned = None  # row set by scrolling; None follows the cursor
+images = None  # mark_image.Images when inline images are on
 
 
 def split_blocks(text):
@@ -77,6 +83,8 @@ def is_blank(line):
 
 def render_block(src):
     rendered = cache.get(src)
+    if rendered is None and images:
+        rendered = images.render(src, console.width)
     if rendered is None:
         with console.capture() as cap:
             console.print(Markdown(src))
@@ -86,7 +94,7 @@ def render_block(src):
             rendered.pop(0)
         while len(rendered) > 1 and is_blank(rendered[-1]):
             rendered.pop()
-        cache[src] = rendered
+    cache[src] = rendered
     return rendered
 
 
@@ -153,10 +161,19 @@ def draw():
 
 
 def main():
-    global cursor, pinned
+    global cursor, pinned, images
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     sock.connect(sys.argv[1])
+
+    if "--images" in sys.argv[2:]:
+        from mark_image import Images
+
+        def send_image(image_id, cols, rows, png):
+            header = f"I {image_id} {cols} {rows} {len(png)}\n"
+            sock.sendall(header.encode() + png)
+
+        images = Images(send_image)
 
     # Wake the selector on resize so the redraw is immediate.
     wake_r, wake_w = socket.socketpair()
@@ -189,11 +206,17 @@ def main():
                 buf += chunk
 
             # Apply every complete message; only the latest text matters.
-            new_text = None
+            new_text = new_dir = None
             while b"\n" in buf:
                 header, rest = buf.split(b"\n", 1)
                 parts = header.split()
-                if parts[0] == b"S":
+                if parts[0] == b"D":
+                    n = int(parts[1])
+                    if len(rest) < n:
+                        break
+                    new_dir = rest[:n].decode("utf-8", "replace")
+                    rest = rest[n:]
+                elif parts[0] == b"S":
                     scroll(parts[1])
                     scrolled = True
                 else:
@@ -209,8 +232,15 @@ def main():
                 buf = rest
                 dirty = True
 
-            if new_text is not None and new_text != text:
+            changed = new_text is not None and new_text != text
+            if new_text is not None:
                 text = new_text
+            # Relative image paths now point elsewhere.
+            if images and new_dir is not None and new_dir != images.base:
+                images.base = new_dir
+                cache.clear()
+                changed = True
+            if changed:
                 render(text)
             if dirty:
                 draw()

@@ -4,7 +4,11 @@ M.config = {
   python = "python3",
   -- Delay before sending changes, so bursts of typing render once.
   debounce_ms = 30,
+  -- Draw local images inline (kitty/ghostty, needs termguicolors).
+  images = true,
 }
+
+local kitty = require("mark-tui.kitty")
 
 local script = vim.fs.joinpath(
   vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, "S").source:sub(2))),
@@ -30,6 +34,9 @@ local function send(full)
   local cursor = win ~= -1 and vim.api.nvim_win_get_cursor(win)[1] or 1
 
   if full then
+    local name = vim.api.nvim_buf_get_name(state.src_buf)
+    local dir = name ~= "" and vim.fs.dirname(name) or vim.fn.getcwd()
+    state.client:write(("D %d\n%s"):format(#dir, dir))
     local lines = vim.api.nvim_buf_get_lines(state.src_buf, 0, -1, false)
     local text = table.concat(lines, "\n")
     state.client:write(("T %d %d\n%s"):format(cursor, #text, text))
@@ -71,7 +78,9 @@ local function sync_source(topline, cursor)
   end)
 end
 
--- Handle "L <topline> <cursor>" replies from the viewer.
+-- Handle replies from the viewer:
+--   L <topline> <cursor>\n               scroll position to match
+--   I <id> <cols> <rows> <nbytes>\n<png>  image to upload to the terminal
 local function read_replies(client)
   local pending = ""
   client:read_start(function(err, data)
@@ -79,14 +88,44 @@ local function read_replies(client)
       return
     end
     pending = pending .. data
-    local latest
-    for topline, cursor in pending:gmatch("L (%d+) (%d+)\n") do
-      latest = { tonumber(topline), tonumber(cursor) }
+    local latest, uploads = nil, {}
+    while true do
+      local nl = pending:find("\n", 1, true)
+      if not nl then
+        break
+      end
+      local header = pending:sub(1, nl - 1)
+      local id, cols, rows, n = header:match("^I (%d+) (%d+) (%d+) (%d+)$")
+      if id then
+        n = tonumber(n)
+        if #pending - nl < n then
+          break
+        end
+        table.insert(uploads, {
+          id = tonumber(id),
+          cols = tonumber(cols),
+          rows = tonumber(rows),
+          png = pending:sub(nl + 1, nl + n),
+        })
+        pending = pending:sub(nl + n + 1)
+      else
+        local topline, cursor = header:match("^L (%d+) (%d+)$")
+        if topline then
+          latest = { tonumber(topline), tonumber(cursor) }
+        end
+        pending = pending:sub(nl + 1)
+      end
     end
-    pending = pending:match("[^\n]*$")
-    if latest then
+    if latest or #uploads > 0 then
       vim.schedule(function()
-        if is_open() then
+        if not is_open() then
+          return
+        end
+        for _, img in ipairs(uploads) do
+          kitty.render(img.id, img.png, img.rows, img.cols)
+          state.images[img.id] = true
+        end
+        if latest then
           sync_source(latest[1], latest[2])
         end
       end)
@@ -224,6 +263,7 @@ function M.open()
     sock_path = sock_path,
     timer = assert(vim.uv.new_timer()),
     pending_full = false,
+    images = {}, -- ids uploaded to the host terminal
   }
   state.server = listen(sock_path)
 
@@ -246,8 +286,18 @@ function M.open()
     vim.wo[win][opt] = val
   end
 
+  local cmd = { M.config.python, script, sock_path }
+  if M.config.images and kitty.detect() then
+    local reason = kitty.check()
+    if reason then
+      vim.notify("mark-tui: images disabled, " .. reason, vim.log.levels.WARN)
+    else
+      table.insert(cmd, "--images")
+    end
+  end
+
   vim.api.nvim_buf_call(buf, function()
-    state.job = vim.fn.jobstart({ M.config.python, script, sock_path }, {
+    state.job = vim.fn.jobstart(cmd, {
       term = true,
       on_exit = function(_, code)
         vim.schedule(function()
@@ -287,6 +337,9 @@ function M.close()
     s.server:close()
   end
   pcall(vim.fn.jobstop, s.job)
+  for id in pairs(s.images) do
+    pcall(kitty.delete, id)
+  end
   if vim.api.nvim_buf_is_valid(s.buf) then
     vim.api.nvim_buf_delete(s.buf, { force = true })
   end

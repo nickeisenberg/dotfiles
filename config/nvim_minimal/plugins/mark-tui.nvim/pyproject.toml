@@ -10,6 +10,7 @@ dependencies = [
   "mdit-py-plugins>=0.5",
   # 3.x is a rewrite with a different latex2text API.
   "pylatexenc>=2.10,<3",
+  "pillow>=10",
 ]
 
 [tool.ruff]
