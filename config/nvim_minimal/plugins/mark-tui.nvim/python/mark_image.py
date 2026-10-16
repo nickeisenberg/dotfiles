@@ -45,13 +45,15 @@ class Images:
     def __init__(self, send: Callable[[int, int, int, bytes], None]) -> None:
         # send(id, cols, rows, png) hands an image to Neovim to upload.
         self.send = send
-        self.base = os.getcwd()  # relative paths resolve against this
         # (path, mtime, cols, rows) -> uploaded image id
         self.ids: dict[tuple[str, int, int, int], int] = {}
         self.serial = 0
 
-    def render(self, src: str, width: int) -> list[str] | None:
-        """Placeholder rows for an image-only block, else None."""
+    def render(self, src: str, width: int, base: str) -> list[str] | None:
+        """Placeholder rows for an image-only block, else None.
+
+        Relative paths resolve against the directory base.
+        """
         refs = []
         for line in src.split("\n"):
             match = IMAGE_LINE.match(line)
@@ -60,7 +62,7 @@ class Images:
             refs.append(match.group(1))
         rows = []
         for ref in refs:
-            block = self._image(ref, width)
+            block = self._image(ref, width, base)
             if block is None:
                 return None
             if rows:
@@ -68,11 +70,11 @@ class Images:
             rows.extend(block)
         return rows
 
-    def _image(self, ref: str, width: int) -> list[str] | None:
+    def _image(self, ref: str, width: int, base: str) -> list[str] | None:
         if "://" in ref:
             return None
         path = os.path.join(
-            self.base, os.path.expanduser(urllib.parse.unquote(ref))
+            base, os.path.expanduser(urllib.parse.unquote(ref))
         )
         try:
             mtime = os.stat(path).st_mtime_ns
