@@ -27,14 +27,34 @@ local function write(body)
 end
 
 ---Whether the host terminal looks like it speaks the protocol.
+-- Set by terminals without Unicode placeholder support. Kitty's and
+-- ghostty's own variables leak into any terminal started from them, so
+-- these are checked first.
+local other_terminal = {
+  "ALACRITTY_WINDOW_ID",
+  "ALACRITTY_SOCKET",
+  "WEZTERM_EXECUTABLE",
+  "KONSOLE_VERSION",
+  "VTE_VERSION",
+}
+
+local function set(name)
+  return (vim.env[name] or "") ~= ""
+end
+
 ---@return boolean
 function M.detect()
   local term = vim.env.TERM or ""
-  return term == "xterm-kitty"
-    or term == "xterm-ghostty"
-    or vim.env.TERM_PROGRAM == "ghostty"
-    or (vim.env.KITTY_WINDOW_ID or "") ~= ""
-    or (vim.env.GHOSTTY_RESOURCES_DIR or "") ~= ""
+  -- TERM is always set by the terminal itself, so it can't have leaked.
+  if term == "xterm-kitty" or term == "xterm-ghostty" then
+    return true
+  end
+  if term == "alacritty" or vim.iter(other_terminal):any(set) then
+    return false
+  end
+  return vim.env.TERM_PROGRAM == "ghostty"
+    or set("KITTY_WINDOW_ID")
+    or set("GHOSTTY_RESOURCES_DIR")
 end
 
 ---Reason the protocol can't be used right now, if any.

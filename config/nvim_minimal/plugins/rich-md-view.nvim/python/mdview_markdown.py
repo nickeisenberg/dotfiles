@@ -40,6 +40,7 @@ THEME = Theme(
         "markdown.h4": "bold yellow",
         "markdown.h5": "italic",
         "markdown.h6": "dim italic",
+        "markdown.image": "dim italic",
     }
 )
 
@@ -105,7 +106,7 @@ class MdViewMarkdown(Markdown):
         "math_block_label": MathBlock,
         "amsmath": MathBlock,
     }
-    inlines = Markdown.inlines | {"latex"}
+    inlines = Markdown.inlines | {"latex", "image"}
 
     def __init__(self, markup: str, **kwargs: Any) -> None:
         super().__init__(markup, **kwargs)
@@ -116,3 +117,13 @@ class MdViewMarkdown(Markdown):
                 if child.type == "math_inline":
                     child.tag = "latex"
                     child.content = latex_to_unicode(child.content)
+                elif child.type == "image":
+                    # Images that aren't drawn become a camera and their alt
+                    # text (or file name), in place. rich's own placeholder
+                    # moves to the start of the paragraph, and links the path
+                    # as written, which is relative to the markdown file.
+                    src = str(child.attrs.get("src", ""))
+                    alt = child.content or src.rstrip("/").rsplit("/", 1)[-1]
+                    child.tag = "image"
+                    child.content = f"📷 {alt}"
+                    child.children = None
