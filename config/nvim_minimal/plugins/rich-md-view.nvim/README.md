@@ -1,0 +1,212 @@
+# rich-md-view.nvim
+
+A live markdown preview for Neovim, rendered in a terminal split by
+[rich](https://github.com/Textualize/rich).
+
+Edit markdown on the left and the rendered version follows on the right:
+it re-renders as you type, tracks your cursor, and scrolling the preview
+scrolls the source back.
+
+- **Live:** only the block you're editing is re-rendered, so it keeps up
+  with typing in large files.
+- **Synced scrolling, both ways:** the preview keeps your cursor a third of
+  the way down; scroll the preview and the source window follows.
+- **Math:** `$inline$`, `$$display$$` and `\begin{align}` are converted to
+  Unicode (`x^2 + y_1` → `x² + y₁`, `\alpha \leq \beta` → `α ≤ β`,
+  `\frac{a+b}{c}` → `(a+b)/c`), with aligned columns at `&`.
+- **Inline images** in kitty and ghostty, drawn at full resolution with
+  the kitty graphics protocol. Elsewhere, an image is a short `📷 alt text`.
+- **Distinct headings:** `#` is a full-width band, `##` is underlined by
+  a rule, `###` and `####` get a marker, so levels read at a glance.
+- Tables, lists, task lists, block quotes, code blocks with syntax
+  highlighting, links, and everything else rich's markdown renderer
+  supports.
+
+## Requirements
+
+- Neovim 0.11+
+- Python 3.10+ with the packages in `pyproject.toml`: rich, markdown-it-py,
+  mdit-py-plugins, pylatexenc and Pillow
+- For images: kitty or ghostty, and `termguicolors` on
+
+## Installation
+
+Install the plugin with your plugin manager, then install the Python
+dependencies into the interpreter the plugin will use:
+
+```sh
+/path/to/python -m pip install /path/to/rich-md-view.nvim
+```
+
+This also installs the `richmdviewnvim` package, but the plugin doesn't need
+it: it runs the copy in its own `python/` directory.
+
+With [lazy.nvim](https://github.com/folke/lazy.nvim):
+
+```lua
+{
+  dir = "~/path/to/rich-md-view.nvim",
+  ft = "markdown",
+  opts = {
+    python = vim.fn.expand("~/.venvs/nvim/bin/python"),
+  },
+}
+```
+
+Or call `setup()` yourself:
+
+```lua
+require("rich-md-view").setup({
+  python = vim.fn.expand("~/.venvs/nvim/bin/python"),
+})
+```
+
+Setting `python` to a fixed interpreter is recommended: the default,
+`python3`, is whatever is first on `$PATH`, which changes with the active
+venv.
+
+## Usage
+
+Open a markdown file and run `:RichMdViewOpen`. The preview opens in a split
+on the right and follows whichever markdown buffer you're in. Close it with
+`:RichMdViewClose` or `q` in the preview.
+
+### Commands
+
+| Command            | Description                            |
+| ------------------ | -------------------------------------- |
+| `:RichMdViewOpen`  | Open the preview in a right split      |
+| `:RichMdViewClose` | Close the preview                      |
+
+### Keys in the preview
+
+| Keys                              | Action                    |
+| --------------------------------- | ------------------------- |
+| `j` / `k`, `<Down>` / `<Up>`      | Scroll one line           |
+| `<C-e>` / `<C-y>`                 | Scroll one line           |
+| `<ScrollWheelDown>` / `<ScrollWheelUp>` | Scroll three lines  |
+| `<C-d>` / `<C-u>`                 | Scroll half a page        |
+| `<C-f>` / `<C-b>`                 | Scroll a page             |
+| `gg` / `G`                        | Top / bottom              |
+| `q`                               | Close the preview         |
+
+Line and page scrolls take a count, as in Vim. Scrolling pins the preview
+where you put it until the cursor moves in the source again.
+
+### Lua API
+
+```lua
+local view = require("rich-md-view")
+
+view.open()
+view.close()
+view.scroll(5)        -- rows; negative scrolls up
+view.scroll("top")    -- or "bottom"
+```
+
+For example, a mapping to open it:
+
+```lua
+vim.keymap.set("n", "<leader>mp", require("rich-md-view").open, {
+  desc = "Markdown preview",
+})
+```
+
+## Configuration
+
+These are the defaults:
+
+```lua
+require("rich-md-view").setup({
+  -- Interpreter that runs the viewer (`python -m richmdviewnvim`).
+  python = "python3",
+  -- Wait this long after a change or cursor move before updating, so a
+  -- burst of typing renders once.
+  debounce_ms = 30,
+  -- Draw local images inline in kitty and ghostty. false always shows
+  -- the alt text instead.
+  images = true,
+})
+```
+
+Colors and heading styles are rich styles in `THEME`, in
+`python/richmdviewnvim/markdown.py`.
+
+## Images
+
+Images are drawn when all of these hold:
+
+- the terminal is kitty or ghostty
+- `termguicolors` is on (the plugin warns if it's off)
+- `images` isn't `false`
+- the image is a local file, alone on its line(s): `![alt](path)`
+
+Paths are relative to the markdown file. Any format Pillow reads works; the
+image is converted to PNG and scaled down to fit the preview width, up to
+30 rows tall. Images in the middle of a sentence, remote URLs and missing files show
+as `📷 alt text`, as does every image in other terminals.
+
+**tmux** needs passthrough for the graphics commands to reach the terminal:
+
+```tmux
+set -g allow-passthrough on
+```
+
+**Detection.** The terminal is identified from `TERM` first, since every
+terminal sets that itself. Kitty's and ghostty's own variables
+(`KITTY_WINDOW_ID`, `GHOSTTY_RESOURCES_DIR`, `TERM_PROGRAM=ghostty`) are only
+trusted when no other terminal's variables are set, because they're
+inherited by anything started from kitty or ghostty, such as Alacritty
+launched from a ghostty shell. If images are wrongly enabled or disabled
+in your setup, set `images` explicitly.
+
+## How it works
+
+`:RichMdViewOpen` opens a terminal split running `python -m richmdviewnvim`,
+which connects back to Neovim over a Unix socket. Neovim sends the buffer
+text, cursor moves and preview scrolls; the viewer replies with the source
+lines to scroll to and with images to upload. Every message has the same
+frame:
+
+```
+<kind> <args...> <nbytes>\n<payload>
+```
+
+The protocol is documented in `python/richmdviewnvim/protocol.py`, with the
+Neovim side in `lua/rich-md-view/protocol.lua`.
+
+The viewer splits the document into top-level markdown blocks and renders
+each with rich on its own, cached by its source text, so a keystroke
+re-renders one block and a cursor move re-renders nothing. Images use kitty
+Unicode placeholders: the viewer prints placeholder cells as ordinary text,
+and Neovim uploads the PNG to the outer terminal, which draws it over them.
+
+```
+lua/rich-md-view/
+  init.lua       setup, commands, window, socket, scroll sync
+  protocol.lua   message encoding/decoding
+  images.lua     uploaded image ids, terminal detection
+  kitty.lua      kitty graphics protocol
+python/richmdviewnvim/
+  viewer.py      main loop and Viewport (what's on screen)
+  document.py    Document: blocks, cache, source ↔ row mapping
+  markdown.py    rich Markdown subclass: math, headings, image text, THEME
+  latex.py       LaTeX → Unicode
+  images.py      image loading and placeholder cells
+  protocol.py    the socket protocol
+```
+
+## Demo
+
+`demo/demo.md` exercises everything above: headings, lists, a table, code,
+math, and a PNG, a JPEG and a missing image. Open it and run
+`:RichMdViewOpen`.
+
+## Development
+
+```sh
+ruff check python && ruff format --check python
+pyright
+```
+
+Both read their settings from `pyproject.toml`.
