@@ -1,8 +1,11 @@
 local M = {}
 
 M.config = {
-  -- nil: the venv `build.run()` creates if it exists, else "python3".
+  -- Interpreter that runs the viewer. nil: the one in `venv` if it
+  -- exists, else "python3".
   python = nil,
+  -- The venv `build.run()` made. nil: its default location.
+  venv = nil,
   -- Delay before sending changes, so bursts of typing render once.
   debounce_ms = 30,
   -- Draw local images inline (kitty/ghostty, needs termguicolors).
@@ -23,7 +26,7 @@ local function python()
   if M.config.python then
     return M.config.python
   end
-  local venv_python = require("rich-md-view.build").python
+  local venv_python = require("rich-md-view.build").venv_python(M.config.venv)
   return vim.uv.fs_stat(venv_python) and venv_python or "python3"
 end
 

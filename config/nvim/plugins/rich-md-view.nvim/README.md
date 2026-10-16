@@ -62,6 +62,32 @@ build = function(plugin)
 end,
 ```
 
+`run()` takes options as its second argument:
+
+```lua
+require("rich-md-view.build").run(plugin, {
+  -- Interpreter to make the venv with: a path, or an argv list such as
+  -- { "py", "-3.13" }. Changing it makes the venv again on the next build.
+  python = "/usr/bin/python3.13",
+  -- Where to make the venv.
+  venv = "~/.venvs/rich-md-view",
+})
+```
+
+With a custom `venv`, give `setup()` the same path so the viewer runs from
+it:
+
+```lua
+local venv = "~/.venvs/rich-md-view"
+
+build = function(plugin)
+  require("rich-md-view.build").run(plugin, { venv = venv })
+end,
+config = function()
+  require("rich-md-view").setup({ venv = venv })
+end,
+```
+
 To use an interpreter of your own instead, install into it and set
 `python`:
 
@@ -132,8 +158,11 @@ These are the defaults:
 ```lua
 require("rich-md-view").setup({
   -- Interpreter that runs the viewer (`python -m richmdviewnvim`). nil
-  -- means the plugin's venv if it exists, else `python3` from $PATH.
+  -- means the one in `venv` if it exists, else `python3` from $PATH.
   python = nil,
+  -- The venv `build.run()` made; set it if you gave `run()` a `venv`.
+  -- nil means the default, stdpath("data")/rich-md-view/venv.
+  venv = nil,
   -- Wait this long after a change or cursor move before updating, so a
   -- burst of typing renders once.
   debounce_ms = 30,
