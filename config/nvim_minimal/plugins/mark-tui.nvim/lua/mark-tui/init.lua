@@ -8,7 +8,7 @@ M.config = {
   images = true,
 }
 
-local kitty = require("mark-tui.kitty")
+local images = require("mark-tui.images")
 local protocol = require("mark-tui.protocol")
 
 -- lua/mark-tui/init.lua -> plugin root
@@ -17,35 +17,58 @@ local root = vim.fs.dirname(
 )
 local script = vim.fs.joinpath(root, "python", "mark_tui.py")
 
--- Open preview: source/preview buffers, socket, viewer job. Nil when closed;
--- every entry point checks is_open() first.
----@type table
-local state = nil
+---@class MarkTui.State
+---@field src_buf integer markdown buffer being previewed
+---@field buf integer preview terminal buffer
+---@field win integer preview window
+---@field job integer viewer job
+---@field sock_path string
+---@field server uv.uv_pipe_t
+---@field client? uv.uv_pipe_t the viewer, once it has connected
+---@field timer uv.uv_timer_t debounces sends
+---@field pending_text boolean whether the debounced send includes the text
+---@field images MarkTui.Images
+
+-- The open preview. Nil when closed; every entry point checks is_open()
+-- first.
+---@type MarkTui.State
+local state = nil ---@diagnostic disable-line: assign-type-mismatch
 
 local function is_open()
   return state ~= nil
 end
 
-local function send(full)
-  if not state.client or not vim.api.nvim_buf_is_valid(state.src_buf) then
+local function can_send()
+  return state.client ~= nil and vim.api.nvim_buf_is_valid(state.src_buf)
+end
+
+-- 1-based cursor line in the source window, 1 when it isn't shown.
+local function source_cursor()
+  local win = vim.fn.bufwinid(state.src_buf)
+  return win ~= -1 and vim.api.nvim_win_get_cursor(win)[1] or 1
+end
+
+local function send_text()
+  if not can_send() then
     return
   end
+  local name = vim.api.nvim_buf_get_name(state.src_buf)
+  local dir = name ~= "" and vim.fs.dirname(name) or vim.fn.getcwd()
+  local lines = vim.api.nvim_buf_get_lines(state.src_buf, 0, -1, false)
+  local text = table.concat(lines, "\n")
+  state.client:write(protocol.text(source_cursor(), dir, text))
+end
 
-  local win = vim.fn.bufwinid(state.src_buf)
-  local cursor = win ~= -1 and vim.api.nvim_win_get_cursor(win)[1] or 1
-
-  if full then
-    local name = vim.api.nvim_buf_get_name(state.src_buf)
-    local dir = name ~= "" and vim.fs.dirname(name) or vim.fn.getcwd()
-    local lines = vim.api.nvim_buf_get_lines(state.src_buf, 0, -1, false)
-    state.client:write(protocol.text(cursor, dir, table.concat(lines, "\n")))
-  else
-    state.client:write(protocol.cursor(cursor))
+local function send_cursor()
+  if can_send() then
+    state.client:write(protocol.cursor(source_cursor()))
   end
 end
 
-local function schedule_send(full)
-  state.pending_full = state.pending_full or full
+-- Debounced send; the text goes along if any call in the burst asked.
+---@param with_text boolean
+local function schedule_send(with_text)
+  state.pending_text = state.pending_text or with_text
   state.timer:stop()
   state.timer:start(
     M.config.debounce_ms,
@@ -54,9 +77,13 @@ local function schedule_send(full)
       if not is_open() then
         return
       end
-      local f = state.pending_full
-      state.pending_full = false
-      send(f)
+      local text = state.pending_text
+      state.pending_text = false
+      if text then
+        send_text()
+      else
+        send_cursor()
+      end
     end)
   )
 end
@@ -85,8 +112,7 @@ local handlers = {
   end,
   I = function(msg)
     local id, cols, rows = unpack(vim.tbl_map(tonumber, msg.args))
-    kitty.render(id, msg.payload, rows, cols)
-    state.images[id] = true
+    state.images:upload(id, msg.payload, rows, cols)
   end,
 }
 
@@ -127,7 +153,7 @@ local function listen(sock_path)
       end
       state.client = client
       read_replies(client)
-      send(true)
+      send_text()
     end)
   end)
   return server
@@ -235,22 +261,15 @@ function M.open()
   local src_buf = vim.api.nvim_get_current_buf()
   local src_win = vim.api.nvim_get_current_win()
   local sock_path = vim.fn.tempname() .. ".sock"
-
-  state = {
-    src_buf = src_buf,
-    sock_path = sock_path,
-    timer = assert(vim.uv.new_timer()),
-    pending_full = false,
-    images = {}, -- ids uploaded to the host terminal
-  }
-  state.server = listen(sock_path)
+  -- Listening before the viewer starts; nothing connects until open()
+  -- returns, and by then state is set.
+  local server = listen(sock_path)
 
   local buf = vim.api.nvim_create_buf(false, true)
   local win = vim.api.nvim_open_win(buf, false, {
     split = "right",
     win = -1,
   })
-  state.buf, state.win = buf, win
 
   for opt, val in pairs({
     number = false,
@@ -265,33 +284,41 @@ function M.open()
   end
 
   local cmd = { M.config.python, script, sock_path }
-  if M.config.images and kitty.detect() then
-    local reason = kitty.check()
-    if reason then
-      vim.notify("mark-tui: images disabled, " .. reason, vim.log.levels.WARN)
-    else
-      table.insert(cmd, "--images")
-    end
+  if M.config.images and images.available() then
+    table.insert(cmd, "--images")
   end
 
-  vim.api.nvim_buf_call(buf, function()
-    state.job = vim.fn.jobstart(cmd, {
+  local job = vim.api.nvim_buf_call(buf, function()
+    return vim.fn.jobstart(cmd, {
       term = true,
       on_exit = function(_, code)
         vim.schedule(function()
-          if code ~= 0 and is_open() and state.buf == buf then
+          if not is_open() or state.buf ~= buf then
+            return
+          end
+          if code ~= 0 then
             vim.notify(
               "mark-tui: viewer exited with code " .. code,
               vim.log.levels.ERROR
             )
           end
-          if is_open() and state.buf == buf then
-            M.close()
-          end
+          M.close()
         end)
       end,
     })
   end)
+
+  state = {
+    src_buf = src_buf,
+    buf = buf,
+    win = win,
+    job = job,
+    sock_path = sock_path,
+    server = server,
+    timer = assert(vim.uv.new_timer()),
+    pending_text = false,
+    images = images.new(),
+  }
 
   set_keymaps(buf)
   vim.api.nvim_set_current_win(src_win)
@@ -315,9 +342,7 @@ function M.close()
     s.server:close()
   end
   pcall(vim.fn.jobstop, s.job)
-  for id in pairs(s.images) do
-    pcall(kitty.delete, id)
-  end
+  s.images:clear()
   if vim.api.nvim_buf_is_valid(s.buf) then
     vim.api.nvim_buf_delete(s.buf, { force = true })
   end
