@@ -1,6 +1,5 @@
 return {
   "coder/claudecode.nvim",
-  deps = { "folke/snacks.nvim" },
   config = function()
     require("claudecode").setup({
       terminal = {

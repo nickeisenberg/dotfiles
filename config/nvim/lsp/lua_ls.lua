@@ -7,6 +7,18 @@
 -- Requirements: lua-language-server must be on your $PATH.
 --   brew install lua-language-server
 
+-- Neovim's runtime plus every plugin on disk, so `require("<plugin>")`
+-- resolves for go-to-definition and hover. Remote plugins live where
+-- vim.pack installs them; local ones live in the config's plugins/ dir.
+-- Only each plugin's lua/ dir is added, which skips tests and fixtures.
+local library = { vim.env.VIMRUNTIME }
+for _, pattern in ipairs({
+  vim.fn.stdpath("data") .. "/site/pack/core/opt/*/lua",
+  vim.fn.stdpath("config") .. "/plugins/*/lua",
+}) do
+  vim.list_extend(library, vim.fn.glob(pattern, false, true))
+end
+
 return {
   cmd = { "lua-language-server" },
   filetypes = { "lua" },
@@ -18,8 +30,7 @@ return {
       workspace = {
         -- Don't prompt about third-party libraries.
         checkThirdParty = false,
-        -- Teach the server about Neovim's Lua API so it knows about `vim.*`.
-        library = { vim.env.VIMRUNTIME },
+        library = library,
       },
     },
   },
