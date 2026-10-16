@@ -9,7 +9,7 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "iron.nvim": {
-      "rev": "54e9f612b0dfc0371e1ca9ad48ae6a7f9ce5eaa6",
+      "rev": "93fdf401cc18b543677ec14f5676cd2bf78b4cca",
       "src": "https://github.com/Vigemus/iron.nvim",
       "version": "'dev-image'"
     },
