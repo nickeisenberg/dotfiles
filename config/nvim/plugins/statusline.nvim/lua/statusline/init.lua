@@ -42,13 +42,16 @@ function M.render()
     part("diff", bufnr),
     parts.path(bufnr),
   })
+  -- Server names crowd out the path in a narrow window; leave them out.
+  local wide = vim.api.nvim_win_get_width(win) >= 80
   local right = join({
     part("diagnostics", bufnr),
-    part("lsp", bufnr),
+    wide and part("lsp", bufnr) or "",
     part("filetype", bufnr),
     part("position"),
   })
-  return left .. "%=" .. right .. " "
+  -- The space after %= keeps the sides apart when the path is cut short.
+  return left .. "%= " .. right .. " "
 end
 
 -- Redraw every statusline once, however many events asked in one tick.

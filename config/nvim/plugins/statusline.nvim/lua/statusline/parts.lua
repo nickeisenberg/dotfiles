@@ -70,16 +70,31 @@ function M.diff(bufnr)
   return table.concat(out, " ")
 end
 
--- The path relative to its repository, else to home; special buffers use
--- Neovim's own name for them. Then [+] when modified, [RO] when read-only.
+-- A terminal's name is "term://{cwd}//{pid}:{command and arguments}",
+-- often longer than the window. Show "term:" and the program instead.
+local function terminal_name(bufnr)
+  local name = vim.api.nvim_buf_get_name(bufnr)
+  local cmd = name:match("^term://.-//%d+:(.*)$") or name
+  local program = cmd:match("^%S+") or cmd
+  return "term:" .. vim.fs.basename(program)
+end
+
+-- The path relative to its repository, else to home; a terminal by its
+-- program; other special buffers by Neovim's own name for them. Then [+]
+-- when modified, [RO] when read-only.
+--
+-- It starts with %<, so a window too narrow for the whole line cuts the
+-- start of the path rather than the mode and branch before it.
 function M.path(bufnr)
   local path = file_path(bufnr)
   local shown = "%f"
   if path then
     local root = git.root(path)
     shown = esc(root and path:sub(#root + 2) or vim.fn.fnamemodify(path, ":~"))
+  elseif vim.bo[bufnr].buftype == "terminal" then
+    shown = esc(terminal_name(bufnr))
   end
-  return shown .. "%( %m%r%)"
+  return "%<" .. shown .. "%( %m%r%)"
 end
 
 local SEVERITIES = {
