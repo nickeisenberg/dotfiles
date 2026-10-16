@@ -47,13 +47,46 @@ of its own: `{ "owner/a", "owner/b", config = f }` is an error.
   'runtimepath', so their `plugin/` scripts are sourced later, at the usual
   point in startup. `require("x").setup()` works; calling a command that a
   Vimscript plugin defines in `plugin/` does not.
-- **Builds** run after install and update. Shell builds run through
-  'shell' and 'shellcmdflag' in the plugin directory, asynchronously; their
-  stdout and stderr are shown if they fail. `:VimCmd` and function builds
-  run after the plugin is loaded. Local plugins never install or update, so
-  their builds only run through `:PackBuild`.
+- **Builds** run after install and update. Local plugins never install or
+  update, so their builds only run through `:PackBuild`. Builds don't hold
+  up `config`, so on the very first install a plugin may start before its
+  build is done.
 - **Local plugins** get their directory and its `after/` directory added to
   'runtimepath'.
+
+## Builds
+
+`build` takes three forms:
+
+- **A shell command**, `build = "make"`. Runs through 'shell' and
+  'shellcmdflag' in the plugin root, in the background. On failure its
+  stdout and stderr are shown.
+- **An Ex command**, `build = ":TSUpdate"`. Runs after the plugin is loaded.
+- **A function**, `build = function(plugin) ... end`. Runs after the plugin
+  is loaded, with `plugin.spec`, `plugin.path` (the plugin root) and
+  `plugin.run`.
+
+`plugin.run(cmd, opts?)` runs `cmd`, a list like `{ "make", "install" }`
+with no shell in between, and returns its `vim.SystemCompleted`. It waits
+without blocking Neovim: the build pauses until the command exits, and the
+editor keeps running. A non-zero exit raises an error, which stops the build
+and reports the command's output. `opts` go to `vim.system()`; `cwd`
+defaults to the plugin root.
+
+Because nothing goes through a shell, a function build is the way to write
+one build that works on Unix and Windows:
+
+```lua
+build = function(plugin)
+  local win = vim.fn.has("win32") == 1
+  plugin.run({ win and "py" or "python3", "-m", "venv", "venv" })
+  local python = win and "venv/Scripts/python.exe" or "venv/bin/python"
+  plugin.run({ python, "-m", "pip", "install", "." })
+end
+```
+
+Only `plugin.run` waits without blocking; calling `vim.system():wait()`
+yourself still freezes the editor.
 
 ## Commands
 
