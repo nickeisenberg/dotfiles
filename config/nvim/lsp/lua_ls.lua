@@ -26,7 +26,17 @@ return {
   settings = {
     Lua = {
       -- Neovim embeds LuaJIT, not vanilla Lua 5.1.
-      runtime = { version = "LuaJIT" },
+      runtime = {
+        version = "LuaJIT",
+        -- Resolve require("x") only from the start of a library or
+        -- workspace root, the way Neovim does. Without this, lua_ls
+        -- matches any file whose path ends in x.lua, so
+        -- require("format") could land on snacks/picker/format.lua.
+        -- The lua/ patterns cover the workspace and $VIMRUNTIME; the
+        -- bare ones cover the plugin lua/ dirs above.
+        path = { "lua/?.lua", "lua/?/init.lua", "?.lua", "?/init.lua" },
+        pathStrict = true,
+      },
       workspace = {
         -- Don't prompt about third-party libraries.
         checkThirdParty = false,
