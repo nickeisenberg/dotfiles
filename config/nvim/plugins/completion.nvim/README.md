@@ -56,8 +56,15 @@ The sources:
 
 ## Snippets
 
-Snippet files use the VSCode format, one per filetype, plus `all.json`
-for every filetype:
+Each directory in `snippets.paths` is laid out one of two ways:
+
+- **Plain**: `<filetype>.json`, plus `all.json` for every filetype.
+- **A VSCode snippet extension**, such as
+  [friendly-snippets](https://github.com/rafamadriz/friendly-snippets):
+  a `package.json` whose `contributes.snippets` maps languages to files.
+
+A `package.json` in the directory selects the second. The snippet files
+are the same either way, in the VSCode format:
 
 ```json
 {
@@ -72,6 +79,18 @@ for every filetype:
 `body` uses LSP snippet syntax, which `vim.snippet.expand()` understands:
 `$1`, `${1:default}`, `$0` for the final cursor position. A file is read
 again when it changes, so edits show up without a restart.
+
+Neovim's parser has two gaps worth knowing about when writing or
+borrowing snippets:
+
+- **Tabstops inside a placeholder** (`${3:yield $4}`) are valid LSP
+  syntax but don't parse. Such a body is retried with the inner tabstops
+  dropped (`${3:yield }`), so it still expands, minus those stops.
+- **TextMate-only features** — regex transforms like `${1/(a)/b/}` —
+  aren't supported at all. Accepting such a snippet warns and leaves the
+  typed prefix in place. In friendly-snippets this is 13 of the ~570
+  snippets for Python, Lua, shell, LaTeX, Markdown, gitcommit, C++ and
+  JSON, all of them LaTeX.
 
 ## Files
 
