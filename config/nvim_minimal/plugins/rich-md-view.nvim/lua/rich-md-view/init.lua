@@ -15,7 +15,8 @@ local protocol = require("rich-md-view.protocol")
 local root = vim.fs.dirname(
   vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, "S").source:sub(2)))
 )
-local script = vim.fs.joinpath(root, "python", "mdview.py")
+-- Run from here, so `-m` finds the package without it being installed.
+local python_dir = vim.fs.joinpath(root, "python")
 
 ---@class RichMdView.State
 ---@field src_buf integer markdown buffer being previewed
@@ -104,7 +105,7 @@ local function sync_source(topline, cursor)
   end)
 end
 
--- Replies from the viewer, by kind; see python/mdview_protocol.py.
+-- Replies from the viewer, by kind; see python/richmdviewnvim/protocol.py.
 ---@type table<string, fun(msg: RichMdView.Message)>
 local handlers = {
   L = function(msg)
@@ -283,7 +284,7 @@ function M.open()
     vim.wo[win][opt] = val
   end
 
-  local cmd = { M.config.python, script, sock_path }
+  local cmd = { M.config.python, "-m", "richmdviewnvim", sock_path }
   if M.config.images and images.available() then
     table.insert(cmd, "--images")
   end
@@ -291,6 +292,7 @@ function M.open()
   local job = vim.api.nvim_buf_call(buf, function()
     return vim.fn.jobstart(cmd, {
       term = true,
+      cwd = python_dir,
       on_exit = function(_, code)
         vim.schedule(function()
           if not is_open() or state.buf ~= buf then

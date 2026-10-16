@@ -1,4 +1,5 @@
--- Neovim side of the viewer protocol; python/mdview_protocol.py documents it.
+-- Neovim side of the viewer protocol, which
+-- python/richmdviewnvim/protocol.py documents.
 -- Every message is "<kind> <args...> <nbytes>\n<payload>".
 
 local M = {}

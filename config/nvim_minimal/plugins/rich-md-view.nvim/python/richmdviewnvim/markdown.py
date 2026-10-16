@@ -1,8 +1,8 @@
 """rich's Markdown, extended for rich-md-view.
 
 Adds LaTeX math, parsed with mdit-py-plugins (`$...$`, `$$...$$`,
-`\\begin{align}`) and converted by mdview_math, and headings whose shape
-shows their level. THEME holds the styles these elements use.
+`\\begin{align}`) and converted by latex, and headings whose shape shows
+their level. THEME holds the styles these elements use.
 """
 
 from collections.abc import Iterator
@@ -12,12 +12,13 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.dollarmath import dollarmath_plugin
-from mdview_math import latex_to_unicode, math_lines
 from rich.console import Console, ConsoleOptions, RenderableType
 from rich.markdown import Heading, Markdown, MarkdownContext, MarkdownElement
 from rich.padding import Padding
 from rich.text import Text, TextType
 from rich.theme import Theme
+
+from richmdviewnvim.latex import latex_to_unicode, math_lines
 
 # Pandoc's rules, so prices like "$5 and $10" don't become math.
 parser = (

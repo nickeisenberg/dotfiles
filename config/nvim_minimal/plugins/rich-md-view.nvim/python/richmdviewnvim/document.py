@@ -9,11 +9,12 @@ import os
 import re
 from typing import TYPE_CHECKING, NamedTuple
 
-from mdview_markdown import MdViewMarkdown, parser
 from rich.console import Console
 
+from richmdviewnvim.markdown import MdViewMarkdown, parser
+
 if TYPE_CHECKING:
-    from mdview_image import Images
+    from richmdviewnvim.images import Images
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 

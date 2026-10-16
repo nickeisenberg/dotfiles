@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Live markdown preview for Neovim, rendered with rich"
 requires-python = ">=3.10"
 dependencies = [
-  # mdview_markdown.MdViewMarkdown relies on rich.markdown internals; tested 14, 15.
+  # richmdviewnvim.markdown relies on rich.markdown internals; tested 14, 15.
   "rich>=14,<16",
   "markdown-it-py>=4",
   "mdit-py-plugins>=0.5",
@@ -13,12 +13,18 @@ dependencies = [
   "pillow>=10",
 ]
 
-# Only installs the dependencies: Neovim runs python/mdview.py by path, so
-# there is nothing to package (and lua/, demo/ would confuse discovery).
-[tool.setuptools]
-packages = []
+# src layout, with python/ as the source directory. Neovim runs the package
+# from there itself, so installing is only needed for the dependencies (or
+# to use the package outside Neovim).
+[tool.setuptools.packages.find]
+where = ["python"]
+
+# Lets editors resolve `richmdviewnvim` imports without installing it.
+[tool.pyright]
+extraPaths = ["python"]
 
 [tool.ruff]
+src = ["python"]
 line-length = 79
 
 [tool.ruff.lint]

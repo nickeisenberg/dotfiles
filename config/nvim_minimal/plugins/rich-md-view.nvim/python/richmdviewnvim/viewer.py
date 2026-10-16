@@ -1,14 +1,14 @@
 """Live markdown viewer driven by Neovim over a Unix socket.
 
 Neovim sends the buffer text, cursor moves and scrolls of the preview window
-(see mdview_protocol). The view follows the source cursor, which sits a third
-of the way down, until the preview is scrolled; then Neovim is told which
+(see protocol). The view follows the source cursor, which sits a third of
+the way down, until the preview is scrolled; then Neovim is told which
 source lines to show so it can follow the preview instead. With --images,
-image-only blocks become kitty placeholders (mdview_image) and each new image
-is sent for Neovim to upload to the host terminal.
+image-only blocks become kitty placeholders (images) and each new image is
+sent for Neovim to upload to the host terminal.
 
-Rendering and caching live in mdview_document; cursor moves only re-slice
-cached lines.
+Rendering and caching live in document; cursor moves only re-slice cached
+lines.
 """
 
 import os
@@ -17,10 +17,11 @@ import signal
 import socket
 import sys
 
-from mdview_document import Document
-from mdview_markdown import THEME
-from mdview_protocol import decode, encode
 from rich.console import Console
+
+from richmdviewnvim.document import Document
+from richmdviewnvim.markdown import THEME
+from richmdviewnvim.protocol import decode, encode
 
 
 class Viewport:
@@ -81,7 +82,7 @@ def main() -> None:
     images = None
     if "--images" in sys.argv[2:]:
         # Imported only here, so Pillow stays optional.
-        from mdview_image import Images
+        from richmdviewnvim.images import Images
 
         def send_image(
             image_id: int, cols: int, rows: int, png: bytes
@@ -149,10 +150,3 @@ def main() -> None:
     finally:
         sys.stdout.write("\x1b[?25h\x1b[?1049l")
         sys.stdout.flush()
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
