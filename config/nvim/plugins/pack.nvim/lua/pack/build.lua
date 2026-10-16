@@ -5,9 +5,11 @@ local registry = require("pack.registry")
 
 local M = {}
 
--- 'shellcmdflag' rather than "-c", so cmd.exe, PowerShell and fish work too.
+-- 'shell' can carry arguments ("/bin/bash --login"), so split it like
+-- Neovim does. 'shellcmdflag' rather than "-c", so cmd.exe, PowerShell and
+-- fish work too.
 local function shell_argv(cmd)
-  local argv = { vim.o.shell }
+  local argv = vim.split(vim.o.shell, "%s+", { trimempty = true })
   vim.list_extend(
     argv,
     vim.split(vim.o.shellcmdflag, "%s+", { trimempty = true })
@@ -35,13 +37,22 @@ function M.run(spec, path, active)
 
   if type(build) == "string" and build:sub(1, 1) ~= ":" then
     config.notify("building " .. spec.name)
-    vim.system(shell_argv(build), { cwd = path }, function(res)
-      -- Many tools print their errors to stdout, so show both streams.
-      local output = vim.trim((res.stdout or "") .. (res.stderr or ""))
-      vim.schedule(function()
-        report(spec, res.code == 0, output)
-      end)
-    end)
+    -- vim.system() throws when the shell can't be started at all.
+    local ok, err = pcall(
+      vim.system,
+      shell_argv(build),
+      { cwd = path },
+      function(res)
+        -- Many tools print their errors to stdout, so show both streams.
+        local output = vim.trim((res.stdout or "") .. (res.stderr or ""))
+        vim.schedule(function()
+          report(spec, res.code == 0, output)
+        end)
+      end
+    )
+    if not ok then
+      report(spec, false, err)
+    end
     return
   end
 
