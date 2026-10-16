@@ -13,6 +13,11 @@ dependencies = [
   "pillow>=10",
 ]
 
+# Only installs the dependencies: Neovim runs python/mark_tui.py by path, so
+# there is nothing to package (and lua/, demo/ would confuse discovery).
+[tool.setuptools]
+packages = []
+
 [tool.ruff]
 line-length = 79
 
