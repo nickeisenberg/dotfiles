@@ -112,10 +112,11 @@ on the right and follows whichever markdown buffer you're in. Close it with
 
 ### Commands
 
-| Command            | Description                            |
-| ------------------ | -------------------------------------- |
-| `:RichMdViewOpen`  | Open the preview in a right split      |
-| `:RichMdViewClose` | Close the preview                      |
+| Command             | Description                            |
+| ------------------- | -------------------------------------- |
+| `:RichMdViewOpen`   | Open the preview in a right split      |
+| `:RichMdViewClose`  | Close the preview                      |
+| `:RichMdViewToggle` | Open the preview, or close it if open  |
 
 ### Keys in the preview
 

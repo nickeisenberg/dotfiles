@@ -363,6 +363,14 @@ function M.close()
   os.remove(s.sock_path)
 end
 
+function M.toggle()
+  if is_open() then
+    M.close()
+  else
+    M.open()
+  end
+end
+
 function M.setup(opts)
   M.config = vim.tbl_extend("force", M.config, opts or {})
 
@@ -371,6 +379,9 @@ function M.setup(opts)
   })
   vim.api.nvim_create_user_command("RichMdViewClose", M.close, {
     desc = "Close live markdown preview",
+  })
+  vim.api.nvim_create_user_command("RichMdViewToggle", M.toggle, {
+    desc = "Toggle live markdown preview",
   })
 end
 

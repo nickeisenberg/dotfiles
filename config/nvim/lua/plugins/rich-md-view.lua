@@ -5,5 +5,7 @@ return {
   end,
   config = function()
     require("rich-md-view").setup()
+
+    vim.keymap.set("n", "<leader>rt", require("rich-md-view").toggle)
   end,
 }
