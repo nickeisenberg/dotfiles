@@ -13,7 +13,7 @@ require("completion").setup({
   delay_ms = 0, -- wait after typing before the menu opens
   fuzzy = true, -- 'completeopt' "fuzzy"
   docs = true, -- 'completeopt' "popup": docs for the selected item
-  max_width = 60, -- 'pummaxwidth': cap the menu so docs have room
+  max_width = { abbr = 40, menu = 30 }, -- cut long LSP names/details with …
   path = { relative_to = "buffer", hidden = true },
   snippets = {
     paths = { vim.fn.stdpath("config") .. "/snippets" },
@@ -42,7 +42,6 @@ gives slow sources a decaying time budget so typing never waits on them.
 | `'autocompletedelay'` | `delay_ms` |
 | `'complete'` | one or more flags per source, in `sources` order |
 | `'completeopt'` | `menuone,noselect`, plus `fuzzy` and `popup` |
-| `'pummaxwidth'` | `max_width` |
 
 The sources:
 

@@ -47,6 +47,30 @@ local function completeopt()
   return table.concat(opts, ",")
 end
 
+-- Cut `text` to `width` display columns, ending in "…" when cut.
+local function truncate(text, width)
+  if width <= 0 or vim.fn.strdisplaywidth(text) <= width then
+    return text
+  end
+  local cut = text
+  while vim.fn.strdisplaywidth(cut) > width - 1 do
+    cut = vim.fn.strcharpart(cut, 0, vim.fn.strchars(cut) - 1)
+  end
+  return cut .. "…"
+end
+
+-- The menu columns Neovim builds for an LSP item, shortened. It shows
+-- the label followed by labelDetails.detail, then labelDetails.description
+-- or detail; the same fields are used here.
+local function convert(item)
+  local details = item.labelDetails or {}
+  local width = config.options.max_width
+  return {
+    abbr = truncate(item.label .. (details.detail or ""), width.abbr),
+    menu = truncate(details.description or item.detail or "", width.menu),
+  }
+end
+
 -- vim.lsp.completion.enable() is what applies an LSP item's side effects
 -- when it is accepted: expanding snippets, adding imports, running
 -- commands. Its own autotrigger stays off; 'autocomplete' already asks
@@ -56,6 +80,7 @@ local function on_lsp_attach(ev)
   if client and client:supports_method("textDocument/completion") then
     vim.lsp.completion.enable(true, client.id, ev.buf, {
       autotrigger = false,
+      convert = convert,
     })
   end
 end
@@ -68,7 +93,6 @@ function M.setup(opts)
   vim.o.autocompletedelay = config.options.delay_ms
   vim.o.complete = complete_option()
   vim.o.completeopt = completeopt()
-  vim.o.pummaxwidth = config.options.max_width
 
   -- Clearing the group makes calling setup() again safe.
   local group = vim.api.nvim_create_augroup("completion", { clear = true })

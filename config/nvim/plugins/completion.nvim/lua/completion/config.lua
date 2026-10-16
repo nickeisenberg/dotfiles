@@ -14,10 +14,11 @@ M.defaults = {
   fuzzy = true,
   -- Show documentation for the selected item ('completeopt' "popup").
   docs = true,
-  -- Widest the menu may get ('pummaxwidth'); longer items are cut off.
-  -- Without a cap one long item (an auto-import path, say) can fill the
-  -- screen and leave the docs popup no room. 0 means no cap.
-  max_width = 60,
+  -- Widest an LSP item's name (abbr) and detail (menu) columns may be;
+  -- longer text is cut with "…". One long item, like an auto-import path,
+  -- would otherwise widen the whole menu, push the kind column off screen
+  -- and leave the docs popup no room. 0 means no limit.
+  max_width = { abbr = 40, menu = 30 },
 
   path = {
     -- Resolve relative paths against the buffer's directory ("buffer")
