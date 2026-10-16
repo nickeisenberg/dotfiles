@@ -1,9 +1,7 @@
 return {
   "lervag/vimtex",
   config = function()
-    local os_name = require("utils").get_os_name
-
-    if os_name() == "Darwin" then
+    if vim.uv.os_uname().sysname == "Darwin" then
       vim.cmd([[let g:vimtex_view_method = 'skim']])
     else
       vim.g.vimtex_view_method = "zathura"

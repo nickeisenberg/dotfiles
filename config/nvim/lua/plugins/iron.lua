@@ -6,7 +6,7 @@ return {
     local view = require("iron.view")
     local common = require("iron.fts.common")
 
-    local utils = require("utils")
+    local os = vim.uv.os_uname().sysname
 
     iron.setup({
       config = {
@@ -18,14 +18,13 @@ return {
         },
         repl_definition = {
           python = {
-            command = { "ipython", "--no-autoindent" },
-            -- command = (utils.get_os_name() == "Darwin")
-            --     and (utils.is_executable("ipython"))
-            --     and {
-            --       "ipython",
-            --       "--no-autoindent",
-            --     }
-            --   or { "python3" },
+            command = (os == "Darwin")
+                and (vim.fn.executable("ipython")) == 1
+                and {
+                  "ipython",
+                  "--no-autoindent",
+                }
+              or { "python3" },
             format = common.bracketed_paste_python,
             block_dividers = { "# %%", "#%%" },
             env = { PYTHON_BASIC_REPL = "1" },
