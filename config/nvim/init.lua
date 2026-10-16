@@ -1,25 +1,12 @@
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-vim.g.start_time = vim.loop.hrtime()
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  })
-end
-vim.opt.rtp:prepend(lazypath)
+-- Load configuration.
+require("core")
+require("ui")
+require("coding")
+require("utils")
 
-require("lazy").setup({
-  spec = {
-    { import = "plugins" },
-  },
-})
-
--- requrie my config folder
-require('config')
+-- Load plugins: every file in lua/plugins/ returns a spec for pack.nvim.
+vim.opt.runtimepath:prepend(vim.fn.stdpath("config") .. "/plugins/pack.nvim")
+require("pack").setup()

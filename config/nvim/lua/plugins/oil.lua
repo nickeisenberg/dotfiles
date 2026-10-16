@@ -1,28 +1,17 @@
-M = {
-  {
-    'stevearc/oil.nvim',
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-    },
-    config = function()
-      require("oil").setup({
-        view_options = {
-          show_hidden = true
-        },
-        win_options = {
-          signcolumn = "yes:2",
-        },
-      })
-      vim.keymap.set("n", "<space>O", "<cmd>Oil<cr>")
-    end
-  },
-  {
-    "refractalize/oil-git-status.nvim",
-    dependencies = {
-      "stevearc/oil.nvim",
-    },
-    config = true
-  }
-}
+return {
+  "stevearc/oil.nvim",
+  deps = { "refractalize/oil-git-status.nvim" },
+  config = function()
+    require("oil").setup({
+      view_options = {
+        show_hidden = true,
+      },
+      win_options = {
+        signcolumn = "yes:2",
+      },
+    })
+    require("oil-git-status").setup()
 
-return M
+    vim.keymap.set("n", "<leader>O", "<CMD>Oil<CR>")
+  end,
+}
