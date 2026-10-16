@@ -1,7 +1,9 @@
 -- The :Pack* user commands.
 
+local build = require("pack.build")
 local config = require("pack.config")
 local confirm = require("pack.confirm")
+local registry = require("pack.registry")
 
 local M = {}
 
@@ -17,6 +19,18 @@ local function installed_names(arglead)
     :totable()
 end
 
+local function buildable_names(arglead)
+  return vim
+    .iter(registry.plugins)
+    :filter(function(spec)
+      return spec.build and vim.startswith(spec.name, arglead)
+    end)
+    :map(function(spec)
+      return spec.name
+    end)
+    :totable()
+end
+
 local function update(names, opts)
   -- With `force` there is no confirmation buffer to decorate.
   if not opts.force then
@@ -25,11 +39,14 @@ local function update(names, opts)
   vim.pack.update(names, opts)
 end
 
+-- Stale means in no spec and not loaded. The spec check keeps a plugin
+-- that just hasn't been loaded yet; the `active` check skips plugins other
+-- code added this session, which vim.pack.del() refuses to remove.
 local function clean(o)
   local stale = vim
     .iter(vim.pack.get(nil, { info = false }))
     :filter(function(p)
-      return not p.active
+      return not registry.by_name[p.spec.name] and not p.active
     end)
     :map(function(p)
       return p.spec.name
@@ -66,6 +83,14 @@ function M.setup()
   vim.api.nvim_create_user_command("PackStatus", function()
     update(nil, { offline = true })
   end, { desc = "Show installed plugins without fetching" })
+
+  vim.api.nvim_create_user_command("PackBuild", function(o)
+    build.run_all(#o.fargs > 0 and o.fargs or nil)
+  end, {
+    nargs = "*",
+    complete = buildable_names,
+    desc = "Run plugin builds (all that have one by default)",
+  })
 
   vim.api.nvim_create_user_command("PackClean", clean, {
     bang = true,

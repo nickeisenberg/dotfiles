@@ -32,9 +32,35 @@ return {
 }
 ```
 
+A file can also return a list, `{ "owner/a", "owner/b" }` or
+`{ { "owner/a", config = ... }, { "owner/b" } }`. A list can't carry options
+of its own: `{ "owner/a", "owner/b", config = f }` is an error.
+
+### Notes
+
+- **`enabled = false` wins.** A disabled plugin stays out even when another
+  spec lists it in `deps`; you get a warning naming the dependent.
+- **`deps` are merged.** A plugin listed both as a dependency and on its own
+  is one plugin; options missing from one spec are filled in from the other.
+- **`config` runs before `plugin/` files.** During startup vim.pack adds
+  plugins with `:packadd!`, and local plugins are only put on
+  'runtimepath', so their `plugin/` scripts are sourced later, at the usual
+  point in startup. `require("x").setup()` works; calling a command that a
+  Vimscript plugin defines in `plugin/` does not.
+- **Builds** run after install and update. Shell builds run through
+  'shell' and 'shellcmdflag' in the plugin directory, asynchronously; their
+  stdout and stderr are shown if they fail. `:VimCmd` and function builds
+  run after the plugin is loaded. Local plugins never install or update, so
+  their builds only run through `:PackBuild`.
+- **Local plugins** get their directory and its `after/` directory added to
+  'runtimepath'.
+
 ## Commands
 
 - `:PackUpdate[!] [names...]` updates plugins. Without `!` it opens
   vim.pack's confirmation buffer, with each revision's commit message added.
 - `:PackStatus` shows installed plugins without fetching.
-- `:PackClean[!]` deletes plugins that are no longer in any spec.
+- `:PackBuild [names...]` runs builds again: the named plugins', or every
+  plugin that has one.
+- `:PackClean[!]` deletes installed plugins that are in no spec and not
+  loaded. Without `!` it asks first.

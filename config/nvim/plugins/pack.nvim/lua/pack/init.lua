@@ -11,6 +11,14 @@ M.config = config.options
 M.plugins = registry.plugins
 M.by_name = registry.by_name
 
+local function add_local(spec)
+  vim.opt.runtimepath:prepend(spec.path)
+  local after = spec.path .. "/after"
+  if vim.uv.fs_stat(after) then
+    vim.opt.runtimepath:append(after)
+  end
+end
+
 local function run_configs()
   for _, spec in ipairs(registry.plugins) do
     if spec.config then
@@ -34,12 +42,14 @@ function M.setup(opts)
   local remote = {}
   for _, spec in ipairs(registry.plugins) do
     if spec.path then
-      vim.opt.runtimepath:prepend(spec.path)
+      add_local(spec)
     else
       remote[#remote + 1] = {
         src = spec.src,
         name = spec.name,
         version = spec.version,
+        -- Handed back in PackChanged events, for the build hook.
+        data = spec,
       }
     end
   end
