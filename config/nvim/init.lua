@@ -4,7 +4,7 @@ vim.g.maplocalleader = " "
 -- Load configuration.
 require("core")
 require("ui")
-require("coding")
+require("lsp")
 require("utils")
 
 -- Load plugins: every file in lua/plugins/ returns a spec for pack.nvim.
