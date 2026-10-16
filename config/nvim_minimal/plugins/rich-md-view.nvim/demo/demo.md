@@ -1,6 +1,6 @@
-# mark-tui demo
+# rich-md-view demo
 
-Open this file and run `:MarkTuiOpen`. Move the cursor around and the
+Open this file and run `:RichMdViewOpen`. Move the cursor around and the
 preview follows; scroll the preview with `j`/`k`, `<C-d>`/`<C-u>`, `gg`/`G`
 and this buffer follows back.
 
@@ -91,7 +91,7 @@ def fib(n: int) -> int:
 ```
 
 ```lua
-vim.keymap.set("n", "<leader>mp", "<cmd>MarkTuiOpen<cr>", {
+vim.keymap.set("n", "<leader>mp", "<cmd>RichMdViewOpen<cr>", {
   desc = "Markdown preview",
 })
 ```

@@ -1,7 +1,7 @@
 return {
-  dir = "mark-tui.nvim",
+  dir = "rich-md-view.nvim",
   config = function()
-    require("mark-tui").setup({
+    require("rich-md-view").setup({
       -- Fixed interpreter, independent of the active venv.
       python = vim.fn.expand("~/.sysvenv/venv/bin/python"),
     })

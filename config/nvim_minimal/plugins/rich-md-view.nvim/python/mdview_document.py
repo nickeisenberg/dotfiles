@@ -9,11 +9,11 @@ import os
 import re
 from typing import TYPE_CHECKING, NamedTuple
 
-from mark_markdown import TuiMarkdown, parser
+from mdview_markdown import MdViewMarkdown, parser
 from rich.console import Console
 
 if TYPE_CHECKING:
-    from mark_image import Images
+    from mdview_image import Images
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
@@ -117,7 +117,7 @@ class Document:
             rendered = self.images.render(src, self.console.width, self.base)
         if rendered is None:
             with self.console.capture() as cap:
-                self.console.print(TuiMarkdown(src))
+                self.console.print(MdViewMarkdown(src))
             rendered = cap.get().rstrip("\n").split("\n")
             # rich pads some blocks (lists) with blank lines; _render adds
             # its own.

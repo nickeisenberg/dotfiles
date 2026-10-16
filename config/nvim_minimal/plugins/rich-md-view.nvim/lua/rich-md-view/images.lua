@@ -1,7 +1,7 @@
 -- Images the viewer sends, uploaded to the host terminal with the kitty
 -- graphics protocol and freed together when the preview closes.
 
-local kitty = require("mark-tui.kitty")
+local kitty = require("rich-md-view.kitty")
 
 local M = {}
 
@@ -14,18 +14,18 @@ function M.available()
   end
   local reason = kitty.check()
   if reason then
-    vim.notify("mark-tui: images disabled, " .. reason, vim.log.levels.WARN)
+    vim.notify("rich-md-view: images disabled, " .. reason, vim.log.levels.WARN)
     return false
   end
   return true
 end
 
----@class MarkTui.Images
+---@class RichMdView.Images
 ---@field private ids table<integer, true> uploaded to the host terminal
 local Images = {}
 Images.__index = Images
 
----@return MarkTui.Images
+---@return RichMdView.Images
 function M.new()
   return setmetatable({ ids = {} }, Images)
 end

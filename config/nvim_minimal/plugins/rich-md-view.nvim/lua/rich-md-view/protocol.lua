@@ -1,9 +1,9 @@
--- Neovim side of the viewer protocol; python/mark_protocol.py documents it.
+-- Neovim side of the viewer protocol; python/mdview_protocol.py documents it.
 -- Every message is "<kind> <args...> <nbytes>\n<payload>".
 
 local M = {}
 
----@class MarkTui.Message
+---@class RichMdView.Message
 ---@field kind string
 ---@field args string[]
 ---@field payload string
@@ -40,7 +40,7 @@ end
 
 ---Returns feed(data), which buffers socket reads and returns the messages
 ---completed so far.
----@return fun(data: string): MarkTui.Message[]
+---@return fun(data: string): RichMdView.Message[]
 function M.decoder()
   local buf = ""
   return function(data)

@@ -44,7 +44,7 @@ def _frac(node: LatexMacroNode, l2tobj: LatexNodes2Text) -> str:
 
 _db = get_default_latex_context_db()
 _db.add_context_category(
-    "mark-tui",
+    "rich-md-view",
     macros=[
         MacroTextSpec(m, simplify_repl=_frac)
         for m in ("frac", "dfrac", "tfrac")

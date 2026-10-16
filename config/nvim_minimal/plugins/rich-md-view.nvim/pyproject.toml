@@ -1,10 +1,10 @@
 [project]
-name = "mark-tui"
+name = "rich-md-view"
 version = "0.1.0"
 description = "Live markdown preview for Neovim, rendered with rich"
 requires-python = ">=3.10"
 dependencies = [
-  # mark_math.MathMarkdown relies on rich.markdown internals; tested 14, 15.
+  # mdview_markdown.MdViewMarkdown relies on rich.markdown internals; tested 14, 15.
   "rich>=14,<16",
   "markdown-it-py>=4",
   "mdit-py-plugins>=0.5",
@@ -13,7 +13,7 @@ dependencies = [
   "pillow>=10",
 ]
 
-# Only installs the dependencies: Neovim runs python/mark_tui.py by path, so
+# Only installs the dependencies: Neovim runs python/mdview.py by path, so
 # there is nothing to package (and lua/, demo/ would confuse discovery).
 [tool.setuptools]
 packages = []

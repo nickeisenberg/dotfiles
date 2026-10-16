@@ -1,18 +1,18 @@
-"""rich's Markdown, extended for mark-tui.
+"""rich's Markdown, extended for rich-md-view.
 
 Adds LaTeX math, parsed with mdit-py-plugins (`$...$`, `$$...$$`,
-`\\begin{align}`) and converted by mark_math, and headings whose shape
+`\\begin{align}`) and converted by mdview_math, and headings whose shape
 shows their level. THEME holds the styles these elements use.
 """
 
 from collections.abc import Iterator
 from typing import Any
 
-from mark_math import latex_to_unicode, math_lines
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.dollarmath import dollarmath_plugin
+from mdview_math import latex_to_unicode, math_lines
 from rich.console import Console, ConsoleOptions, RenderableType
 from rich.markdown import Heading, Markdown, MarkdownContext, MarkdownElement
 from rich.padding import Padding
@@ -97,7 +97,7 @@ class BoldHeading(Heading):
             yield text
 
 
-class TuiMarkdown(Markdown):
+class MdViewMarkdown(Markdown):
     elements = {
         **Markdown.elements,
         "heading_open": BoldHeading,

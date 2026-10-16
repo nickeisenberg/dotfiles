@@ -1,13 +1,13 @@
 """Live markdown viewer driven by Neovim over a Unix socket.
 
 Neovim sends the buffer text, cursor moves and scrolls of the preview window
-(see mark_protocol). The view follows the source cursor, which sits a third
+(see mdview_protocol). The view follows the source cursor, which sits a third
 of the way down, until the preview is scrolled; then Neovim is told which
 source lines to show so it can follow the preview instead. With --images,
-image-only blocks become kitty placeholders (mark_image) and each new image
+image-only blocks become kitty placeholders (mdview_image) and each new image
 is sent for Neovim to upload to the host terminal.
 
-Rendering and caching live in mark_document; cursor moves only re-slice
+Rendering and caching live in mdview_document; cursor moves only re-slice
 cached lines.
 """
 
@@ -17,9 +17,9 @@ import signal
 import socket
 import sys
 
-from mark_document import Document
-from mark_markdown import THEME
-from mark_protocol import decode, encode
+from mdview_document import Document
+from mdview_markdown import THEME
+from mdview_protocol import decode, encode
 from rich.console import Console
 
 
@@ -81,7 +81,7 @@ def main() -> None:
     images = None
     if "--images" in sys.argv[2:]:
         # Imported only here, so Pillow stays optional.
-        from mark_image import Images
+        from mdview_image import Images
 
         def send_image(
             image_id: int, cols: int, rows: int, png: bytes

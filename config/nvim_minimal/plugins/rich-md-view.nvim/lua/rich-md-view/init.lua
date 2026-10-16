@@ -8,16 +8,16 @@ M.config = {
   images = true,
 }
 
-local images = require("mark-tui.images")
-local protocol = require("mark-tui.protocol")
+local images = require("rich-md-view.images")
+local protocol = require("rich-md-view.protocol")
 
--- lua/mark-tui/init.lua -> plugin root
+-- lua/rich-md-view/init.lua -> plugin root
 local root = vim.fs.dirname(
   vim.fs.dirname(vim.fs.dirname(debug.getinfo(1, "S").source:sub(2)))
 )
-local script = vim.fs.joinpath(root, "python", "mark_tui.py")
+local script = vim.fs.joinpath(root, "python", "mdview.py")
 
----@class MarkTui.State
+---@class RichMdView.State
 ---@field src_buf integer markdown buffer being previewed
 ---@field buf integer preview terminal buffer
 ---@field win integer preview window
@@ -27,11 +27,11 @@ local script = vim.fs.joinpath(root, "python", "mark_tui.py")
 ---@field client? uv.uv_pipe_t the viewer, once it has connected
 ---@field timer uv.uv_timer_t debounces sends
 ---@field pending_text boolean whether the debounced send includes the text
----@field images MarkTui.Images
+---@field images RichMdView.Images
 
 -- The open preview. Nil when closed; every entry point checks is_open()
 -- first.
----@type MarkTui.State
+---@type RichMdView.State
 local state = nil ---@diagnostic disable-line: assign-type-mismatch
 
 local function is_open()
@@ -104,8 +104,8 @@ local function sync_source(topline, cursor)
   end)
 end
 
--- Replies from the viewer, by kind; see python/mark_protocol.py.
----@type table<string, fun(msg: MarkTui.Message)>
+-- Replies from the viewer, by kind; see python/mdview_protocol.py.
+---@type table<string, fun(msg: RichMdView.Message)>
 local handlers = {
   L = function(msg)
     sync_source(tonumber(msg.args[1]), tonumber(msg.args[2]))
@@ -160,7 +160,7 @@ local function listen(sock_path)
 end
 
 local function create_autocmds()
-  local group = vim.api.nvim_create_augroup("mark_tui", { clear = true })
+  local group = vim.api.nvim_create_augroup("rich_md_view", { clear = true })
 
   vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
     group = group,
@@ -298,7 +298,7 @@ function M.open()
           end
           if code ~= 0 then
             vim.notify(
-              "mark-tui: viewer exited with code " .. code,
+              "rich-md-view: viewer exited with code " .. code,
               vim.log.levels.ERROR
             )
           end
@@ -332,7 +332,7 @@ function M.close()
   local s = state
   state = nil ---@diagnostic disable-line: cast-local-type
 
-  pcall(vim.api.nvim_del_augroup_by_name, "mark_tui")
+  pcall(vim.api.nvim_del_augroup_by_name, "rich_md_view")
   s.timer:stop()
   s.timer:close()
   if s.client and not s.client:is_closing() then
@@ -352,10 +352,10 @@ end
 function M.setup(opts)
   M.config = vim.tbl_extend("force", M.config, opts or {})
 
-  vim.api.nvim_create_user_command("MarkTuiOpen", M.open, {
+  vim.api.nvim_create_user_command("RichMdViewOpen", M.open, {
     desc = "Open live markdown preview in a right split",
   })
-  vim.api.nvim_create_user_command("MarkTuiClose", M.close, {
+  vim.api.nvim_create_user_command("RichMdViewClose", M.close, {
     desc = "Close live markdown preview",
   })
 end

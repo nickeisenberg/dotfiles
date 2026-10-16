@@ -21,7 +21,7 @@ Viewer to Neovim:
                                 Neovim can match
   I <id> <cols> <rows>          payload: PNG to upload to the terminal
 
-lua/mark-tui/protocol.lua is the Neovim side of this.
+lua/rich-md-view/protocol.lua is the Neovim side of this.
 """
 
 from typing import NamedTuple
