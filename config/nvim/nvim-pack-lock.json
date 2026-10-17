@@ -30,7 +30,7 @@
       "src": "https://github.com/tpope/vim-fugitive"
     },
     "vimtex": {
-      "rev": "98615cefc441aaa5721c144ecfeacddcdf78816d",
+      "rev": "bd0788f13c23337dae815e21f1f283cb79753ac7",
       "src": "https://github.com/lervag/vimtex"
     }
   }

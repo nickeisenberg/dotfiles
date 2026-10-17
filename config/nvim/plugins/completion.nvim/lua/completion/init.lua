@@ -52,7 +52,11 @@ local function truncate(text, width)
   if width <= 0 or vim.fn.strdisplaywidth(text) <= width then
     return text
   end
-  local cut = text
+  -- Every character takes at least one column, so `width` characters are
+  -- enough. Cutting to that first keeps the loop below short: a detail
+  -- can be thousands of characters (numpy's overloaded signatures), and
+  -- trimming those one character at a time froze the editor.
+  local cut = vim.fn.strcharpart(text, 0, width)
   while vim.fn.strdisplaywidth(cut) > width - 1 do
     cut = vim.fn.strcharpart(cut, 0, vim.fn.strchars(cut) - 1)
   end
