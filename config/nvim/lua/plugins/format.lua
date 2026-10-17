@@ -4,7 +4,15 @@ return {
     require("format").setup({
       formatters = {
         lua = {
-          { command = "stylua", args = { "-" } },
+          -- --stdin-filepath makes stylua look for stylua.toml from the
+          -- file's directory; otherwise it looks from Neovim's working
+          -- directory and falls back to tabs outside this config.
+          {
+            command = "stylua",
+            args = function(bufname)
+              return { "--stdin-filepath", bufname, "-" }
+            end,
+          },
         },
         tex = {
           { command = "tex-fmt", args = { "--stdin" } },

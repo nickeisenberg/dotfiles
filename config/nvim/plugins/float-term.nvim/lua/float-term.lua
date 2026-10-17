@@ -4,6 +4,22 @@ local win_id = nil
 local current_buf_idx = nil
 local buf_ids = {}
 
+-- Forget terminals whose buffers are gone: deleted with :bd!, or closed
+-- by Neovim when the shell exits. The current terminal stays current if
+-- it survived.
+local function prune()
+  local current = buf_ids[current_buf_idx or 0]
+  buf_ids = vim.tbl_filter(vim.api.nvim_buf_is_valid, buf_ids)
+
+  if #buf_ids == 0 then
+    current_buf_idx = nil
+    return
+  end
+
+  local idx = vim.fn.index(buf_ids, current) + 1
+  current_buf_idx = idx > 0 and idx or math.min(current_buf_idx, #buf_ids)
+end
+
 local function window_is_open()
   return win_id ~= nil and vim.api.nvim_win_is_valid(win_id)
 end
@@ -66,6 +82,8 @@ function M.new()
 end
 
 function M.toggle()
+  prune()
+
   if window_is_open() then
     close_terminal()
     return
@@ -80,6 +98,8 @@ function M.toggle()
 end
 
 function M.next()
+  prune()
+
   if #buf_ids == 0 then
     M.new()
     return
@@ -99,6 +119,8 @@ function M.next()
 end
 
 function M.prev()
+  prune()
+
   if #buf_ids == 0 then
     M.new()
     return
@@ -118,6 +140,8 @@ function M.prev()
 end
 
 function M.kill()
+  prune()
+
   if #buf_ids == 0 then
     return
   end

@@ -2,7 +2,7 @@ local ui = require("picker.ui")
 
 local M = {}
 
-local function get_line_text(file, line)
+local function get_line(file, line)
   local bufnr = vim.fn.bufnr(file)
 
   -- If the file is currently loaded, read from the live buffer.
@@ -10,7 +10,7 @@ local function get_line_text(file, line)
     local lines = vim.api.nvim_buf_get_lines(bufnr, line - 1, line, false)
 
     if lines[1] then
-      return vim.trim(lines[1])
+      return lines[1]
     end
   end
 
@@ -18,13 +18,13 @@ local function get_line_text(file, line)
   local ok, lines = pcall(vim.fn.readfile, file, "", line)
 
   if ok and lines[line] then
-    return vim.trim(lines[line])
+    return lines[line]
   end
 
   return ""
 end
 
-local function location_to_item(location)
+local function location_to_item(location, encoding)
   local uri = location.uri or location.targetUri
   local range = location.range or location.targetSelectionRange
 
@@ -34,8 +34,11 @@ local function location_to_item(location)
 
   local file = vim.uri_to_fname(uri)
   local line = range.start.line + 1
-  local col = range.start.character + 1
-  local text = get_line_text(file, line)
+  local raw = get_line(file, line)
+  -- The server counts columns in its offset encoding (often UTF-16);
+  -- Neovim counts bytes.
+  local col = vim.str_byteindex(raw, encoding, range.start.character, false) + 1
+  local text = vim.trim(raw)
 
   return {
     display = string.format(
@@ -117,9 +120,13 @@ local function open_locations(title, items)
     select = function(item)
       vim.cmd.edit(vim.fn.fnameescape(item.file))
 
+      -- The file may have changed since the server answered.
+      local lnum = math.min(item.line, vim.api.nvim_buf_line_count(0))
+      local line = vim.api.nvim_buf_get_lines(0, lnum - 1, lnum, false)[1] or ""
+
       vim.api.nvim_win_set_cursor(0, {
-        item.line,
-        item.col - 1,
+        lnum,
+        math.min(item.col - 1, #line),
       })
 
       vim.cmd("normal! zz")
@@ -148,42 +155,39 @@ function M.references()
     includeDeclaration = true,
   }
 
-  vim.lsp.buf_request(
-    bufnr,
-    "textDocument/references",
-    params,
-    function(err, result)
-      if err then
-        vim.notify(
-          "LSP references failed: " .. (err.message or tostring(err)),
-          vim.log.levels.ERROR
-        )
-        return
-      end
-
-      if not result or vim.tbl_isempty(result) then
-        vim.notify("No references found")
-        return
-      end
-
-      local items = {}
-
-      for _, location in ipairs(result) do
-        local item = location_to_item(location)
-
-        if item then
-          items[#items + 1] = item
-        end
-      end
-
-      if #items == 0 then
-        vim.notify("No references found")
-        return
-      end
-
-      open_locations("References", items)
+  -- Only the client whose offset encoding built `params`; buf_request()
+  -- would ask every attached server and open a picker for each answer.
+  client:request("textDocument/references", params, function(err, result)
+    if err then
+      vim.notify(
+        "LSP references failed: " .. (err.message or tostring(err)),
+        vim.log.levels.ERROR
+      )
+      return
     end
-  )
+
+    if not result or vim.tbl_isempty(result) then
+      vim.notify("No references found")
+      return
+    end
+
+    local items = {}
+
+    for _, location in ipairs(result) do
+      local item = location_to_item(location, client.offset_encoding)
+
+      if item then
+        items[#items + 1] = item
+      end
+    end
+
+    if #items == 0 then
+      vim.notify("No references found")
+      return
+    end
+
+    open_locations("References", items)
+  end, bufnr)
 end
 
 function M.definitions()
@@ -203,48 +207,45 @@ function M.definitions()
 
   local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
 
-  vim.lsp.buf_request(
-    bufnr,
-    "textDocument/definition",
-    params,
-    function(err, result)
-      if err then
-        vim.notify(
-          "LSP definition failed: " .. (err.message or tostring(err)),
-          vim.log.levels.ERROR
-        )
-        return
-      end
-
-      if not result or vim.tbl_isempty(result) then
-        vim.notify("No definitions found")
-        return
-      end
-
-      -- Definition may return a single Location/LocationLink
-      -- instead of a list.
-      if result.uri or result.targetUri then
-        result = { result }
-      end
-
-      local items = {}
-
-      for _, location in ipairs(result) do
-        local item = location_to_item(location)
-
-        if item then
-          items[#items + 1] = item
-        end
-      end
-
-      if #items == 0 then
-        vim.notify("No definitions found")
-        return
-      end
-
-      open_locations("Definitions", items)
+  -- Only the client whose offset encoding built `params`; buf_request()
+  -- would ask every attached server and open a picker for each answer.
+  client:request("textDocument/definition", params, function(err, result)
+    if err then
+      vim.notify(
+        "LSP definition failed: " .. (err.message or tostring(err)),
+        vim.log.levels.ERROR
+      )
+      return
     end
-  )
+
+    if not result or vim.tbl_isempty(result) then
+      vim.notify("No definitions found")
+      return
+    end
+
+    -- Definition may return a single Location/LocationLink
+    -- instead of a list.
+    if result.uri or result.targetUri then
+      result = { result }
+    end
+
+    local items = {}
+
+    for _, location in ipairs(result) do
+      local item = location_to_item(location, client.offset_encoding)
+
+      if item then
+        items[#items + 1] = item
+      end
+    end
+
+    if #items == 0 then
+      vim.notify("No definitions found")
+      return
+    end
+
+    open_locations("Definitions", items)
+  end, bufnr)
 end
 
 return M
