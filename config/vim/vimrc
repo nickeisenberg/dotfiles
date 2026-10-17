@@ -1,0 +1,346 @@
+vim9script
+
+g:mapleader = ' '
+g:maplocalleader = ' '
+
+# This directory, whether it is ~/.vim or loaded with `vim -u path/vimrc`.
+const vimdir = expand('<sfile>:p:h')
+if index(split(&runtimepath, ','), vimdir) < 0
+  &runtimepath = $'{vimdir},{&runtimepath},{vimdir}/after'
+  &packpath = $'{vimdir},{&packpath}'
+endif
+
+# ---------------------------------------------------------------------------
+# Defaults Neovim has and Vim doesn't
+# ---------------------------------------------------------------------------
+
+filetype plugin indent on
+syntax on
+
+set encoding=utf-8
+set autoindent
+set autoread
+set backspace=indent,eol,start
+set belloff=all
+set complete-=i
+set display=lastline
+set formatoptions+=j
+set hidden
+set history=10000
+set incsearch
+set laststatus=2
+set listchars=tab:>\ ,trail:-,nbsp:+
+set nojoinspaces
+set nostartofline
+set nrformats=bin,hex
+set ruler
+set sessionoptions-=options
+set shortmess+=F
+set showcmd
+set sidescroll=1
+set smarttab
+set switchbuf=uselast
+set tabpagemax=50
+set ttimeout
+set ttimeoutlen=50
+set wildmenu
+set wildoptions=pum,tagfile
+set fillchars=vert:│,fold:·
+
+# Swap, backup, undo, viminfo and netrw history under ~/.local/state/vim,
+# not in this directory or next to the files being edited. The trailing //
+# keeps full paths in the swap and backup names.
+const state = $'{empty($XDG_STATE_HOME) ? $"{$HOME}/.local/state" : $XDG_STATE_HOME}/vim'
+for dir in ['swap', 'backup', 'undo']
+  mkdir($'{state}/{dir}', 'p', 0o700)
+endfor
+&directory = $'{state}/swap//'
+&backupdir = $'{state}/backup//'
+&undodir = $'{state}/undo//'
+&viminfofile = $'{state}/viminfo'
+g:netrw_home = state
+
+# Cursor: bar in insert mode, underline in replace mode, block otherwise.
+&t_SI = "\<Esc>[6 q"
+&t_SR = "\<Esc>[4 q"
+&t_EI = "\<Esc>[2 q"
+
+# True colour and mouse inside tmux.
+&t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+&t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+if has('mouse_sgr')
+  set ttymouse=sgr
+endif
+
+# Bundled packages: % on matching words, .editorconfig files, gc to
+# comment, highlight on yank.
+packadd! matchit
+packadd! editorconfig
+packadd! comment
+g:hlyank_duration = 200
+g:hlyank_invisual = true
+packadd! hlyank
+
+# ---------------------------------------------------------------------------
+# Options
+# ---------------------------------------------------------------------------
+
+set termguicolors
+set background=dark
+set mouse=a
+set nohlsearch
+
+if &shell !~ '--login'
+  &shell ..= ' --login'
+endif
+
+set colorcolumn=80
+
+set splitright
+
+# Case-insensitive searching UNLESS \C or capital in search
+set ignorecase
+set smartcase
+
+set cursorline
+set cursorcolumn
+
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+
+# line numbers
+set number
+set relativenumber
+
+set foldmethod=indent
+set foldlevelstart=99
+
+set updatetime=250
+
+g:python_indent = {
+  open_paren: 'shiftwidth()',
+  closed_paren_align_last_line: false,
+}
+
+# ---------------------------------------------------------------------------
+# Colorscheme
+# ---------------------------------------------------------------------------
+
+augroup transparent_bg
+  autocmd!
+  autocmd ColorScheme * highlight Normal guibg=NONE ctermbg=NONE
+augroup END
+colorscheme habamax
+
+# ---------------------------------------------------------------------------
+# Keymaps
+# ---------------------------------------------------------------------------
+
+# Close buffer
+nnoremap <leader>bd <Cmd>bdelete<CR>
+
+# Surround selection with quotes
+xnoremap <silent> <leader>" c""<Esc>P
+
+# Move to previous visual selection
+nnoremap <leader>md `>
+nnoremap <leader>mu `<
+
+# System clipboard
+nnoremap <leader>y "+y
+xnoremap <leader>y "+y
+nnoremap <leader>p "+p
+xnoremap <leader>p "+p
+nnoremap <leader>P "+P
+xnoremap <leader>P "+P
+
+# Move between paragraphs without opening folds
+nnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
+xnoremap <expr> } foldclosed('.') == -1 ? '}' : 'j'
+nnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
+xnoremap <expr> { foldclosed('.') == -1 ? '{' : 'k'
+
+# File explorer
+nnoremap <leader>O <Cmd>Explore<CR>
+
+# Save and quit
+nnoremap <leader>w <Cmd>write<CR>
+nnoremap <leader>q <Cmd>quit<CR>
+nnoremap <leader>Q <Cmd>quit!<CR>
+
+# Splits
+nnoremap <leader>sv <Cmd>vsplit<CR>
+nnoremap <leader>sh <Cmd>split<CR>
+nnoremap <leader>cs <Cmd>close<CR>
+
+# Resize splits
+nnoremap <C-Up> <Cmd>resize -2<CR>
+nnoremap <C-Down> <Cmd>resize +2<CR>
+nnoremap <C-Left> <Cmd>vertical resize -2<CR>
+nnoremap <C-Right> <Cmd>vertical resize +2<CR>
+
+# Neovim's default mappings
+nnoremap Y y$
+nnoremap [q <Cmd>execute v:count1 .. 'cprevious'<CR>
+nnoremap ]q <Cmd>execute v:count1 .. 'cnext'<CR>
+nnoremap [b <Cmd>execute v:count1 .. 'bprevious'<CR>
+nnoremap ]b <Cmd>execute v:count1 .. 'bnext'<CR>
+nnoremap [<Space> <Cmd>call append(line('.') - 1, repeat([''], v:count1))<CR>
+nnoremap ]<Space> <Cmd>call append(line('.'), repeat([''], v:count1))<CR>
+
+# ---------------------------------------------------------------------------
+# Plugins (see autoload/pack.vim)
+# ---------------------------------------------------------------------------
+
+pack#Begin()
+Pack 'yegappan/lsp'
+Pack 'statusline'
+Pack 'format'
+Pack 'completion'
+Pack 'float-term'
+Pack 'picker'
+pack#End()
+
+# ---------------------------------------------------------------------------
+# LSP (yegappan/lsp)
+# ---------------------------------------------------------------------------
+
+if exists('*g:LspAddServer')
+  g:LspOptionsSet({
+    # Vim's 'autocomplete' drives the menu (see the completion plugin);
+    # LSP items come in through the omnifunc.
+    autoComplete: false,
+    omniComplete: true,
+    completionMatcher: 'fuzzy',
+
+    # Highlight references to the symbol under the cursor.
+    autoHighlight: true,
+
+    # Diagnostics: signs and underlines, no virtual text; <leader>id shows
+    # the current line's in a popup.
+    showDiagWithVirtualText: false,
+    showDiagWithSign: true,
+    highlightDiagInline: true,
+    showDiagInPopup: true,
+    diagSignErrorText: 'E',
+    diagSignWarningText: 'W',
+    diagSignInfoText: 'I',
+    diagSignHintText: 'H',
+
+    showSignature: true,
+    echoSignature: false,
+    usePopupInCodeAction: true,
+    popupBorder: true,
+    ignoreMissingServer: true,
+  })
+
+  g:LspAddServer([
+    {
+      name: 'lua_ls',
+      filetype: ['lua'],
+      path: 'lua-language-server',
+      args: [],
+      rootSearch: ['.luarc.json', '.luarc.jsonc', '.stylua.toml', 'stylua.toml', '.git/'],
+      workspaceConfig: {
+        Lua: {
+          workspace: {checkThirdParty: false},
+        },
+      },
+    },
+    {
+      name: 'ty',
+      filetype: ['python'],
+      path: 'ty',
+      args: ['server'],
+      rootSearch: ['ty.toml', 'pyproject.toml', 'setup.py', 'setup.cfg', 'requirements.txt', '.git/'],
+    },
+    {
+      # After ty, so ty answers hover and the rest; ruff adds its
+      # diagnostics, code actions and formatting.
+      name: 'ruff',
+      filetype: ['python'],
+      path: 'ruff',
+      args: ['server'],
+      rootSearch: ['pyproject.toml', 'ruff.toml', '.ruff.toml', '.git/'],
+      features: {hover: false, completion: false},
+    },
+    {
+      name: 'bashls',
+      filetype: ['sh', 'bash'],
+      path: 'bash-language-server',
+      args: ['start'],
+    },
+    {
+      name: 'vimls',
+      filetype: ['vim'],
+      path: 'vim-language-server',
+      args: ['--stdio'],
+      rootSearch: ['.git/', 'autoload/', 'plugin/'],
+      initializationOptions: {
+        isNeovim: false,
+        iskeyword: '@,48-57,_,192-255,-#',
+        vimruntime: $VIMRUNTIME,
+        runtimepath: &runtimepath,
+        diagnostic: {enable: true},
+        indexes: {
+          runtimepath: true,
+          gap: 100,
+          count: 3,
+          projectRootPatterns: ['.git', 'autoload', 'plugin'],
+        },
+        suggest: {fromVimruntime: true, fromRuntimepath: true},
+      },
+    },
+  ])
+
+  def LspKeymaps()
+    nnoremap <buffer> K <Cmd>LspHover<CR>
+    nnoremap <buffer> <leader>rn <Cmd>LspRename<CR>
+    nnoremap <buffer> <leader>ca <Cmd>LspCodeAction<CR>
+    inoremap <buffer> <C-k> <Cmd>LspShowSignature<CR>
+    nnoremap <buffer> <leader>gd <Cmd>call picker#Definitions()<CR>
+    nnoremap <buffer> <leader>gr <Cmd>call picker#References()<CR>
+    nnoremap <buffer> <leader>id <Cmd>LspDiag current<CR>
+    nnoremap <buffer> [d <Cmd>LspDiag prevWrap<CR>
+    nnoremap <buffer> ]d <Cmd>LspDiag nextWrap<CR>
+  enddef
+
+  augroup lsp_keymaps
+    autocmd!
+    autocmd User LspAttached LspKeymaps()
+  augroup END
+endif
+
+# ---------------------------------------------------------------------------
+# Format on save
+# ---------------------------------------------------------------------------
+
+g:format_formatters = {
+  lua: [['stylua', '-']],
+  tex: [['tex-fmt', '--stdin']],
+  # Fixes first (unused imports, import order), then layout.
+  python: [
+    ['ruff', 'check', '--fix', '--exit-zero', '--stdin-filename', '%', '-'],
+    ['ruff', 'format', '--stdin-filename', '%', '-'],
+  ],
+}
+
+# ---------------------------------------------------------------------------
+# Floating terminal
+# ---------------------------------------------------------------------------
+
+nnoremap <leader>tt <Cmd>call float_term#Toggle()<CR>
+nnoremap <leader>tn <Cmd>call float_term#New()<CR>
+nnoremap <leader>th <Cmd>call float_term#Prev()<CR>
+nnoremap <leader>tl <Cmd>call float_term#Next()<CR>
+nnoremap <leader>tk <Cmd>call float_term#Kill()<CR>
+
+# ---------------------------------------------------------------------------
+# Picker
+# ---------------------------------------------------------------------------
+
+nnoremap <leader>ff <Cmd>call picker#FindFiles()<CR>
+nnoremap <leader>fg <Cmd>call picker#LiveGrep()<CR>
+nnoremap <leader>fb <Cmd>call picker#FindBuffers()<CR>
