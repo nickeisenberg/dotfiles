@@ -9,12 +9,13 @@ the formatters.
 ## Install
 
 ```sh
-ln -s ~/gitrepos/nvim-to-vim/vim ~/.vim
+ln -s ~/dotfiles/config/vim ~/.vim
 vim   # the first start clones yegappan/lsp into ~/.local/share/vim/pack/
 ```
 
-To try it without installing, use `vim -Nu vim/vimrc`. Keep the `-N`:
-without it Vim starts in compatible mode, and some keys get lost.
+To try it without installing, use `vim -Nu ~/dotfiles/config/vim/vimrc`.
+Keep the `-N`: without it Vim starts in compatible mode, and some keys get
+lost.
 
 ## Layout
 
