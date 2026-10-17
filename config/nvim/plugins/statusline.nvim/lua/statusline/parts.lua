@@ -50,9 +50,11 @@ function M.branch(bufnr)
   return branch and ("%#StlGit# " .. esc(branch) .. " %*") or ""
 end
 
--- Lines added, changed and removed, as counted by gitsigns.
+-- Lines added, changed and removed since the file was staged.
 function M.diff(bufnr)
-  local counts = vim.b[bufnr].gitsigns_status_dict
+  local path = file_path(bufnr)
+  local root = path and git.root(path)
+  local counts = root and git.diff(bufnr, root, path)
   if not counts then
     return ""
   end
@@ -63,7 +65,7 @@ function M.diff(bufnr)
     { counts.changed, "~", "Changed" },
     { counts.removed, "-", "Removed" },
   }) do
-    if d[1] and d[1] > 0 then
+    if d[1] > 0 then
       out[#out + 1] = "%#" .. d[3] .. "#" .. d[2] .. d[1] .. "%*"
     end
   end

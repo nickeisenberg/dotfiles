@@ -92,7 +92,8 @@ function M.setup(opts)
     redraw()
   end)
   on({ "DiagnosticChanged", "LspAttach", "FocusGained" }, redraw)
-  on("User", redraw, { "GitSignsUpdate", "FugitiveChanged" })
+  -- Changed-line counts follow edits.
+  on({ "TextChanged", "TextChangedI", "BufWritePost" }, redraw)
 
   vim.o.statusline = "%!v:lua.require'statusline'.render()"
 end
