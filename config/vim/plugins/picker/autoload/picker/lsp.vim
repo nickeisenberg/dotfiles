@@ -19,8 +19,9 @@ def Notify(msg: string, error = false)
   endif
 enddef
 
-# "file:///a/b%20c" -> "/a/b c". Percent-escapes are bytes, so they are
-# decoded as a blob to keep multibyte names intact.
+# "file:///a/b%20c" -> "/a/b c". Percent-escapes are bytes ("%C3%A4" is
+# "ä"): each becomes a "\x.." escape in a double-quoted string, which
+# keeps multibyte names intact.
 def UriToFile(uri: string): string
   if uri !~ '^file://'
     return uri
@@ -29,19 +30,8 @@ def UriToFile(uri: string): string
   if stridx(path, '%') < 0
     return path
   endif
-  var bytes = 0z
-  var i = 0
-  while i < len(path)
-    const hex = strpart(path, i + 1, 2)
-    if strpart(path, i, 1) == '%' && hex =~ '^\x\x$'
-      bytes->add(str2nr(hex, 16))
-      i += 3
-    else
-      bytes += str2blob([strpart(path, i, 1)])
-      i += 1
-    endif
-  endwhile
-  return blob2str(bytes)->join("\n")
+  const quoted = path->escape('\"')->substitute('%\(\x\x\)', '\\x\1', 'g')
+  return eval($'"{quoted}"')
 enddef
 
 # The text of line `lnum` of `file`, from the buffer when it is loaded.
@@ -93,7 +83,9 @@ def OpenLocations(title: string, items: list<dict<any>>)
   ui.Open({
     title: title,
     initial_results: items,
-    search: (query) => empty(query) ? items : matchfuzzy(items, query, {key: 'display'}),
+    # Through call(): Vim 9.0 types matchfuzzy() as returning strings even
+    # for a list of dicts, so a direct call fails to compile there.
+    search: (query) => empty(query) ? items : call('matchfuzzy', [items, query, {key: 'display'}]),
     format: (item) => item.display,
     preview: (item) => ({file: item.file, lnum: item.lnum, col: item.col}),
     select: OpenItem,

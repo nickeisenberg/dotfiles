@@ -1,20 +1,20 @@
-vim9script
+" Take the indent width from the nearest .clang-format, searching upward from
+" the file's directory; 4 when there is none.
+"
+" Legacy script, like the other ftplugins, so it works in any Vim.
+let s:indent_width = 4
 
-# Take the indent width from the nearest .clang-format, searching upward from
-# the file's directory; 4 when there is none.
-var indent_width = 4
-
-const file = findfile('.clang-format', '.;~')
-if !empty(file)
-  for line in readfile(file)
-    const width = matchstr(line, '^\s*IndentWidth:\s*\zs\d\+')
-    if !empty(width)
-      indent_width = str2nr(width)
+let s:file = findfile('.clang-format', '.;~')
+if !empty(s:file)
+  for s:line in readfile(s:file)
+    let s:width = matchstr(s:line, '^\s*IndentWidth:\s*\zs\d\+')
+    if !empty(s:width)
+      let s:indent_width = str2nr(s:width)
       break
     endif
   endfor
 endif
 
-&l:shiftwidth = indent_width
-&l:tabstop = indent_width
-&l:softtabstop = indent_width
+let &l:shiftwidth = s:indent_width
+let &l:tabstop = s:indent_width
+let &l:softtabstop = s:indent_width

@@ -31,8 +31,10 @@ export def ReadFile(path: string): list<string>
     return ['[empty file]']
   endif
 
-  # Avoid displaying binary data in the text preview.
-  if readblob(path, 0, 8192)->index(0) >= 0
+  # Avoid displaying binary data in the text preview. The file is at most
+  # MAX_BYTES, so reading all of it is fine (and works in Vim 9.0, whose
+  # readblob() takes no offset).
+  if readblob(path)->index(0) >= 0
     return ['[Preview disabled: binary file]']
   endif
 

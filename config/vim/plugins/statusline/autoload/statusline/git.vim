@@ -9,7 +9,11 @@ vim9script
 #
 # Changed lines are counted the way gitsigns counts them: the file's
 # version in the index is fetched once (and again when the index changes),
-# and the buffer is compared against it with diff() as you edit.
+# and the buffer is compared against it with diff() as you edit. A Vim
+# without diff() (before 9.1.0071) counts from `git diff` instead, so the
+# counts follow the saved file rather than the buffer.
+
+const HAS_DIFF = exists('*diff')
 
 # file path -> repository root, or '' outside a repository.
 var roots: dict<string> = {}
@@ -93,23 +97,46 @@ enddef
 
 # Count like gitsigns: a hunk that only adds or only removes lines counts
 # them as such; one that replaces lines counts the overlap as changed and
-# the rest as added or removed.
-def Recount(bufnr: number)
-  const state = bufs->get(bufnr, {})
-  if empty(state) || type(state.base) != v:t_list || !bufloaded(bufnr)
-    return
-  endif
+# the rest as added or removed. A hunk is [old line count, new line count].
+def Tally(hunks: list<list<number>>): dict<number>
   var counts = {added: 0, changed: 0, removed: 0}
-  for hunk in diff(state.base, getbufline(bufnr, 1, '$'), {output: 'indices'})
-    const changed = min([hunk.from_count, hunk.to_count])
+  for [from, to] in hunks
+    const changed = min([from, to])
     counts.changed += changed
-    counts.added += hunk.to_count - changed
-    counts.removed += hunk.from_count - changed
+    counts.added += to - changed
+    counts.removed += from - changed
   endfor
-  if counts != state->get('counts', {})
+  return counts
+enddef
+
+# The hunks of `git diff -U0` output: "@@ -a,b +c,d @@", counts default 1.
+def ParseHunks(lines: list<string>): list<list<number>>
+  var hunks: list<list<number>> = []
+  for line in lines
+    const m = matchlist(line, '^@@ -\d\+\%(,\(\d\+\)\)\= +\d\+\%(,\(\d\+\)\)\= @@')
+    if !empty(m)
+      hunks->add([empty(m[1]) ? 1 : str2nr(m[1]), empty(m[2]) ? 1 : str2nr(m[2])])
+    endif
+  endfor
+  return hunks
+enddef
+
+def SetCounts(bufnr: number, counts: dict<number>)
+  const state = bufs->get(bufnr, {})
+  if !empty(state) && counts != state->get('counts', {})
     state.counts = counts
     statusline#Redraw()
   endif
+enddef
+
+def Recount(bufnr: number)
+  const state = bufs->get(bufnr, {})
+  if !HAS_DIFF || empty(state) || type(state.base) != v:t_list || !bufloaded(bufnr)
+    return
+  endif
+  # Through call(), so a Vim without diff() can still compile this.
+  const hunks = call('diff', [state.base, getbufline(bufnr, 1, '$'), {output: 'indices'}])
+  SetCounts(bufnr, Tally(hunks->mapnew((_, h) => [h.from_count, h.to_count])))
 enddef
 
 def IndexTime(root: string): number
@@ -144,8 +171,12 @@ def Refresh(bufnr: number, force = false, recount = true)
   state = {path: path, index_time: index_time, base: null, counts: state->get('counts', {})}
   bufs[bufnr] = state
 
+  const relpath = $':./{strpart(path, len(root) + 1)}'
+  const cmd = HAS_DIFF
+    ? ['git', '--no-pager', 'show', relpath]
+    : ['git', '--no-pager', 'diff', '--no-color', '--no-ext-diff', '-U0', '--', relpath]
   var lines: list<string> = []
-  state.job = job_start(['git', '--no-pager', 'show', $':./{strpart(path, len(root) + 1)}'], {
+  state.job = job_start(cmd, {
     cwd: root,
     in_io: 'null',
     err_io: 'null',
@@ -174,8 +205,12 @@ def Fetched(bufnr: number, state: dict<any>, lines: list<string>)
     statusline#Redraw()
     return
   endif
-  state.base = lines
-  Recount(bufnr)
+  if HAS_DIFF
+    state.base = lines
+    Recount(bufnr)
+  else
+    SetCounts(bufnr, Tally(ParseHunks(lines)))
+  endif
 enddef
 
 # Recount after edits, at most every 100ms per buffer.

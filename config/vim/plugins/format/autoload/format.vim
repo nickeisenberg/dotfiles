@@ -123,14 +123,23 @@ enddef
 # ---------------------------------------------------------------------------
 
 # Replace the buffer's lines with `new` by applying a line diff, so marks,
-# folds, signs and the cursor on untouched lines stay put.
+# folds, signs and the cursor on untouched lines stay put. A Vim without
+# diff() (before 9.1.0071) replaces every line instead.
 def Apply(bufnr: number, new: list<string>)
   const old = getbufline(bufnr, 1, '$')
   if old == new
     return
   endif
+  if !exists('*diff')
+    setbufline(bufnr, 1, new)
+    if len(old) > len(new)
+      deletebufline(bufnr, len(new) + 1, len(old))
+    endif
+    return
+  endif
 
-  var hunks = diff(old, new, {output: 'indices'})
+  # Through call(), so a Vim without diff() can still compile this.
+  var hunks = call('diff', [old, new, {output: 'indices'}])
   # Bottom up, so earlier hunks' line numbers stay valid.
   for hunk in reverse(hunks)
     const first = hunk.from_idx

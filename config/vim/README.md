@@ -1,6 +1,7 @@
 # vim
 
-The nvim config, rebuilt for Vim 9.2 in vim9script. The only third-party
+The nvim config, rebuilt for Vim 9.2 in vim9script; Vim 9.0 and 9.1 work
+too, with fallbacks (see [Vim versions](#vim-versions)). The only third-party
 plugin is [yegappan/lsp](https://github.com/yegappan/lsp); everything else
 is in this directory. External tools: `git`, `rg`, the language servers and
 the formatters.
@@ -62,12 +63,25 @@ because `Pack` arguments are evaluated inside pack.vim.
 |---|---|---|
 | `statusline` | statusline.nvim | No gitsigns: the branch comes from `.git/HEAD`, and the +/~/- counts from diffing the buffer against the git index as you type. |
 | `format` | format.nvim | `g:format_formatters`; an argument that is exactly `%` becomes the file name. Falls back to `:LspFormat`. |
-| `completion` | completion.nvim | Vim's `'autocomplete'` with path, LSP and buffer sources. Snippets are left out for now. Signature help comes from yegappan/lsp. |
+| `completion` | completion.nvim | Two engines, picked by `g:completion_engine` (`'auto'`): **builtin** is Vim's `'autocomplete'` with path, LSP and buffer sources; **lsp** is yegappan/lsp's own completion plus buffer words, for Vims without `'autocomplete'`. Snippets are left out for now. Signature help comes from yegappan/lsp. |
 | `float-term` | float-term.nvim | Terminals in a popup. From the terminal, `<C-\><C-n>` goes to Normal mode, where `<leader>t…` works. |
 | `picker` | picker.nvim | `rg` for files and grep; `<leader>gd`/`<leader>gr` ask the language server through yegappan/lsp's documented server API (`:help lsp-custom-requests`). Also takes `<C-w>`/`<C-u>` in the prompt. |
 
 The options for each plugin are listed at the top of its
 `plugin/<name>.vim`.
+
+## Vim versions
+
+| Vim | What you get |
+|---|---|
+| 9.2, and 9.1.1590+ | everything |
+| 9.1.0071 to 9.1.1589 | completion uses the lsp engine: no path completion as you type (`<C-x><C-f>` still works), and the menu shows names and kinds with details in the docs popup |
+| 9.0 to 9.1.0070 | as above, and without `diff()`: the statusline counts follow the saved file instead of the buffer, and formatting replaces every line instead of only the changed ones |
+| older than 9.0 | one warning, nothing loaded |
+
+Some bundled packages are missing from older 9.x builds: without `comment`
+there is no `gc`, and without `habamax` the colorscheme is `desert`. Yank
+highlighting has its own fallback.
 
 ## Differences from the nvim config
 

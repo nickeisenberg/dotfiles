@@ -1,4 +1,19 @@
+" Vim 9.0 is the oldest Vim that runs vim9script as written here (and the
+" oldest yegappan/lsp supports). Anything older loads nothing.
+if v:version < 900
+  echohl WarningMsg
+  echomsg 'vimrc: needs Vim 9.0 or newer, this is ' . v:version / 100 . '.' . v:version % 100 . '; nothing loaded'
+  echohl None
+  finish
+endif
+
 vim9script
+
+# On Vim 9.0 and 9.1, features that arrived later in 9.1 or 9.2 are checked
+# for where they are used, and those parts fall back or switch off:
+# 'autocomplete' (completion falls back to yegappan/lsp's own), diff()
+# (git counts come from `git diff` on save; formatting replaces the whole
+# buffer), and the bundled comment and hlyank packages.
 
 g:mapleader = ' '
 g:maplocalleader = ' '
@@ -73,13 +88,49 @@ if has('mouse_sgr')
 endif
 
 # Bundled packages: % on matching words, .editorconfig files, gc to
-# comment, highlight on yank.
-packadd! matchit
-packadd! editorconfig
-packadd! comment
+# comment, highlight on yank. Older Vims lack some of them.
+def HasPackage(name: string): bool
+  return !empty(globpath(&packpath, $'pack/*/opt/{name}', false, true))
+enddef
+
 g:hlyank_duration = 200
 g:hlyank_invisual = true
-packadd! hlyank
+for name in ['matchit', 'editorconfig', 'comment', 'hlyank']
+  if HasPackage(name)
+    execute 'packadd!' name
+  endif
+endfor
+
+# Without hlyank: highlight the yanked text for 200ms all the same.
+def HighlightYank()
+  if v:event.operator != 'y'
+    return
+  endif
+  const [l1, c1] = getpos("'[")[1 : 2]
+  const [l2, c2] = getpos("']")[1 : 2]
+  var pos: list<list<number>> = []
+  for lnum in range(l1, l2)
+    if v:event.regtype ==# 'v'
+      const first = lnum == l1 ? c1 : 1
+      const last = lnum == l2 ? c2 : len(getline(lnum))
+      pos->add([lnum, first, max([last - first + 1, 1])])
+    else
+      pos->add([lnum])
+    endif
+  endfor
+  const win = win_getid()
+  const id = matchaddpos('IncSearch', pos)
+  timer_start(200, (_) => {
+    silent! matchdelete(id, win)
+  })
+enddef
+
+if !HasPackage('hlyank')
+  augroup yank_highlight
+    autocmd!
+    autocmd TextYankPost * HighlightYank()
+  augroup END
+endif
 
 # ---------------------------------------------------------------------------
 # Options
@@ -132,7 +183,8 @@ augroup transparent_bg
   autocmd!
   autocmd ColorScheme * highlight Normal guibg=NONE ctermbg=NONE
 augroup END
-colorscheme habamax
+# habamax arrived during Vim 9.0, so early 9.0 builds lack it.
+execute 'colorscheme' empty(globpath(&runtimepath, 'colors/habamax.vim')) ? 'desert' : 'habamax'
 
 # ---------------------------------------------------------------------------
 # Keymaps
@@ -194,6 +246,11 @@ nnoremap ]<Space> <Cmd>call append(line('.'), repeat([''], v:count1))<CR>
 # Plugins (see autoload/pack.vim)
 # ---------------------------------------------------------------------------
 
+# Read when the completion plugin loads, so it is set before pack#End():
+# 'auto' uses Vim's 'autocomplete' when this Vim has it (9.1.1590 and
+# later), else yegappan/lsp's own completion.
+g:completion_engine = 'auto'
+
 pack#Begin()
 Pack 'yegappan/lsp'
 Pack 'statusline'
@@ -209,10 +266,8 @@ pack#End()
 
 if exists('*g:LspAddServer')
   g:LspOptionsSet({
-    # Vim's 'autocomplete' drives the menu (see the completion plugin);
-    # LSP items come in through the omnifunc.
-    autoComplete: false,
-    omniComplete: true,
+    # Which completion runs is the completion plugin's choice (see
+    # g:completion_engine); it sets yegappan's completion options itself.
     completionMatcher: 'fuzzy',
 
     # Highlight references to the symbol under the cursor.

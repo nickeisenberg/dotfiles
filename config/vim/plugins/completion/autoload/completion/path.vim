@@ -51,7 +51,9 @@ def Matches(entries: list<dict<any>>, prefix: string): list<dict<any>>
     return entries
   endif
   if get(g:, 'completion_fuzzy', true)
-    return matchfuzzy(entries, prefix, {key: 'name'})
+    # Through call(): Vim 9.0 types matchfuzzy() as returning strings even
+    # for a list of dicts, so a direct call fails to compile there.
+    return call('matchfuzzy', [entries, prefix, {key: 'name'}])
   endif
   return entries->filter((_, e) => e.name->stridx(prefix) == 0)
 enddef

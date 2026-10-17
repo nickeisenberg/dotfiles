@@ -106,9 +106,23 @@ def Spawn(cmd: list<string>, cwd: string, Done: func(number, list<string>)): dic
   return state
 enddef
 
+# (indexof() would do for these two, but Vim 9.0.0000 doesn't have it.)
+def AllDone(states: list<dict<any>>): bool
+  return empty(states->copy()->filter((_, s) => !s.done))
+enddef
+
+def IndexByName(name: string): number
+  for i in range(len(plugins))
+    if plugins[i].name == name
+      return i
+    endif
+  endfor
+  return -1
+enddef
+
 # Block until every state from Spawn() is done.
 def Wait(states: list<dict<any>>)
-  while states->indexof((_, s) => !s.done) >= 0
+  while !AllDone(states)
     sleep 10m
   endwhile
 enddef
@@ -174,7 +188,7 @@ def Add(spec: string, opts: dict<any> = {})
     plugin.url = IsUrl(spec) ? spec : $'https://github.com/{trimmed}.git'
   endif
 
-  const existing = plugins->indexof((_, p) => p.name == name)
+  const existing = IndexByName(name)
   if existing >= 0
     Error($'"{name}" is declared twice; keeping the last one')
     plugins->remove(existing)
@@ -183,7 +197,7 @@ def Add(spec: string, opts: dict<any> = {})
 enddef
 
 def Find(name: string): dict<any>
-  const i = plugins->indexof((_, p) => p.name == name)
+  const i = IndexByName(name)
   return i < 0 ? {} : plugins[i]
 enddef
 
@@ -458,7 +472,7 @@ def CmdUpdate()
 
   # Wait without blocking: check back until every fetch is done.
   timer_start(50, (timer) => {
-    if states->indexof((_, s) => !s.done) >= 0
+    if !AllDone(states)
       return
     endif
     timer_stop(timer)

@@ -206,7 +206,9 @@ export def FindBuffers()
   ui.Open({
     title: 'Find Buffers',
     initial_results: buffers,
-    search: (query) => empty(query) ? buffers : matchfuzzy(buffers, query, {key: 'display'}),
+    # Through call(): Vim 9.0 types matchfuzzy() as returning strings even
+    # for a list of dicts, so a direct call fails to compile there.
+    search: (query) => empty(query) ? buffers : call('matchfuzzy', [buffers, query, {key: 'display'}]),
     format: (b) => b.display,
     preview: (b) => ({file: b.path}),
     select: (b) => {
