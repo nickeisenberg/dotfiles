@@ -21,6 +21,7 @@ runtime plugin/hunks.vim
 import autoload 'hunks/signs.vim'
 import autoload 'hunks/differ.vim'
 import autoload 'hunks/actions.vim'
+import autoload 'hunks/blame.vim'
 
 const REPO = tempname()
 mkdir(REPO, 'p')
@@ -292,6 +293,104 @@ def Test_diffthis()
 enddef
 
 # ---------------------------------------------------------------------------
+# Phase 3: stage, base, blame
+# ---------------------------------------------------------------------------
+
+# The file's content in the index, exactly.
+def Indexed(name: string): string
+  return Git('cat-file', '-p', $':{name}')
+enddef
+
+# After staging, wait for the base to be fetched again.
+def ExpectAfterStage(expected: dict<string>, what: string)
+  WaitFor(() => signs.Placed(bufnr()) == expected)
+  assert_equal(expected, signs.Placed(bufnr()), what)
+enddef
+
+def Test_stage()
+  Open('stage.txt', ['1', '2', '3', '4', '5'])
+  setline(2, 'two')
+  setline(4, 'four')
+  cursor(2, 1)
+  Hunks stage
+  assert_equal("1\ntwo\n3\n4\n5\n", Indexed('stage.txt'), 'one hunk staged, unsaved')
+  ExpectAfterStage({'4': 'change'}, 'the other hunk keeps its sign')
+
+  Hunks undo_stage
+  assert_equal("1\n2\n3\n4\n5\n", Indexed('stage.txt'), 'undo_stage')
+  ExpectAfterStage({'2': 'change', '4': 'change'}, 'signs back after undo_stage')
+
+  append(5, 'six')
+  deletebufline('%', 1)
+  :%Hunks stage
+  assert_equal("two\n3\nfour\n5\nsix\n", Indexed('stage.txt'), 'every hunk in the range')
+  ExpectAfterStage({}, 'no signs once all is staged')
+enddef
+
+def Test_stage_line_endings()
+  # No newline at the end: staging a hunk elsewhere keeps it that way.
+  writefile(['1', '2'], $'{REPO}/noeol.txt', 'b')
+  Git('add', 'noeol.txt')
+  Git('commit', '-q', '-m', 'noeol')
+  execute 'edit!' fnameescape($'{REPO}/noeol.txt')
+  WaitFor(() => !empty(hunks#State(bufnr())))
+  setline(1, 'one')
+  cursor(1, 1)
+  Hunks stage
+  assert_equal("one\n2", Indexed('noeol.txt'), 'no newline at the end kept')
+
+  # CRLF stored as is: no signs for unchanged lines, CRs kept when staged.
+  writefile(["a\r", "b\r"], $'{REPO}/crlf.txt')
+  Git('add', 'crlf.txt')
+  Git('commit', '-q', '-m', 'crlf')
+  execute 'edit!' fnameescape($'{REPO}/crlf.txt')
+  assert_equal('dos', &fileformat, 'read as dos')
+  WaitFor(() => !empty(hunks#State(bufnr())))
+  Expect({}, 'CRLF file unchanged')
+  setline(1, 'x')
+  Expect({'1': 'change'}, 'CRLF file changed')
+  cursor(1, 1)
+  Hunks stage
+  assert_equal("x\r\nb\r\n", Indexed('crlf.txt'), 'CRLF staged')
+enddef
+
+def Test_base()
+  Open('base.txt', ['1', '2', '3'])
+  setline(1, 'one')
+  write
+  Git('add', 'base.txt')
+  hunks#Refresh(bufnr())
+  setline(3, 'three')
+  Expect({'3': 'change'}, 'against the index')
+
+  Hunks base HEAD
+  WaitFor(() => signs.Placed(bufnr()) == {'1': 'change', '3': 'change'})
+  assert_equal({'1': 'change', '3': 'change'}, signs.Placed(bufnr()), 'against HEAD')
+  Hunks stage
+  assert_equal("one\n2\n3\n", Indexed('base.txt'), 'no staging against HEAD')
+
+  Hunks base no-such-rev
+  assert_equal('HEAD', g:hunks_base, 'a bad revision is refused')
+
+  Hunks base index
+  WaitFor(() => signs.Placed(bufnr()) == {'3': 'change'})
+  assert_equal({'3': 'change'}, signs.Placed(bufnr()), 'back to the index')
+  assert_equal(['index', 'HEAD'], hunks#Complete('', 'Hunks base ', 0), 'completion')
+enddef
+
+def Test_blame()
+  Open('blame.txt', ['1', '2'])
+  const state = hunks#Current(bufnr())
+  const lines = blame.ForLine(state, 1)
+  assert_match('^\x\{8}  Test  \d\{4}-\d\d-\d\d \d\d:\d\d$', lines[0], 'commit, author, date')
+  assert_equal(['', 'add blame.txt'], lines[1 :], 'the message')
+  setline(2, 'x')
+  assert_equal(['Not committed yet'], blame.ForLine(state, 2), 'a changed line')
+  Hunks blame
+  popup_clear()
+enddef
+
+# ---------------------------------------------------------------------------
 
 const TESTS = [
   Test_untracked_and_outside,
@@ -305,6 +404,10 @@ const TESTS = [
   Test_preview,
   Test_reset,
   Test_diffthis,
+  Test_stage,
+  Test_stage_line_endings,
+  Test_base,
+  Test_blame,
 ]
 var failed: list<string> = []
 for T in TESTS

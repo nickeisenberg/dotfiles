@@ -87,9 +87,38 @@ export def FetchBase(root: string, relpath: string, base: string,
 enddef
 
 # Run git in `root` and wait for it, feeding `input` on stdin. For commands
-# you run by hand (stage, blame), where waiting a moment is fine. Returns
-# the output; v:shell_error is git's exit status.
-export def Git(root: string, args: list<string>, input = ''): string
-  const cmd = ['git', '-C', root, '--no-pager']->extend(args)->map((_, a) => shellescape(a))->join()
-  return empty(input) ? system(cmd) : system(cmd, input)
+# you run by hand (stage, blame), where waiting a moment is fine. Git runs
+# as a job rather than with system(), which would start 'shell' each time
+# (a login shell in this config takes ~0.3s). Returns {output, ok}, with
+# stderr in the output.
+export def Git(root: string, args: list<string>, input = ''): dict<any>
+  var chunks: list<string> = []
+  var closed = false
+  const job = job_start(['git', '-C', root, '--no-pager'] + args, {
+    in_io: 'pipe',
+    out_mode: 'raw',
+    err_io: 'out',
+    out_cb: (_, chunk) => {
+      chunks->add(chunk)
+    },
+    close_cb: (_) => {
+      closed = true
+    },
+  })
+  if job_status(job) == 'fail'
+    return {output: 'git could not be started', ok: false}
+  endif
+  const channel = job_getchannel(job)
+  if !empty(input)
+    ch_sendraw(channel, input)
+  endif
+  ch_close_in(channel)
+  # Up to 10 seconds; callbacks run while sleeping.
+  for _ in range(10000)
+    if closed && job_status(job) != 'run'
+      break
+    endif
+    sleep 1m
+  endfor
+  return {output: join(chunks, ''), ok: job_status(job) == 'dead' && job_info(job).exitval == 0}
 enddef

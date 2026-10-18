@@ -84,6 +84,18 @@ for vim in $VIMS; do
   keys 'u'
   check 'u after reset' "getline(2)" 'changed'
 
+  keys 'gg]c hs'
+  check '<leader>hs' "system('git show :file.txt') ==# \"1\\nchanged\\n3\\n4\\n5\\n\"" 1
+  sleep 0.5
+  check 'staged hunk loses its sign' "$signs" '5HunksChange'
+  keys ':Hunks undo_stage' Enter
+  check ':Hunks undo_stage' "system('git show :file.txt') ==# \"1\\n2\\n3\\n4\\n5\\n\"" 1
+
+  keys 'gg hb'
+  check_screen '<leader>hb' 'Test .*[0-9]:[0-9][0-9]'
+  keys Escape 'j hb'
+  check_screen '<leader>hb on a changed line' 'Not committed yet'
+
   tmux send-keys -t "$session" Escape ':qa!' Enter
   sleep 0.3
   tmux kill-session -t "$session" 2>/dev/null

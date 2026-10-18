@@ -8,12 +8,15 @@ import autoload './hunks/repo.vim'
 import autoload './hunks/differ.vim'
 import autoload './hunks/signs.vim'
 import autoload './hunks/actions.vim'
+import autoload './hunks/stage.vim'
+import autoload './hunks/blame.vim'
 
 # bufnr -> {
 #   path, root, relpath      the file, its repository, its path in there
 #   stamp, base_name         when the base was fetched, and at what base
-#   base, eol                the base's lines, and whether it ends with a
-#                            newline; missing until fetched
+#   base, eol, crlf          the base's lines (without CRs), whether it ends
+#                            with a newline, and whether its lines end with
+#                            CRLF; missing until fetched
 #   hunks                    from the last diff
 #   fetch_seq, fetch_job     the latest fetch; an older one is ignored
 # }
@@ -141,7 +144,10 @@ export def Refresh(bufnr: number, force = false, diff_anyway = true)
   state.fetch_job = repo.FetchBase(root, state.relpath, base_name,
     (lines, eol) => {
       if bufs->get(bufnr, {}) is state && state.fetch_seq == seq
-        state.base = lines
+        # A CRLF file stored as is: a 'fileformat' dos buffer has no CRs.
+        state.crlf = getbufvar(bufnr, '&fileformat') == 'dos'
+          && !empty(lines) && lines[0] =~ '\r$'
+        state.base = state.crlf ? lines->map((_, l) => substitute(l, '\r$', '', '')) : lines
         state.eol = eol
         Update(bufnr)
       endif
@@ -189,6 +195,26 @@ export def Toggle()
   echo $'hunks: signs {enabled ? "on" : "off"}'
 enddef
 
+# Compare every buffer against `name` from now on: 'index', or a revision
+# such as HEAD or main~2. Without a name, show the current one.
+export def SetBase(name: string)
+  if empty(name)
+    echo $'hunks: the base is {BaseName()}'
+    return
+  endif
+  const path = Path(bufnr())
+  const root = empty(path) ? '' : repo.Root(path)
+  if name != 'index' && !empty(root)
+    if !repo.Git(root, ['rev-parse', '--verify', '--quiet', $'{name}^{{commit}}']).ok
+      actions.Warn($'no such revision: {name}')
+      return
+    endif
+  endif
+  g:hunks_base = name
+  RefreshAll()
+  echo $'hunks: the base is {name}'
+enddef
+
 # Each subcommand takes the arguments after its name and the command's
 # range: Handler(args, line1, line2, has_range).
 const COMMANDS: dict<func> = {
@@ -213,6 +239,18 @@ const COMMANDS: dict<func> = {
   diffthis: (_, _, _, _) => {
     actions.DiffThis()
   },
+  stage: (_, line1, line2, has_range) => {
+    stage.Stage(line1, line2, has_range)
+  },
+  undo_stage: (_, _, _, _) => {
+    stage.UndoStage()
+  },
+  blame: (_, _, _, _) => {
+    blame.Blame()
+  },
+  base: (args, _, _, _) => {
+    SetBase(get(args, 0, ''))
+  },
 }
 
 export def Command(args: string, line1: number, line2: number, has_range: bool)
@@ -228,11 +266,13 @@ export def Command(args: string, line1: number, line2: number, has_range: bool)
 enddef
 
 export def Complete(arg_lead: string, cmd_line: string, _: number): list<string>
-  # Only the subcommand name is completed.
-  if cmd_line =~ '^\S*Hunks\s\+\S\+\s'
+  var choices = keys(COMMANDS)->sort()
+  if cmd_line =~ '\<Hunks\s\+base\s'
+    choices = ['index', 'HEAD']
+  elseif cmd_line =~ '\<Hunks\s\+\S\+\s'
     return []
   endif
-  return keys(COMMANDS)->sort()->filter((_, c) => c =~ $'^{arg_lead}')
+  return choices->filter((_, c) => stridx(c, arg_lead) == 0)
 enddef
 
 # ---------------------------------------------------------------------------

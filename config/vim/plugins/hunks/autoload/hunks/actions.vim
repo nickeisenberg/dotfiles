@@ -5,14 +5,14 @@ vim9script
 
 import autoload './differ.vim'
 
-def Warn(msg: string)
+export def Warn(msg: string)
   echohl WarningMsg
   echo $'hunks: {msg}'
   echohl None
 enddef
 
 # The current buffer's state with hunks up to date, or {} after a warning.
-def Tracked(): dict<any>
+export def Tracked(): dict<any>
   const state = hunks#Current(bufnr())
   if empty(state)
     Warn('this buffer is not tracked by git')
