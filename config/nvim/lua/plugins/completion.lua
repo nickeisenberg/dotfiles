@@ -1,6 +1,5 @@
 return {
   dir = "completion.nvim",
-  deps = { "rafamadriz/friendly-snippets" },
   config = function()
     require("completion").setup({
       sources = { "path", "snippets", "lsp", "buffer" },
