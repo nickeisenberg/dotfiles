@@ -1,110 +1,162 @@
 -- A split beside a directory buffer showing the entry under the cursor,
--- following the cursor. The file isn't opened: its start is read into a
--- scratch buffer and highlighted, so no LSP or file autocmds run.
+-- following the cursor. It shows the real thing: a file's own buffer, or a
+-- directory's own directory buffer, so you can go in and edit, or browse
+-- from there. Going in doesn't move the preview: it still follows the
+-- cursor of the window it belongs to.
+--
+-- A buffer loaded only to be previewed is wiped when the preview moves on,
+-- unless you went into it or changed it.
 
 local fs = require("files.fs")
 local view = require("files.view")
 
 local M = {}
 
-local MAX_BYTES = 256 * 1024
+-- owner window -> { win, path, loaded = a buffer loaded only to show }
+local previews = {}
 
--- While open: { win, owner = the directory buffer's window, path }.
-local state
-
-function M.is_open()
-  return state ~= nil and vim.api.nvim_win_is_valid(state.win)
-end
-
--- The preview's lines and filetype for `path`.
-local function contents(path)
-  if fs.is_dir(path) then
-    local entries = fs.read_dir(path) or {}
-    return vim.tbl_map(function(e)
-      return e.name .. (e.dir and "/" or "")
-    end, entries)
-  end
+local function binary(path)
   local file = io.open(path, "rb")
   if not file then
-    return { "(can't read)" }
+    return false
   end
-  local data = file:read(MAX_BYTES) or ""
+  local head = file:read(8192) or ""
   file:close()
-  if data:find("\0", 1, true) then
-    return { "(binary file)" }
-  end
-  local lines = vim.split(data, "\r?\n")
-  if lines[#lines] == "" then
-    lines[#lines] = nil -- the final newline
-  end
-  return lines, vim.filetype.match({ filename = path, contents = lines })
+  return head:find("\0", 1, true) ~= nil
 end
 
-local function show(path)
-  local lines, filetype = contents(path)
+local function scratch(lines)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.bo[buf].bufhidden = "wipe"
   vim.bo[buf].modifiable = false
-  if filetype then
-    local lang = vim.treesitter.language.get_lang(filetype)
-    if not (lang and pcall(vim.treesitter.start, buf, lang)) then
-      vim.bo[buf].syntax = filetype
-    end
-  end
-  vim.api.nvim_win_set_buf(state.win, buf)
-  state.path = path
+  return buf
 end
 
--- Show the entry under the cursor, if the preview belongs to this window.
-function M.update()
-  if not M.is_open() or vim.api.nvim_get_current_win() ~= state.owner then
+local function loaded(name)
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if
+      vim.api.nvim_buf_is_loaded(buf)
+      and vim.api.nvim_buf_get_name(buf) == name
+    then
+      return true
+    end
+  end
+  return false
+end
+
+-- Wipe a buffer the preview loaded, if nothing else needs it.
+local function drop(buf)
+  if
+    buf
+    and vim.api.nvim_buf_is_valid(buf)
+    and not vim.bo[buf].modified
+    and #vim.fn.win_findbuf(buf) == 0
+  then
+    pcall(vim.api.nvim_buf_delete, buf, { force = true })
+  end
+end
+
+local function show(p, path)
+  local before = p.loaded
+  p.loaded = nil
+  if not fs.is_dir(path) and binary(path) then
+    vim.api.nvim_win_set_buf(p.win, scratch({ "(binary file)" }))
+  else
+    local name = fs.is_dir(path) and view.name(path) or path
+    local was_loaded = loaded(name)
+    local ok = vim.api.nvim_win_call(p.win, function()
+      local shortmess = vim.o.shortmess
+      vim.opt.shortmess:append("A") -- no prompt for an existing swap file
+      local done =
+        pcall(vim.cmd, "keepalt keepjumps edit " .. vim.fn.fnameescape(name))
+      vim.o.shortmess = shortmess
+      return done
+    end)
+    -- Only claim a buffer that is really the one asked for.
+    local buf = vim.api.nvim_win_get_buf(p.win)
+    if ok and not was_loaded and vim.api.nvim_buf_get_name(buf) == name then
+      p.loaded = buf
+    end
+  end
+  p.path = path
+  if before ~= p.loaded then
+    drop(before)
+  end
+end
+
+-- Show the entry under the cursor, if this window has a preview.
+local function follow()
+  local p = previews[vim.api.nvim_get_current_win()]
+  if not (p and vim.api.nvim_win_is_valid(p.win)) then
     return
   end
   local path = view.path_at(vim.api.nvim_get_current_line())
-  if path and path ~= state.path then
-    show(path)
+  if path and path ~= p.path then
+    show(p, path)
   end
 end
 
-function M.close()
-  if M.is_open() then
-    vim.api.nvim_win_close(state.win, true)
-  end
-  state = nil
+-- For CursorMoved. Done after the event: run from an autocmd, the :edit
+-- would load the buffer without its own autocmds (filetype, LSP, reading
+-- a directory), as autocmds don't nest.
+function M.update()
+  vim.schedule(follow)
 end
 
--- Open beside the current window (below it when it is narrow), or close.
-function M.toggle()
-  if M.is_open() then
-    M.close()
+function M.close(owner)
+  local p = previews[owner]
+  previews[owner] = nil
+  if not p then
     return
   end
+  if vim.api.nvim_win_is_valid(p.win) then
+    vim.api.nvim_win_close(p.win, true)
+  end
+  drop(p.loaded)
+end
+
+-- Open a preview beside the current window (below it when it is narrow),
+-- or close its preview.
+function M.toggle()
   local owner = vim.api.nvim_get_current_win()
+  if previews[owner] then
+    M.close(owner)
+    return
+  end
   local wide = vim.api.nvim_win_get_width(owner) >= 80
   local win = vim.api.nvim_open_win(
-    vim.api.nvim_create_buf(false, true),
+    scratch({}),
     false,
     { split = wide and "right" or "below", win = owner }
   )
-  state = { win = win, owner = owner }
-  M.update()
+  previews[owner] = { win = win }
+  follow()
 end
 
--- Close when the owner window leaves directory buffers or closes.
+-- Going into a preview makes what it shows yours: it won't be wiped.
+function M.on_win_enter()
+  local win = vim.api.nvim_get_current_win()
+  for _, p in pairs(previews) do
+    if p.win == win then
+      p.loaded = nil
+    end
+  end
+end
+
+-- An owner window that leaves directory buffers loses its preview.
 function M.on_buf_enter()
-  if
-    M.is_open()
-    and vim.api.nvim_get_current_win() == state.owner
-    and not view.dir(0)
-  then
-    M.close()
+  local owner = vim.api.nvim_get_current_win()
+  if previews[owner] and not view.dir(0) then
+    M.close(owner)
   end
 end
 
 function M.on_win_closed(win)
-  if state and (win == state.owner or win == state.win) then
-    M.close()
+  for owner, p in pairs(previews) do
+    if win == owner or win == p.win then
+      M.close(owner)
+    end
   end
 end
 

@@ -47,7 +47,9 @@ end
 -- up a level and is never a change to save.
 ---@return { id: integer?, name: string, dir: boolean, parent: boolean? }?
 function M.parse(line)
-  local id, rest = line:match("^/(%d+) (.*)$")
+  -- The space after the number may have been deleted; no name starts with
+  -- a /, so the number is still the number.
+  local id, rest = line:match("^/(%d+) ?(.*)$")
   local name = vim.trim(rest or line)
   if name == "" then
     return nil
@@ -73,7 +75,7 @@ end
 
 -- The 0-based column a line's name starts at, after the hidden number.
 local function name_col(line)
-  local col = line:match("^/%d+ ()")
+  local col = line:match("^/%d+ ?()")
   return col and col - 1 or 0
 end
 
@@ -100,8 +102,8 @@ function M.set_window(win, git)
 end
 
 -- Read the directory into the buffer, as one change that can't be undone,
--- and put the cursor on `focus` (a name), or where it was.
-function M.render(bufnr, focus)
+-- keeping the cursor on the entry it was on.
+function M.render(bufnr)
   bufnr = bufnr == 0 and vim.api.nvim_get_current_buf() or bufnr
   local dir = M.dir(bufnr)
   local entries, err = fs.read_dir(dir)
@@ -111,11 +113,9 @@ function M.render(bufnr, focus)
 
   local win = vim.fn.bufwinid(bufnr)
   local row = win ~= -1 and vim.api.nvim_win_get_cursor(win)[1] or 1
-  if not focus then
-    local line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
-    local entry = M.parse(line or "")
-    focus = entry and entry.name
-  end
+  local line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
+  local entry = M.parse(line or "")
+  local focus = entry and entry.name
 
   -- "../" first, except at the root.
   local lines, ids, focus_row = {}, {}, nil
@@ -155,15 +155,23 @@ function M.render(bufnr, focus)
   return true
 end
 
+-- Put the cursor on the entry called `name`, if there is one.
+function M.focus(name)
+  for i, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+    local entry = M.parse(line)
+    if entry and entry.name == name then
+      vim.api.nvim_win_set_cursor(0, { i, name_col(line) })
+      return
+    end
+  end
+end
+
 -- Set up a new directory buffer. `keymaps` maps keys to functions.
 function M.init(bufnr, keymaps)
   vim.bo[bufnr].buftype = "acwrite" -- :w runs BufWriteCmd
   vim.bo[bufnr].bufhidden = "hide" -- keep edits while you visit another
   vim.bo[bufnr].swapfile = false
-  vim.bo[bufnr].filetype = "files"
-  vim.api.nvim_buf_call(bufnr, function()
-    vim.cmd([[syntax match FilesId /^\/\d\+ / conceal]])
-  end)
+  vim.bo[bufnr].filetype = "files" -- syntax/files.vim hides the numbers
   for lhs, fn in pairs(keymaps) do
     vim.keymap.set("n", lhs, fn, { buffer = bufnr, nowait = true })
   end

@@ -77,11 +77,15 @@ Highlights: `FilesDirectory`, `FilesGitStaged`, `FilesGitUnstaged`,
   status inside it.
 - A buffer you come back to without changes is read from disk again.
 - **Preview** (`<C-p>`) splits the window (to the right, or below when it
-  is narrower than 80 columns) and follows the cursor. A file isn't
-  opened: up to 256 KB of it is read into a scratch buffer and highlighted
-  with treesitter (or regex syntax), so no LSP or file autocmds start. A
-  directory shows its entries; a binary file says so. It closes when you
-  open a file in that window, or with `<C-p>` again.
+  is narrower than 80 columns) and follows the cursor. It shows the real
+  thing: a file's own buffer, a directory's own directory buffer. Go into
+  it to edit the file, or to browse from that directory (with its own
+  `<C-p>`); the window you came from keeps its preview, which still
+  follows its cursor. A buffer loaded only for the preview is wiped when
+  it moves on, unless you went into it or changed it; buffers you already
+  had open are left alone. Opening a file loads it as usual (filetype,
+  LSP); a binary file just says so. The preview closes when you open a
+  file in its window, or with `<C-p>` again.
 
 `cc` replaces the whole line, number and all, so it is a delete and a
 create (the confirmation shows it). To rename, change the name: `ciw`,
@@ -99,3 +103,4 @@ create (the confirmation shows it). To rename, change the name: `ciw`,
 | `lua/files/fs.lua` | reading directories, create/copy/move/delete |
 | `lua/files/preview.lua` | the preview split |
 | `lua/files/git.lua` | git status signs |
+| `syntax/files.vim` | hides the numbers |

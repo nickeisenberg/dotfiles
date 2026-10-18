@@ -44,8 +44,9 @@ function M.open(dir, focus)
     vim.w.files_return = vim.api.nvim_get_current_buf()
   end
   vim.cmd.edit(vim.fn.fnameescape(view.name(dir)))
+  -- Only move the cursor: re-reading would drop unsaved edits.
   if focus then
-    view.render(0, focus)
+    view.focus(focus)
   end
 end
 
@@ -240,6 +241,7 @@ function M.setup(opts)
   end)
   on("CursorMoved", files, preview.update)
   on("BufEnter", "*", preview.on_buf_enter)
+  on("WinEnter", "*", preview.on_win_enter)
   on("WinClosed", "*", function(ev)
     preview.on_win_closed(tonumber(ev.match))
   end)

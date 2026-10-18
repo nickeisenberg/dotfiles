@@ -104,7 +104,9 @@ local function plan(found)
   end
   for _, a in ipairs(actions) do
     local name = a.to and vim.fs.basename(a.to)
-    if a.to and (name == "." or name == "..") then
+    if a.from and not fs.exists(a.from) then
+      return nil, ("%s no longer exists"):format(a.from)
+    elseif a.to and (name == "." or name == "..") then
       return nil, ("%q is not a valid name"):format(name)
     elseif a.to and targets[a.to] then
       return nil, ("two entries would be %s"):format(a.to)
@@ -176,23 +178,36 @@ local function follow(actions, start, from, to)
   end
 end
 
--- Do the actions in order, stopping at the first that fails.
+local run = {
+  create = function(a)
+    return fs.create(a.to, a.dir)
+  end,
+  delete = function(a)
+    return fs.delete(a.from)
+  end,
+  copy = function(a)
+    return fs.copy(a.from, a.to)
+  end,
+  move = function(a)
+    return fs.move(a.from, a.to)
+  end,
+}
+run.rename = run.move
+
+-- Do the actions in order, stopping at the first that fails. Each one done
+-- is marked `done`.
 local function apply(actions)
   for i, a in ipairs(actions) do
-    local ok, err
-    if a.action == "create" then
-      ok, err = fs.create(a.to, a.dir)
-    elseif a.action == "delete" then
-      ok, err = fs.delete(a.from)
-    elseif a.action == "copy" then
-      ok, err = fs.copy(a.from, a.to)
-    else
-      ok, err = fs.move(a.from, a.to)
-      if ok then
-        index.moved(a.from, a.to)
-        rename_buffers(a.from, a.to)
-        follow(actions, i + 1, a.from, a.to)
-      end
+    -- Vim functions like mkdir() throw rather than return false.
+    local threw, ok, err = pcall(run[a.action], a)
+    if not threw then
+      ok, err = false, ok
+    end
+    a.done = ok
+    if ok and (a.action == "move" or a.action == "rename") then
+      index.moved(a.from, a.to)
+      rename_buffers(a.from, a.to)
+      follow(actions, i + 1, a.from, a.to)
     end
     if not ok then
       return false, ("%s failed: %s"):format(describe(a), err or "?")
@@ -207,7 +222,7 @@ end
 local function rerender(actions)
   local moved = {}
   for _, a in ipairs(actions) do
-    if a.action == "move" or a.action == "rename" then
+    if a.done and (a.action == "move" or a.action == "rename") then
       moved[#moved + 1] = a
     end
   end
@@ -217,7 +232,10 @@ local function rerender(actions)
     for _, a in ipairs(moved) do
       if dir == a.from or inside(dir, a.from) then
         dir = a.to .. dir:sub(#a.from + 1)
-        vim.api.nvim_buf_set_name(bufnr, view.name(dir))
+        -- Fails if a buffer already has that name; then this one is gone.
+        if not pcall(vim.api.nvim_buf_set_name, bufnr, view.name(dir)) then
+          dir = ""
+        end
       end
     end
     if fs.is_dir(dir) then
