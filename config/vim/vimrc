@@ -164,6 +164,9 @@ set expandtab
 # line numbers
 set number
 set relativenumber
+# Always show the sign column, so text doesn't shift when hunks or
+# diagnostics add the first sign.
+set signcolumn=yes
 
 set foldmethod=indent
 set foldlevelstart=99
@@ -258,6 +261,7 @@ Pack 'format'
 Pack 'completion'
 Pack 'float-term'
 Pack 'picker'
+Pack 'hunks'
 pack#End()
 
 # ---------------------------------------------------------------------------

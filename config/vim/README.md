@@ -67,6 +67,7 @@ because `Pack` arguments are evaluated inside pack.vim.
 | `completion` | completion.nvim | Two engines, picked by `g:completion_engine` (`'auto'`): **builtin** is Vim's `'autocomplete'` with path, LSP and buffer sources; **lsp** is yegappan/lsp's own completion plus buffer words, for Vims without `'autocomplete'`. Snippets are left out for now. Signature help comes from yegappan/lsp. |
 | `float-term` | float-term.nvim | Terminals in a popup. From the terminal, `<C-\><C-n>` goes to Normal mode, where `<leader>t…` works. |
 | `picker` | picker.nvim | `rg` for files and grep; `<leader>gd`/`<leader>gr` ask the language server through yegappan/lsp's documented server API (`:help lsp-custom-requests`). Also takes `<C-w>`/`<C-u>` in the prompt. |
+| `hunks` | gitsigns.nvim | Signs for lines added, changed or removed against the git index, updated as you type. The diff is Vim's `diff()` where it exists, else `git diff --no-index` on temp files in the background (`g:hunks_diff`). Tests: `plugins/hunks/test/run.sh` and `interactive.sh` (tmux). |
 
 The options for each plugin are listed at the top of its
 `plugin/<name>.vim`.
@@ -77,7 +78,7 @@ The options for each plugin are listed at the top of its
 |---|---|
 | 9.2, and 9.1.1590+ | everything |
 | 9.1.0071 to 9.1.1589 | completion uses the lsp engine: no path completion as you type (`<C-x><C-f>` still works), and the menu shows names and kinds with details in the docs popup |
-| 9.0 to 9.1.0070 | as above, and without `diff()`: the statusline counts follow the saved file instead of the buffer, and formatting replaces every line instead of only the changed ones |
+| 9.0 to 9.1.0070 | as above, and without `diff()`: the statusline counts follow the saved file instead of the buffer, formatting replaces every line instead of only the changed ones, and hunks diffs with `git diff` on temp files instead of in memory (same signs, a few ms later) |
 | older than 9.0 | one warning, nothing loaded |
 
 Some bundled packages are missing from older 9.x builds: without `comment`
