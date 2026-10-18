@@ -13,7 +13,8 @@ var undo: dict<list<list<string>>> = {}
 
 # The file's index entry, [mode, object], or [] when it has none.
 def IndexEntry(state: dict<any>): list<string>
-  const result = repo.Git(state.root, ['ls-files', '--stage', '--', state.relpath])
+  # Literal, or a name like [0-9].txt would match 1.txt too.
+  const result = repo.Git(state.root, ['ls-files', '--stage', '--', $':(literal){state.relpath}'])
   const m = matchlist(result.output, '^\(\d\+\) \(\x\+\) 0\t')
   return !result.ok || empty(m) ? [] : [m[1], m[2]]
 enddef

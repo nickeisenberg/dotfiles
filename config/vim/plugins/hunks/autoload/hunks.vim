@@ -19,6 +19,8 @@ import autoload './hunks/blame.vim'
 #                            CRLF; missing until fetched
 #   hunks                    from the last diff
 #   fetch_seq, fetch_job     the latest fetch; an older one is ignored
+#   fetching                 while a fetch is running, so the commands wait
+#                            for it rather than act on the old base
 # }
 var bufs: dict<dict<any>> = {}
 
@@ -92,7 +94,7 @@ export def Current(bufnr: number): dict<any>
     endif
     const state = State(bufnr)
     const tick = getbufvar(bufnr, 'changedtick')
-    if !empty(state)
+    if !empty(state) && !state.fetching
       if state->get('tick', -1) == tick
         return state
       elseif state->get('diff_tick', -1) != tick
@@ -141,6 +143,7 @@ export def Refresh(bufnr: number, force = false, diff_anyway = true)
   endif
   state.fetch_seq += 1
   const seq = state.fetch_seq
+  state.fetching = true
   state.fetch_job = repo.FetchBase(root, state.relpath, base_name,
     (lines, eol) => {
       if bufs->get(bufnr, {}) is state && state.fetch_seq == seq
@@ -149,6 +152,9 @@ export def Refresh(bufnr: number, force = false, diff_anyway = true)
           && !empty(lines) && lines[0] =~ '\r$'
         state.base = state.crlf ? lines->map((_, l) => substitute(l, '\r$', '', '')) : lines
         state.eol = eol
+        state.fetching = false
+        # The hunks are for the old base until diffed again.
+        state.tick = -1
         Update(bufnr)
       endif
     },

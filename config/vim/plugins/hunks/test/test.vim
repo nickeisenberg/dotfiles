@@ -325,6 +325,30 @@ def Test_stage()
   :%Hunks stage
   assert_equal("two\n3\nfour\n5\nsix\n", Indexed('stage.txt'), 'every hunk in the range')
   ExpectAfterStage({}, 'no signs once all is staged')
+
+  # Back to back, with no wait for the index to be read again: the second
+  # stage must not use hunks from before the first, which moved lines.
+  Open('twice.txt', ['1', '2', '3', '4', '5'])
+  append(0, ['new1', 'new2'])
+  setline(7, 'five')
+  cursor(1, 1)
+  Hunks stage
+  cursor(7, 1)
+  Hunks stage
+  assert_equal("new1\nnew2\n1\n2\n3\n4\nfive\n", Indexed('twice.txt'), 'two stages back to back')
+
+  # A name that is a glob: its own index entry, not 1.txt's.
+  writefile(['one'], $'{REPO}/1.txt')
+  writefile(['x'], $'{REPO}/[0-9].txt')
+  Git('add', '--', '1.txt', ':(literal)[0-9].txt')
+  Git('commit', '-q', '-m', 'glob')
+  execute 'edit!' fnameescape($'{REPO}/[0-9].txt')
+  WaitFor(() => !empty(hunks#State(bufnr())))
+  setline(1, 'X')
+  Hunks stage
+  assert_equal("X\n", Indexed('[0-9].txt'), 'a glob name staged')
+  Hunks undo_stage
+  assert_equal("x\n", Indexed('[0-9].txt'), 'a glob name unstaged')
 enddef
 
 def Test_stage_line_endings()
@@ -375,6 +399,21 @@ def Test_base()
   Hunks base index
   WaitFor(() => signs.Placed(bufnr()) == {'3': 'change'})
   assert_equal({'3': 'change'}, signs.Placed(bufnr()), 'back to the index')
+
+  # Switching to the index and staging at once: the hunks are the index's,
+  # whose lines are one down from HEAD's.
+  Open('switch.txt', ['1', '2', '3'])
+  setline(1, ['0', '1'])
+  append(2, '2')
+  write
+  Git('add', 'switch.txt')
+  setline(4, 'three')
+  Hunks base HEAD
+  WaitFor(() => hunks#State(bufnr()).base == ['1', '2', '3'])
+  Hunks base index
+  cursor(4, 1)
+  Hunks stage
+  assert_equal("0\n1\n2\nthree\n", Indexed('switch.txt'), 'staged right after :Hunks base index')
   assert_equal(['index', 'HEAD'], hunks#Complete('', 'Hunks base ', 0), 'completion')
 enddef
 
@@ -386,6 +425,20 @@ def Test_blame()
   assert_equal(['', 'add blame.txt'], lines[1 :], 'the message')
   setline(2, 'x')
   assert_equal(['Not committed yet'], blame.ForLine(state, 2), 'a changed line')
+
+  writefile(["a\r", "b\r"], $'{REPO}/blame_crlf.txt')
+  Git('add', 'blame_crlf.txt')
+  Git('commit', '-q', '-m', 'add blame_crlf.txt')
+  execute 'edit!' fnameescape($'{REPO}/blame_crlf.txt')
+  assert_equal('dos', &fileformat, 'read as dos')
+  assert_equal(['', 'add blame_crlf.txt'], blame.ForLine(hunks#Current(bufnr()), 1)[1 :], 'a CRLF file')
+
+  writefile(['a', 'b'], $'{REPO}/blame_noeol.txt', 'b')
+  Git('add', 'blame_noeol.txt')
+  Git('commit', '-q', '-m', 'add blame_noeol.txt')
+  execute 'edit!' fnameescape($'{REPO}/blame_noeol.txt')
+  assert_equal(['', 'add blame_noeol.txt'], blame.ForLine(hunks#Current(bufnr()), 2)[1 :], 'the last line, no newline')
+  execute 'edit!' fnameescape($'{REPO}/blame.txt')
   Hunks blame
   popup_clear()
 enddef

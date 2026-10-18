@@ -44,7 +44,10 @@ enddef
 # The popup's lines for line `lnum` of the current buffer, or [] after a
 # warning.
 export def ForLine(state: dict<any>, lnum: number): list<string>
-  const contents = join(getline(1, '$'), "\n") .. "\n"
+  # With the file's line endings, so unchanged lines match the committed
+  # ones.
+  const nl = state.crlf ? "\r\n" : "\n"
+  const contents = join(getline(1, '$'), nl) .. (&endofline ? nl : '')
   const result = repo.Git(state.root, ['blame', '--porcelain', '-L', $'{lnum},{lnum}',
     '--contents', '-', '--', state.relpath], contents)
   if !result.ok
