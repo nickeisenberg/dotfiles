@@ -5,6 +5,7 @@ The design (a hidden number on each line) comes from
 [mini.files](https://github.com/echasnovski/mini.files) (MIT).
 
 ```
+../
 sub/
 A.txt
 b.txt
@@ -53,7 +54,8 @@ require("files").setup({
 ```
 
 `:Files [dir]` opens a directory, by default the current file's with the
-cursor on it. `nvim .` and `:e somedir` open one too (netrw is turned off).
+cursor on it; in a directory buffer, its parent, like `-` and the `../`
+line (which is never saved as a change). `nvim .` and `:e somedir` open one too (netrw is turned off).
 
 Highlights: `FilesDirectory`, `FilesGitStaged`, `FilesGitUnstaged`,
 `FilesGitUntracked`, `FilesGitConflict`.

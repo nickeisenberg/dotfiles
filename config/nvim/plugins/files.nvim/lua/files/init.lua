@@ -19,14 +19,15 @@ local function full(path)
 end
 
 -- Show `dir` in the current window, with the cursor on `focus` (a name).
----@param dir? string defaults to the current file's directory
+---@param dir? string defaults to the current file's directory, or in a
+--- directory buffer, its parent
 ---@param focus? string
 function M.open(dir, focus)
   if not dir then
     local name = vim.api.nvim_buf_get_name(0)
     local current = view.dir(0)
     if current then
-      dir = current
+      dir, focus = vim.fs.dirname(current), vim.fs.basename(current)
     elseif name ~= "" and vim.bo.buftype == "" then
       dir, focus = vim.fs.dirname(full(name)), vim.fs.basename(name)
     else
@@ -48,28 +49,25 @@ function M.open(dir, focus)
   end
 end
 
--- The path on the cursor line, or nil after a warning when it isn't saved.
-local function current_path()
-  local line = vim.api.nvim_get_current_line()
-  local path = view.path_at(line)
-  if not path and view.parse(line) then
-    config.notify("save your changes first", vim.log.levels.WARN)
-  end
-  return path
-end
-
 -- Open the entry under the cursor here, or after `split` ("vsplit",
 -- "split", "tab").
 local function select(split)
-  local path = current_path()
+  local line = vim.api.nvim_get_current_line()
+  local entry = view.parse(line)
+  local path = view.path_at(line)
   if not path then
+    if entry then
+      config.notify("save your changes first", vim.log.levels.WARN)
+    end
     return
   end
+  -- From ../, land on the directory we came from.
+  local focus = entry.parent and vim.fs.basename(view.dir(0)) or nil
   if split then
     vim.cmd(split == "tab" and "tabnew" or split)
   end
   if fs.is_dir(path) then
-    M.open(path)
+    M.open(path, focus)
   else
     vim.cmd.edit(vim.fn.fnameescape(vim.fn.fnamemodify(path, ":.")))
   end
@@ -98,9 +96,8 @@ M.actions = {
     end
   end,
   parent = function()
-    local dir = view.dir(0)
-    if dir and dir ~= "/" then
-      M.open(vim.fs.dirname(dir), vim.fs.basename(dir))
+    if view.dir(0) ~= "/" then
+      M.open()
     end
   end,
   cwd = function()

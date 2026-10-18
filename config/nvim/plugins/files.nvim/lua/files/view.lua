@@ -43,8 +43,9 @@ function M.forget(bufnr)
 end
 
 -- A line as an entry: its number (nil on a line you typed), its name, and
--- whether it is a directory.
----@return { id: integer?, name: string, dir: boolean }?
+-- whether it is a directory. The "../" line is { parent = true }: it goes
+-- up a level and is never a change to save.
+---@return { id: integer?, name: string, dir: boolean, parent: boolean? }?
 function M.parse(line)
   local id, rest = line:match("^/(%d+) (.*)$")
   local name = vim.trim(rest or line)
@@ -52,14 +53,18 @@ function M.parse(line)
     return nil
   end
   local dir = name:sub(-1) == "/"
-  return { id = tonumber(id), name = (name:gsub("/+$", "")), dir = dir }
+  name = name:gsub("/+$", "")
+  return { id = tonumber(id), name = name, dir = dir, parent = name == ".." }
 end
 
--- The path a line stands for, or nil when it is new or renamed and not
--- saved yet.
+-- The path a line of the current buffer stands for, or nil when it is new
+-- or renamed and not saved yet.
 ---@return string?
 function M.path_at(line)
   local entry = M.parse(line)
+  if entry and entry.parent then
+    return vim.fs.dirname(M.dir(0))
+  end
   local path = entry and entry.id and index.path(entry.id)
   if path and vim.fs.basename(path) == entry.name then
     return path
@@ -112,13 +117,17 @@ function M.render(bufnr, focus)
     focus = entry and entry.name
   end
 
+  -- "../" first, except at the root.
   local lines, ids, focus_row = {}, {}, nil
-  for i, e in ipairs(entries) do
+  if dir ~= "/" then
+    lines[1] = "../"
+  end
+  for _, e in ipairs(entries) do
     local id = index.id(dir == "/" and "/" .. e.name or dir .. "/" .. e.name)
-    ids[i] = id
-    lines[i] = ("/%d %s%s"):format(id, e.name, e.dir and "/" or "")
+    ids[#ids + 1] = id
+    lines[#lines + 1] = ("/%d %s%s"):format(id, e.name, e.dir and "/" or "")
     if e.name == focus then
-      focus_row = i
+      focus_row = #lines
     end
   end
 
@@ -130,10 +139,10 @@ function M.render(bufnr, focus)
   buffers[bufnr] = { dir = dir, ids = ids }
 
   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
-  for i, e in ipairs(entries) do
-    if e.dir then
-      vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, name_col(lines[i]), {
-        end_col = #lines[i],
+  for i, line in ipairs(lines) do
+    if line:sub(-1) == "/" then
+      vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, name_col(line), {
+        end_col = #line,
         hl_group = "FilesDirectory",
       })
     end

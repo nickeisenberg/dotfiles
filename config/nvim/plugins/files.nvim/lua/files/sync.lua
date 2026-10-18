@@ -34,7 +34,7 @@ local function changes(bufnrs)
     local dir = view.dir(bufnr)
     for _, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)) do
       local entry = view.parse(line)
-      if entry then
+      if entry and not entry.parent then
         local from = entry.id and index.path(entry.id)
         local to = join(dir, entry.name)
         if from == to and not kept[from] then
