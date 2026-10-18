@@ -7,6 +7,7 @@ vim9script
 import autoload './hunks/repo.vim'
 import autoload './hunks/differ.vim'
 import autoload './hunks/signs.vim'
+import autoload './hunks/actions.vim'
 
 # bufnr -> {
 #   path, root, relpath      the file, its repository, its path in there
@@ -50,14 +51,16 @@ def Detach(bufnr: number)
   differ.Forget(bufnr)
 enddef
 
-# Diff the buffer against its base, then call Then(state) with the hunks
-# current. Skipped while the base is still being fetched.
-export def Diff(bufnr: number, Then: func(dict<any>))
+# Diff the buffer against its base and place the signs. Skipped while the
+# base is still being fetched. state.tick is the changedtick the hunks are
+# for, and state.diff_tick the one last asked for.
+export def Update(bufnr: number)
   const state = State(bufnr)
   if empty(state) || !bufloaded(bufnr)
     return
   endif
   const tick = getbufvar(bufnr, 'changedtick')
+  state.diff_tick = tick
   var lines = getbufline(bufnr, 1, '$')
   # An empty buffer still has one empty line.
   if lines == [''] && empty(state.base)
@@ -69,18 +72,34 @@ export def Diff(bufnr: number, Then: func(dict<any>))
       return
     endif
     state.hunks = hunks
+    state.tick = tick
     if enabled
       signs.Place(bufnr, hunks)
     endif
-    Then(state)
   })
 enddef
 
-def Nothing(_: dict<any>)
-enddef
-
-export def Update(bufnr: number)
-  Diff(bufnr, Nothing)
+# The state with hunks for the buffer as it is now, for the commands: diffs
+# if needed and waits for it (a few ms with the job backend, up to a second
+# while the base is fetched). {} when the buffer isn't tracked.
+export def Current(bufnr: number): dict<any>
+  for _ in range(200)
+    if !has_key(bufs, bufnr)
+      return {}
+    endif
+    const state = State(bufnr)
+    const tick = getbufvar(bufnr, 'changedtick')
+    if !empty(state)
+      if state->get('tick', -1) == tick
+        return state
+      elseif state->get('diff_tick', -1) != tick
+        Update(bufnr)
+        continue
+      endif
+    endif
+    sleep 5m
+  endfor
+  return {}
 enddef
 
 # Fetch the base if it may have changed, else just diff again (unless
@@ -178,6 +197,21 @@ const COMMANDS: dict<func> = {
   },
   refresh: (_, _, _, _) => {
     Refresh(bufnr(), true)
+  },
+  next: (args, _, _, _) => {
+    actions.Nav(true, str2nr(get(args, 0, '1')))
+  },
+  prev: (args, _, _, _) => {
+    actions.Nav(false, str2nr(get(args, 0, '1')))
+  },
+  preview: (_, _, _, _) => {
+    actions.Preview()
+  },
+  reset: (_, line1, line2, has_range) => {
+    actions.Reset(line1, line2, has_range)
+  },
+  diffthis: (_, _, _, _) => {
+    actions.DiffThis()
   },
 }
 

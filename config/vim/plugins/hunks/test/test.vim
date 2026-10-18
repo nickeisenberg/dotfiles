@@ -20,6 +20,7 @@ runtime plugin/hunks.vim
 
 import autoload 'hunks/signs.vim'
 import autoload 'hunks/differ.vim'
+import autoload 'hunks/actions.vim'
 
 const REPO = tempname()
 mkdir(REPO, 'p')
@@ -189,6 +190,108 @@ def Test_backends_agree()
 enddef
 
 # ---------------------------------------------------------------------------
+# Phase 2: jump, preview, reset, diffthis
+# ---------------------------------------------------------------------------
+
+def Test_nav()
+  Open('nav.txt', range(1, 10)->mapnew((_, n) => string(n)))
+  setline(2, 'x')
+  setline(5, 'x')
+  setline(8, 'x')
+  cursor(1, 1)
+  Hunks next
+  assert_equal(2, line('.'), 'next')
+  Hunks next
+  assert_equal(5, line('.'), 'next again')
+  Hunks next
+  Hunks next
+  assert_equal(2, line('.'), 'next wraps around')
+  Hunks next 2
+  assert_equal(8, line('.'), 'next with a count')
+  Hunks prev
+  assert_equal(5, line('.'), 'prev')
+  cursor(1, 1)
+  Hunks prev
+  assert_equal(8, line('.'), 'prev wraps around')
+  set nowrapscan
+  cursor(9, 1)
+  Hunks next
+  assert_equal(9, line('.'), "no wrapping without 'wrapscan'")
+  set wrapscan
+enddef
+
+def Test_preview()
+  Open('preview.txt', ['1', '2', '3', '4'])
+  setline(2, 'two')
+  append(2, 'new')
+  deletebufline('%', 5)
+  const state = hunks#Current(bufnr())
+  assert_equal(['@@ -2,1 +2,2 @@', '-2', '+two', '+new'],
+    actions.DiffLines(state, state.hunks[0]), 'changed and added')
+  assert_equal(['@@ -4,1 +4,0 @@', '-4'],
+    actions.DiffLines(state, state.hunks[1]), 'removed')
+
+  cursor(2, 1)
+  Hunks preview
+  if exists('*popup_list')
+    assert_equal(1, len(popup_list()), 'a popup is open')
+  endif
+  popup_clear()
+enddef
+
+def Test_reset()
+  Open('reset.txt', ['1', '2', '3', '4', '5'])
+  const base = getline(1, '$')
+  setline(2, 'two')
+  append(3, 'new')
+  deletebufline('%', 6)
+  const edited = getline(1, '$')
+
+  # Setting 'undolevels' ends the undo step, as typing would.
+  &undolevels = &undolevels
+  cursor(2, 1)
+  Hunks reset
+  assert_equal(['1', '2', '3', 'new', '4'], getline(1, '$'), 'one hunk')
+  undo
+  assert_equal(edited, getline(1, '$'), 'u undoes the reset')
+
+  &undolevels = &undolevels
+  :%Hunks reset
+  assert_equal(base, getline(1, '$'), 'every hunk in the range')
+  Expect({}, 'no signs after the reset')
+
+  deletebufline('%', 1)
+  :%Hunks reset
+  assert_equal(base, getline(1, '$'), 'removed first line')
+
+  :%delete
+  :%Hunks reset
+  assert_equal(base, getline(1, '$'), 'every line removed')
+
+  Open('reset-empty.txt', [])
+  setline(1, ['a', 'b'])
+  :%Hunks reset
+  assert_equal([''], getline(1, '$'), 'lines added to an empty file')
+enddef
+
+def Test_diffthis()
+  Open('diffthis.txt', ['1', '2', '3'])
+  setline(2, 'two')
+  const bufnr = bufnr()
+  Hunks diffthis
+  assert_equal(2, winnr('$'), 'a split')
+  assert_equal(bufnr, bufnr(), 'back in the buffer')
+  assert_true(&diff, 'diff mode in the buffer')
+  wincmd h
+  assert_equal(['1', '2', '3'], getline(1, '$'), 'the base on the left')
+  assert_true(&diff, 'diff mode in the base')
+  assert_false(&modifiable, 'the base is read-only')
+  quit
+  assert_equal(1, winnr('$'), 'split closed')
+  assert_false(&diff, 'diff mode off after closing the base')
+enddef
+
+# ---------------------------------------------------------------------------
 
 const TESTS = [
   Test_untracked_and_outside,
@@ -198,6 +301,10 @@ const TESTS = [
   Test_toggle,
   Test_parse_hunks,
   Test_backends_agree,
+  Test_nav,
+  Test_preview,
+  Test_reset,
+  Test_diffthis,
 ]
 var failed: list<string> = []
 for T in TESTS

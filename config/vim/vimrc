@@ -265,6 +265,18 @@ Pack 'hunks'
 pack#End()
 
 # ---------------------------------------------------------------------------
+# Hunks
+# ---------------------------------------------------------------------------
+
+# ]c / [c stay Vim's own in diff mode.
+nnoremap <expr> ]c &diff ? ']c' : $"\<Cmd>Hunks next {v:count1}\<CR>"
+nnoremap <expr> [c &diff ? '[c' : $"\<Cmd>Hunks prev {v:count1}\<CR>"
+nnoremap <leader>hr <Cmd>Hunks reset<CR>
+xnoremap <leader>hr :Hunks reset<CR>
+nnoremap <leader>hp <Cmd>Hunks preview<CR>
+nnoremap <leader>hd <Cmd>Hunks diffthis<CR>
+
+# ---------------------------------------------------------------------------
 # LSP (yegappan/lsp)
 # ---------------------------------------------------------------------------
 

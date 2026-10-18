@@ -11,8 +11,14 @@ vim9script noclear
 #                     topdelete, changedelete
 #   g:hunks_priority  sign priority (default 5, below diagnostics)
 #
-# :Hunks toggle    signs on or off
-# :Hunks refresh   fetch the base again
+# :Hunks toggle        signs on or off
+# :Hunks refresh       fetch the base again
+# :Hunks next [N]      jump to the Nth next hunk (prev: back), wrapping
+#                      around with 'wrapscan'
+# :Hunks preview       the hunk on the cursor line, in a popup
+# :[range]Hunks reset  put back the base's lines for the hunk on the cursor
+#                      line, or every hunk in the range; `u` undoes it
+# :Hunks diffthis      the base in a split, in diff mode with the buffer
 
 if exists('g:loaded_hunks')
   finish
