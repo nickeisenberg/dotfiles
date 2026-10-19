@@ -5,15 +5,18 @@ from __future__ import annotations
 import re
 
 _UNIT_SECONDS = {"h": 3600, "m": 60, "s": 1}
-_PART_RE = re.compile(r"(\d+(?:\.\d+)?)([hms])")
+_NUMBER = r"\d+(?:\.\d+)?"
+_NUMBER_RE = re.compile(_NUMBER)
+_PART_RE = re.compile(rf"({_NUMBER})([hms])")
 
 
 def parse_duration(text: str) -> float:
     """Return seconds. A bare number means minutes."""
     compact = str(text).strip().lower().replace(" ", "")
-    try:
+    # Not float(): it would also accept "nan", "inf", "1e3", "1_0".
+    if _NUMBER_RE.fullmatch(compact):
         seconds = float(compact) * 60
-    except ValueError:
+    else:
         if not compact or _PART_RE.sub("", compact):
             raise ValueError(f"invalid duration {text!r} (try 25, 25m, 90s or 1h30m)")
         seconds = sum(float(n) * _UNIT_SECONDS[u] for n, u in _PART_RE.findall(compact))

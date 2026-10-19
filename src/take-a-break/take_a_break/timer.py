@@ -84,13 +84,21 @@ class Timer:
             self._phase_done(confirm=False)
         return f"skipped to {LABELS[self.phase].lower()}"
 
+    def confirm(self) -> str:
+        if not self.pending:
+            return "nothing to confirm"
+        self._advance(self.pending, announce=False)
+        return f"started {LABELS[self.phase].lower()}"
+
     def update(self, **changes) -> str:
         """Change settings on the fly. If the current phase's length changes,
         the running timer is stretched or shrunk to match."""
         old = self.duration(self.phase)
         self.settings = replace(self.settings, **changes)
         delta = self.duration(self.phase) - old
-        if self.paused_left is not None:
+        if self.pending or self.finished:
+            pass  # no countdown running; the next phase picks up the new length
+        elif self.paused_left is not None:
             self.paused_left = max(0.0, self.paused_left + delta)
         else:
             self.ends_at += delta
@@ -103,6 +111,8 @@ class Timer:
         return {WORK: s.work, BREAK: s.rest, LONG_BREAK: s.long_rest}[phase]
 
     def remaining(self) -> float:
+        if self.pending:
+            return self.duration(self.pending)  # full length of what's about to start
         if self.paused_left is not None:
             return self.paused_left
         return max(0.0, self.ends_at - self.clock())
@@ -113,6 +123,7 @@ class Timer:
             "remaining": self.remaining(),
             "paused": self.paused_left is not None,
             "pending": self.pending,
+            "prompt": self._prompt_text(self.pending) if self.pending else None,
             "cycle": self.cycle,
             "finished": self.finished,
             "settings": asdict(self.settings),
@@ -129,6 +140,7 @@ class Timer:
     def _phase_done(self, confirm: bool) -> None:
         if self.phase == WORK and self.settings.cycles and self.cycle >= self.settings.cycles:
             self.finished = True
+            self.paused_left = None
             self._sound()
             n = self.cycle
             self.notifier.notify("All done!", f"You finished {n} work session{'s' * (n != 1)}. Nice work.")
@@ -181,6 +193,6 @@ class Timer:
             self.notifier.play_sound()
 
     def _close_dialog(self) -> None:
-        if self._dialog is not None and self._dialog.poll() is None:
-            self._dialog.terminate()
+        if self._dialog is not None:
+            self._dialog.close()
         self._dialog = None

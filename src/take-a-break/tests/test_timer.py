@@ -20,7 +20,7 @@ class FakeDialog:
     def poll(self):
         return 0 if self.clicked or self.terminated else None
 
-    def terminate(self):
+    def close(self):
         self.terminated = True
 
 
@@ -78,10 +78,20 @@ class TimerTests(unittest.TestCase):
 
     def test_cycles_limit_finishes_after_last_work(self):
         timer, clock, notes = make(cycles=2)
-        for _ in range(3):
+        for _ in range(2):
             advance(timer, clock, timer.remaining())
-        self.assertTrue(timer.finished)
+        self.assertFalse(timer.finished)
+        advance(timer, clock, timer.remaining())
+        self.assertEqual((timer.finished, timer.cycle), (True, 2))
         self.assertEqual(notes.notes[-1], "All done!")
+        self.assertEqual(timer.skip(), "already finished")
+
+    def test_skip_while_paused_on_last_session_finishes_unpaused(self):
+        timer, clock, _ = make(cycles=1)
+        timer.pause()
+        timer.skip()
+        self.assertTrue(timer.finished)
+        self.assertFalse(timer.status()["paused"])
 
     def test_pause_and_resume(self):
         timer, clock, _ = make()
@@ -108,6 +118,23 @@ class TimerTests(unittest.TestCase):
         timer.update(rest=99)  # other phase: no effect on current countdown
         self.assertEqual(timer.remaining(), 100)
 
+    def test_update_while_paused(self):
+        timer, clock, _ = make()
+        advance(timer, clock, 20)
+        timer.pause()
+        timer.update(work=10)  # shrinks below the time already worked
+        self.assertEqual(timer.remaining(), 0)
+        timer.resume()
+        timer.tick()
+        self.assertEqual(timer.phase, BREAK)
+
+    def test_update_while_pending_applies_to_next_phase(self):
+        timer, clock, notes = make(confirm=True)
+        timer.update(work=120)
+        self.assertEqual(timer.remaining(), 120)
+        timer.confirm()
+        self.assertEqual(timer.remaining(), 120)
+
     def test_confirm_waits_for_click_before_first_work(self):
         timer, clock, notes = make(confirm=True)
         self.assertEqual(timer.pending, WORK)
@@ -131,6 +158,16 @@ class TimerTests(unittest.TestCase):
         self.assertEqual((timer.phase, timer.pending, timer.remaining()), (BREAK, None, 10))
         self.assertEqual(notes.prompts, ["Start Work", "Start Break"])
 
+    def test_confirm_command_starts_pending_phase(self):
+        timer, clock, notes = make(confirm=True)
+        self.assertEqual(timer.status()["prompt"][2], "Start Work")
+        self.assertEqual(timer.remaining(), 60)  # what's about to start
+        self.assertEqual(timer.confirm(), "started work")
+        self.assertEqual((timer.phase, timer.pending, timer.cycle), (WORK, None, 1))
+        self.assertEqual(notes.notes, [])  # the click was the cue, no notification
+        self.assertTrue(notes.dialog.terminated)  # the timer releases the prompt
+        self.assertEqual(timer.confirm(), "nothing to confirm")
+
     def test_confirm_without_dialog_tool_falls_back_to_auto(self):
         timer, clock, _ = make(FakeNotifier(has_dialogs=False), confirm=True)
         self.assertEqual((timer.phase, timer.pending), (WORK, None))
@@ -145,7 +182,7 @@ class DurationTests(unittest.TestCase):
         self.assertEqual(parse_duration("90s"), 90)
         self.assertEqual(parse_duration("1h30m"), 5400)
         self.assertEqual(parse_duration("0.5"), 30)
-        for bad in ("", "abc", "10x", "0", "-5", "5m abc"):
+        for bad in ("", "abc", "10x", "0", "-5", "5m abc", "nan", "inf", "1e3", "1_0"):
             with self.assertRaises(ValueError, msg=bad):
                 parse_duration(bad)
 

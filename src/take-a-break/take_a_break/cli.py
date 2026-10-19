@@ -16,6 +16,8 @@ examples:
   tab start 25 5            25 min work / 5 min break
   tab start -w 50m -b 10m --long-break 30m --long-every 3
   tab start --confirm       wait for a "Start Break" / "Start Work" click
+  tab window                open the timer window (closing it keeps the timer going)
+  tab status --window       same, plus print the status
   tab status --watch        live countdown
   tab set -b 15             change the break length while running
   tab skip                  jump to the next phase now
@@ -30,15 +32,25 @@ def _duration(text: str) -> float:
         raise argparse.ArgumentTypeError(str(e))
 
 
+def _count(text: str, minimum: int = 0) -> int:
+    try:
+        n = int(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a whole number: {text!r}")
+    if n < minimum:
+        raise argparse.ArgumentTypeError(f"must be {minimum} or more")
+    return n
+
+
 def _timing_options(parser: argparse.ArgumentParser) -> None:
     g = parser.add_argument_group("timing")
     g.add_argument("-w", "--work", type=_duration, metavar="DUR", help="work length (default 30m)")
     g.add_argument("-b", "--break", dest="rest", type=_duration, metavar="DUR", help="break length (default 10m)")
     g.add_argument("-l", "--long-break", dest="long_rest", type=_duration, metavar="DUR",
                    help="long break length (default 20m)")
-    g.add_argument("-e", "--long-every", type=int, metavar="N",
+    g.add_argument("-e", "--long-every", type=_count, metavar="N",
                    help="long break after every N work sessions (default 0 = never)")
-    g.add_argument("-n", "--cycles", type=int, metavar="N", help="stop after N work sessions (default 0 = forever)")
+    g.add_argument("-n", "--cycles", type=_count, metavar="N", help="stop after N work sessions (default 0 = forever)")
     g.add_argument("--confirm", action=argparse.BooleanOptionalAction, default=None,
                    help="wait for a button click before each timer starts (default off)")
     g.add_argument("--sound", action=argparse.BooleanOptionalAction, default=None,
@@ -47,11 +59,7 @@ def _timing_options(parser: argparse.ArgumentParser) -> None:
 
 def _given_settings(args: argparse.Namespace) -> dict:
     names = ("work", "rest", "long_rest", "long_every", "cycles", "confirm", "sound")
-    given = {n: getattr(args, n) for n in names if getattr(args, n) is not None}
-    for n in ("long_every", "cycles"):
-        if given.get(n, 0) < 0:
-            sys.exit(f"tab: --{n.replace('_', '-')} must be 0 or more")
-    return given
+    return {n: getattr(args, n) for n in names if getattr(args, n) is not None}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -61,6 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="Durations: a plain number is minutes, or use 90s, 25m, 1h30m.\n\n" + EXAMPLES,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.set_defaults(watch=False, window=False)  # bare `tab` means `tab status`
     sub = parser.add_subparsers(dest="command", metavar="COMMAND")
 
     start = sub.add_parser("start", help="start the timer in the background")
@@ -71,6 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     status = sub.add_parser("status", help="show what's happening (default command)")
     status.add_argument("--watch", action="store_true", help="live countdown, Ctrl-C to exit")
+    status.add_argument("--window", action="store_true", help="show the timer window (same as `tab window`)")
 
     setp = sub.add_parser("set", help="change settings while running")
     _timing_options(setp)
@@ -78,12 +88,13 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("pause", help="pause the countdown")
     sub.add_parser("resume", help="resume after pause")
     sub.add_parser("skip", help="end the current phase now and move to the next")
+    sub.add_parser("window", help="open the timer window")
     sub.add_parser("stop", help="stop the background timer")
     sub.add_parser("ps", help="list running take-a-break processes")
     killp = sub.add_parser("kill", help="force-kill take-a-break processes (all, or the given PIDs)")
     killp.add_argument("pids", nargs="*", type=int, metavar="PID")
     log = sub.add_parser("log", help="show the daemon log")
-    log.add_argument("-n", type=int, default=20, help="number of lines (default 20)")
+    log.add_argument("-n", type=lambda t: _count(t, 1), default=20, help="number of lines (default 20)")
 
     return parser
 
@@ -95,7 +106,9 @@ def main(argv: list[str] | None = None) -> None:
         if command == "start":
             cmd_start(args)
         elif command == "status":
-            cmd_status(args.watch if args.command else False)
+            if args.window:
+                _print_reply(daemon.send("window"), show_status=False)
+            cmd_status(args.watch)
         elif command == "set":
             changes = _given_settings(args)
             if not changes:
@@ -107,21 +120,25 @@ def main(argv: list[str] | None = None) -> None:
             cmd_ps()
         elif command == "kill":
             cmd_kill(args.pids)
-        else:  # pause / resume / skip / stop
-            _print_reply(daemon.send(command), show_status=command != "stop")
+        else:  # pause / resume / skip / window / stop
+            _print_reply(daemon.send(command), show_status=command not in ("stop", "window"))
     except daemon.NotRunning:
         sys.exit("tab is not running. Start it with: tab start")
+    except (OSError, ValueError) as e:  # timeout, or a garbled reply
+        sys.exit(f"tab: the timer isn't responding ({e}). See `tab ps` / `tab kill`.")
+    except RuntimeError as e:  # daemon.spawn failed
+        sys.exit(f"tab: {e}")
     except KeyboardInterrupt:
         print()
 
 
 def cmd_start(args: argparse.Namespace) -> None:
     given = _given_settings(args)
-    for pos, name, flag in ((args.work_pos, "work", "--work"), (args.rest_pos, "rest", "--break")):
+    for pos, name, label in ((args.work_pos, "work", "work"), (args.rest_pos, "rest", "break")):
         if pos is not None:
             if name in given:
-                sys.exit(f"tab start: give the {name if name == 'work' else 'break'} length "
-                         f"either positionally or with {flag}, not both")
+                sys.exit(f"tab start: give the {label} length "
+                         f"either positionally or with --{label}, not both")
             given[name] = pos
     if daemon.is_running():
         sys.exit("tab is already running. Use `tab set ...` to change it, or `tab stop` first.")
@@ -147,6 +164,9 @@ def cmd_status(watch: bool) -> None:
         except daemon.NotRunning:
             print("\ntab stopped.")
             return
+        except (OSError, ValueError):  # busy for a moment; try again
+            time.sleep(1)
+            continue
         sys.stdout.write("\r\033[K" + _status_text(status).splitlines()[0])
         sys.stdout.flush()
         time.sleep(1)
@@ -197,8 +217,9 @@ def cmd_log(lines: int) -> None:
 def _print_reply(reply: dict, show_status: bool = True) -> None:
     if not reply.get("ok"):
         sys.exit(f"tab: {reply.get('error')}")
-    if reply.get("message"):
-        print(reply["message"].capitalize())
+    message = reply.get("message")
+    if message:
+        print(message[0].upper() + message[1:])
     if show_status:
         print(_status_text(reply["status"]))
 
@@ -210,7 +231,7 @@ def _status_text(status: dict) -> str:
     if status["finished"]:
         line = "All sessions done."
     elif status["pending"]:
-        button = "Start Work" if status["pending"] == "work" else "Start Break"
+        button = status["prompt"][2]
         line = f"Waiting for you to click \"{button}\"  ({session})"
     else:
         paused = "  [paused]" if status["paused"] else ""

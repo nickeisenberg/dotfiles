@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import signal
@@ -12,14 +13,17 @@ import time
 from dataclasses import asdict, fields
 from pathlib import Path
 
+from . import child_env
 from .notify import DesktopNotifier
 from .timer import Settings, Timer
 
 STATE_DIR = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state") / "take-a-break"
 SOCKET_PATH = STATE_DIR / "tab.sock"
 LOG_PATH = STATE_DIR / "tab.log"
+LOCK_PATH = STATE_DIR / "tab.lock"
 
-_SETTING_NAMES = {f.name for f in fields(Settings)}
+_SETTING_TYPES = {f.name: f.type for f in fields(Settings)}
+_COERCE = {"float": float, "int": int, "bool": bool}  # field types are strings (PEP 563)
 
 
 # -- client side ------------------------------------------------------------
@@ -99,33 +103,42 @@ def _alive(pid: int) -> bool:
 
 def spawn(settings: Settings) -> None:
     """Start the daemon as a detached process and wait until it answers."""
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    package_parent = str(Path(__file__).resolve().parent.parent)
-    env = dict(os.environ)
-    env["PYTHONPATH"] = os.pathsep.join(filter(None, [package_parent, env.get("PYTHONPATH")]))
+    _make_state_dir()
     with open(LOG_PATH, "a") as log:
-        subprocess.Popen(
+        proc = subprocess.Popen(
             [sys.executable, "-m", "take_a_break", "_serve", json.dumps(asdict(settings))],
             stdin=subprocess.DEVNULL,
             stdout=log,
             stderr=log,
             start_new_session=True,  # survive the terminal closing
-            env=env,
+            env=child_env(),
         )
     deadline = time.monotonic() + 5
-    while time.monotonic() < deadline:
+    while time.monotonic() < deadline and proc.poll() is None:
         if is_running():
             return
         time.sleep(0.1)
     raise RuntimeError(f"daemon did not start, see {LOG_PATH}")
 
 
+def _make_state_dir() -> None:
+    # Private: anyone who can reach the socket can control the timer.
+    STATE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+
 # -- server side ------------------------------------------------------------
 
 def serve(settings: Settings) -> None:
     """Run the timer loop and answer CLI commands until stopped or finished."""
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    SOCKET_PATH.unlink(missing_ok=True)  # the caller checked nothing is listening
+    _make_state_dir()
+    # One daemon at a time. Held until this process exits, so only the
+    # holder ever touches the socket file.
+    lock = open(LOCK_PATH, "w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        sys.exit("tab: another take-a-break daemon is already running")
+    SOCKET_PATH.unlink(missing_ok=True)  # left over from a daemon that was killed
 
     running = True
 
@@ -142,13 +155,16 @@ def serve(settings: Settings) -> None:
     server.listen()
     server.settimeout(0.5)
     _log(f"started (pid {os.getpid()}): {asdict(settings)}")
-    timer.start()
     try:
+        timer.start()
         while running and not timer.finished:
-            timer.tick()
+            try:
+                timer.tick()
+            except Exception as e:  # log it and keep the timer alive
+                _log(f"tick failed: {e!r}")
             try:
                 conn, _ = server.accept()
-            except (socket.timeout, InterruptedError):
+            except socket.timeout:
                 continue
             with conn:
                 conn.settimeout(2)
@@ -163,6 +179,7 @@ def serve(settings: Settings) -> None:
         timer.close()
         server.close()
         SOCKET_PATH.unlink(missing_ok=True)
+        lock.close()
         _log("stopped")
 
 
@@ -178,11 +195,13 @@ def _handle(timer: Timer, conn: socket.socket) -> tuple[dict, bool]:
             message = timer.resume()
         elif cmd == "skip":
             message = timer.skip()
+        elif cmd == "confirm":
+            message = timer.confirm()
+        elif cmd == "window":
+            opened = timer.notifier.show_window()
+            message = "window open" if opened else "no window support here (needs tkinter and a display)"
         elif cmd == "set":
-            unknown = set(args) - _SETTING_NAMES
-            if unknown:
-                raise ValueError(f"unknown settings: {', '.join(sorted(unknown))}")
-            message = timer.update(**args)
+            message = timer.update(**_check_settings(args))
         elif cmd == "stop":
             return {"ok": True, "message": "stopped", "status": timer.status()}, True
         else:
@@ -192,6 +211,26 @@ def _handle(timer: Timer, conn: socket.socket) -> tuple[dict, bool]:
         return {"ok": True, "message": message, "status": {**timer.status(), "pid": os.getpid()}}, False
     except Exception as e:  # never let a bad request kill the daemon
         return {"ok": False, "error": str(e)}, False
+
+
+def _check_settings(args: dict) -> dict:
+    """Validate a ``set`` request before it touches the timer."""
+    unknown = set(args) - set(_SETTING_TYPES)
+    if unknown:
+        raise ValueError(f"unknown settings: {', '.join(sorted(unknown))}")
+    checked = {}
+    for name, value in args.items():
+        kind = _COERCE[_SETTING_TYPES[name]]
+        if kind is bool:
+            if not isinstance(value, bool):
+                raise ValueError(f"{name} must be true or false")
+        elif not isinstance(value, (int, float)) or isinstance(value, bool) or not 0 <= value < float("inf"):
+            raise ValueError(f"{name} must be a number, 0 or more")
+        checked[name] = kind(value)
+    for name in ("work", "rest", "long_rest"):
+        if checked.get(name, 1) <= 0:
+            raise ValueError(f"{name} must be positive")
+    return checked
 
 
 def _read_line(sock: socket.socket) -> str:

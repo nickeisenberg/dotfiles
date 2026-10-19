@@ -11,6 +11,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from . import window
+
 APP_NAME = "Take a Break"
 IS_MAC = sys.platform == "darwin"
 
@@ -74,9 +76,70 @@ def prompt(title: str, message: str, button: str) -> subprocess.Popen | None:
     return None
 
 
+class Dialog:
+    """A one-button dialog process. It's answered when the process exits."""
+
+    def __init__(self, proc: subprocess.Popen):
+        self.proc = proc
+
+    def poll(self) -> int | None:
+        return self.proc.poll()
+
+    def close(self) -> None:
+        if self.proc.poll() is None:
+            self.proc.terminate()
+
+
+class WindowPrompt(Dialog):
+    """The timer window showing a Start button. The click arrives as a
+    ``confirm`` command over the socket; closing the window counts as a click.
+    It stays open afterwards to show the countdown.
+
+    If the window crashes instead (e.g. Tk can't reach a display), fall back
+    to a plain dialog rather than treating the crash as a click."""
+
+    def __init__(self, proc: subprocess.Popen, text: tuple[str, str, str]):
+        super().__init__(proc)
+        self.text = text
+        self.fallback: Dialog | None = None
+
+    def poll(self) -> int | None:
+        if self.fallback is not None:
+            return self.fallback.poll()
+        code = self.proc.poll()
+        if code:  # nonzero: crashed, not closed by the user
+            print(f"timer window exited with code {code}, using a dialog instead", flush=True)
+            proc = prompt(*self.text)
+            if proc is None:
+                return code
+            self.fallback = Dialog(proc)
+            return None
+        return code
+
+    def close(self) -> None:
+        if self.fallback is not None:
+            self.fallback.close()  # the window itself stays open as the countdown
+
+
 class DesktopNotifier:
     """What the Timer talks to. Tests swap in a fake."""
 
     notify = staticmethod(notify)
     play_sound = staticmethod(play_sound)
-    prompt = staticmethod(prompt)
+
+    def __init__(self):
+        self._window: subprocess.Popen | None = None
+
+    def show_window(self) -> subprocess.Popen | None:
+        """Open the timer window, or reuse the one that's already open."""
+        if self._window is None or self._window.poll() is not None:
+            self._window = window.spawn() if window.available() else None
+        return self._window
+
+    def prompt(self, title: str, message: str, button: str) -> Dialog | None:
+        win = self.show_window()
+        if win is not None:
+            print(f"prompt (window): {title} - {message} [{button}]", flush=True)
+            return WindowPrompt(win, (title, message, button))
+        proc = prompt(title, message, button)
+        return Dialog(proc) if proc else None

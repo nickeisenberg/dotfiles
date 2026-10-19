@@ -2,3 +2,4 @@ scripts/myssh.sh
 scripts/venv310.sh
 scripts/venv311.sh
 **/__pycache__/
+*.egg-info/
