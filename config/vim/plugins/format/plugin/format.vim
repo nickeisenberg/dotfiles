@@ -16,8 +16,13 @@ vim9script noclear
 # that is exactly '%' becomes the buffer's file name. A step can also be a
 # Funcref that takes the file name and returns the command list.
 #
+# A filetype with no steps is formatted with yegappan/lsp's :LspFormat when
+# a server that can format is attached. That only works on the current
+# buffer, so LSP-only buffers written by :wall from elsewhere are skipped.
+#
 #   g:format_on_save     format before every write (default true)
-#   g:format_timeout_ms  per step, and for the LSP request (default 5000)
+#   g:format_timeout_ms  per pipeline step (default 5000); the LSP
+#                        fallback uses yegappan/lsp's own timeout
 #
 # :Format formats the current buffer.
 

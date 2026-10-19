@@ -6,11 +6,21 @@ vim9script
 # session instead of on every save.
 var warned: dict<bool> = {}
 
+# File extensions for filetypes whose name is not their extension, used to
+# name unnamed buffers.
+const extensions = {
+  python: 'py', javascript: 'js', typescript: 'ts', markdown: 'md',
+  rust: 'rs', ruby: 'rb', haskell: 'hs',
+}
+
+# A multi-line message (a tool's stderr) is shown one line per message.
 def Notify(msg: string, warn = false)
   if warn
     echohl WarningMsg
   endif
-  echomsg $'format: {msg}'
+  for line in split(msg, '\r\=\n')
+    echomsg $'format: {line}'
+  endfor
   if warn
     echohl None
   endif
@@ -31,44 +41,58 @@ def Command(step: any, bufname: string): list<string>
   return step->mapnew((_, arg) => arg == '%' ? bufname : arg)
 enddef
 
-# Run `cmd` with `input` on stdin. Returns {code, out, err}, or {} after
-# killing it when it takes longer than the timeout.
+# Run `cmd` with `input` on stdin. Always returns {code, out, err,
+# timedout}: code is -1 when the job could not start (err says so) or was
+# killed after the timeout (timedout is true).
+#
+# stdin comes from a temp file rather than a pipe: writing a large buffer
+# into a pipe while the tool's stdout is not yet being read deadlocks with
+# tools that write as they read (sed, tr, cat), and fails with E631 when a
+# tool exits without reading.
 def Run(cmd: list<string>, input: string): dict<any>
-  var result = {code: -1, out: '', err: '', exited: false, closed: false}
-  const job = job_start(cmd, {
-    in_io: 'pipe',
-    out_mode: 'raw',
-    err_mode: 'raw',
-    out_cb: (_, data) => {
-      result.out ..= data
-    },
-    err_cb: (_, data) => {
-      result.err ..= data
-    },
-    exit_cb: (_, code) => {
-      result.code = code
-      result.exited = true
-    },
-    close_cb: (_) => {
-      result.closed = true
-    },
-  })
-  if job_status(job) == 'fail'
-    return {code: -1, out: '', err: 'failed to start'}
-  endif
-
-  const channel = job_getchannel(job)
-  ch_sendraw(channel, input)
-  ch_close_in(channel)
-
-  const start = reltime()
-  while !(result.exited && result.closed)
-    if reltimefloat(reltime(start)) * 1000 > Timeout()
-      job_stop(job, 'kill')
-      return {}
+  var result = {code: -1, out: '', err: '', timedout: false}
+  var done = {exited: false, closed: false}
+  const infile = tempname()
+  # 'b': `input` already ends in a newline, so add none after the last line.
+  writefile(split(input, "\n", true), infile, 'b')
+  try
+    const job = job_start(cmd, {
+      in_io: 'file',
+      in_name: infile,
+      out_mode: 'raw',
+      err_mode: 'raw',
+      out_cb: (_, data) => {
+        result.out ..= data
+      },
+      err_cb: (_, data) => {
+        result.err ..= data
+      },
+      exit_cb: (_, code) => {
+        result.code = code
+        done.exited = true
+      },
+      close_cb: (_) => {
+        done.closed = true
+      },
+    })
+    if job_status(job) == 'fail'
+      result.err = 'failed to start'
+      return result
     endif
-    sleep 2m
-  endwhile
+
+    const start = reltime()
+    while !(done.exited && done.closed)
+      if reltimefloat(reltime(start)) * 1000 > Timeout()
+        job_stop(job, 'kill')
+        result.code = -1
+        result.timedout = true
+        return result
+      endif
+      sleep 2m
+    endwhile
+  finally
+    delete(infile)
+  endtry
   return result
 enddef
 
@@ -87,7 +111,7 @@ def CheckCommands(cmds: list<list<string>>): bool
   return true
 enddef
 
-# Run the pipeline over `text`. Returns the formatted text, or null when a
+# Run the pipeline over `input`. Returns the formatted text, or null when a
 # step is missing, fails or times out (the failure is reported).
 def Pipeline(cmds: list<list<string>>, input: string): string
   if !CheckCommands(cmds)
@@ -97,7 +121,7 @@ def Pipeline(cmds: list<list<string>>, input: string): string
   var text = input
   for cmd in cmds
     const result = Run(cmd, text)
-    if empty(result)
+    if result.timedout
       Notify($'{cmd[0]} timed out after {Timeout()} ms', true)
       return null_string
     endif
@@ -144,7 +168,9 @@ def Apply(bufnr: number, new: list<string>)
   for hunk in reverse(hunks)
     const first = hunk.from_idx
     const n = min([hunk.from_count, hunk.to_count])
-    const replacement = new[hunk.to_idx : hunk.to_idx + hunk.to_count - 1]
+    const replacement = hunk.to_count > 0
+      ? new[hunk.to_idx : hunk.to_idx + hunk.to_count - 1]
+      : []
     if n > 0
       setbufline(bufnr, first + 1, replacement[: n - 1])
     endif
@@ -160,24 +186,23 @@ enddef
 # LSP fallback
 # ---------------------------------------------------------------------------
 
+# :LspFormat only formats the current buffer, so other buffers (as in
+# :wall) are left alone. It goes through :execute because this function
+# is compiled with Format() and the command may not exist (no yegappan/lsp).
+# BufLspServerGet() only returns a ready server that can format.
 def FormatWithLsp(bufnr: number)
-  if !exists('g:loaded_lsp') || bufnr != bufnr()
+  if exists(':LspFormat') != 2 || bufnr != bufnr()
     return
   endif
-  var server: dict<any>
-  try
-    server = lsp#buffer#BufLspServerGet(bufnr, 'documentFormatting')
-  catch
-    return
-  endtry
-  if !empty(server) && server->get('running', false) && server->get('ready', false)
-    LspFormat
+  if !empty(lsp#buffer#BufLspServerGet(bufnr, 'documentFormatting'))
+    execute 'LspFormat'
   endif
 enddef
 
 # ---------------------------------------------------------------------------
 
-# Special or read-only buffers are never formatted.
+# Special or unmodifiable buffers are never formatted. 'readonly' alone
+# does not stop it, so :w! on a read-only file still formats.
 def Formattable(bufnr: number): bool
   return bufexists(bufnr) && bufloaded(bufnr)
     && empty(getbufvar(bufnr, '&buftype'))
@@ -197,9 +222,14 @@ export def Format(bufnr: number)
   endif
 
   # Give tools a plausible file name for unnamed buffers; ruff and others
-  # use it to choose settings.
+  # use it to choose settings. Most filetypes are also their extension.
   var bufname = bufname(bufnr)
-  bufname = empty(bufname) ? $'stdin.{filetype}' : fnamemodify(bufname, ':p')
+  if empty(bufname)
+    const ext = get(extensions, filetype, filetype)
+    bufname = $'stdin.{ext}'
+  else
+    bufname = fnamemodify(bufname, ':p')
+  endif
 
   const cmds = steps->mapnew((_, step) => Command(step, bufname))
   const input = getbufline(bufnr, 1, '$')->join("\n") .. "\n"
@@ -213,5 +243,10 @@ export def Format(bufnr: number)
   if !empty(lines) && lines[-1] == ''
     remove(lines, -1)
   endif
-  Apply(bufnr, lines->map((_, l) => substitute(l, '\r$', '', '')))
+  # Drop CRs the tool added as line endings, but keep real ones that were
+  # already in the text.
+  if getbufvar(bufnr, '&fileformat') == 'dos' || stridx(input, "\r") < 0
+    lines->map((_, l) => substitute(l, '\r$', '', ''))
+  endif
+  Apply(bufnr, lines)
 enddef
