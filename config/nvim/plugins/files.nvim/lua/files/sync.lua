@@ -147,13 +147,14 @@ end
 local function set_name(bufnr, name)
   local old = vim.api.nvim_buf_get_name(bufnr)
   vim.api.nvim_buf_set_name(bufnr, name)
-  local left = vim.fn.bufnr(old)
-  if
-    left ~= -1
-    and vim.api.nvim_buf_get_name(left) == old
-    and not vim.api.nvim_buf_is_loaded(left)
-  then
-    vim.api.nvim_buf_delete(left, { force = true })
+  -- Compared by name, not with bufnr(), which reads the name as a pattern.
+  for _, left in ipairs(vim.api.nvim_list_bufs()) do
+    if
+      vim.api.nvim_buf_get_name(left) == old
+      and not vim.api.nvim_buf_is_loaded(left)
+    then
+      vim.api.nvim_buf_delete(left, { force = true })
+    end
   end
 end
 
