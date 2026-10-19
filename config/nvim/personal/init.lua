@@ -9,5 +9,9 @@ require("keymaps")
 require("options")
 
 -- Load plugins: every file in lua/plugins/ returns a spec for pack.nvim.
-vim.opt.runtimepath:prepend(vim.fn.stdpath("config") .. "/plugins/pack.nvim")
-require("pack").setup()
+-- Local plugins are shared by work/ and personal/ in the sibling plugins/
+-- directory, found by resolving the ~/.config/nvim symlink.
+local config_dir = vim.uv.fs_realpath(vim.fn.stdpath("config"))
+local plugins_dir = vim.fs.dirname(config_dir) .. "/plugins"
+vim.opt.runtimepath:prepend(plugins_dir .. "/pack.nvim")
+require("pack").setup({ local_dir = plugins_dir })
