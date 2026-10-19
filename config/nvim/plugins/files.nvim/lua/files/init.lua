@@ -215,6 +215,11 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("Files", function(cmd)
     M.open(cmd.args ~= "" and cmd.args or nil)
   end, { nargs = "?", complete = "dir" })
+  -- Restore by moving an entry out; delete one here to delete it for good.
+  vim.api.nvim_create_user_command("FilesTrash", function()
+    vim.fn.mkdir(fs.trash_dir(), "p")
+    M.open(fs.trash_dir())
+  end, {})
 
   local group = vim.api.nvim_create_augroup("files", { clear = true })
   local function on(event, pattern, callback)
