@@ -55,41 +55,62 @@ def Attr(group: string, key: string): string
   return value == 'NONE' ? '' : value
 enddef
 
-# Define `name` with the foreground of `fg_group` (else Normal's) on the
-# background of `bg_group`.
-def Derive(name: string, fg_group: string, bg_group: string, bold = false)
+# A group's attributes such as bold and reverse, for 'gui' or 'cterm'.
+def Flags(group: string, kind: string): dict<any>
+  const found = hlget(group, true)
+  return empty(found) ? {} : found[0]->get(kind, {})
+enddef
+
+# Define `name` with the first foreground set among `fg_from` (else
+# Normal's) on the background of `bg_group`. Each of `fg_from` is a group,
+# or "Group:bg" to take that group's background: Diff* groups often color
+# only that.
+def Derive(name: string, fg_from: list<string>, bg_group: string, bold = false)
   var group: dict<any> = {name: name}
   for kind in ['gui', 'cterm']
-    var fg = Attr(fg_group, $'{kind}fg')
-    if empty(fg)
-      fg = Attr('Normal', $'{kind}fg')
+    var fg = ''
+    for source in fg_from + ['Normal']
+      const [from, which] = (source =~ ':bg$' ? [source[: -4], 'bg'] : [source, 'fg'])
+      fg = Attr(from, $'{kind}{which}')
+      if !empty(fg)
+        break
+      endif
+    endfor
+    var bg = Attr(bg_group, $'{kind}bg')
+    var flags: dict<bool> = bold ? {bold: true} : {}
+    # A reverse group, like StatusLine in the default colorscheme, shows its
+    # foreground as the background: reverse this one too, so it matches
+    # even when that foreground is the terminal's own.
+    if Flags(bg_group, kind)->get('reverse', false)
+      [fg, bg] = [Attr(bg_group, $'{kind}fg'), fg]
+      flags.reverse = true
     endif
-    const bg = Attr(bg_group, $'{kind}bg')
     if !empty(fg)
       group[$'{kind}fg'] = fg
     endif
     if !empty(bg)
       group[$'{kind}bg'] = bg
     endif
-    if bold
-      group[kind] = {bold: true}
+    if !empty(flags)
+      group[kind] = flags
     endif
   endfor
   hlset([group])
 enddef
 
 def Highlights()
-  Derive('StlMode', 'PmenuSel', 'Visual', true)
-  Derive('StlGit', 'Directory', 'PmenuSel')
+  Derive('StlMode', ['PmenuSel'], 'Visual', true)
+  Derive('StlGit', ['Directory'], 'PmenuSel')
   # Vim draws a statusline group without a background on Normal's, not the
-  # statusline's, so these carry StatusLine's background.
-  Derive('StlAdded', 'Added', 'StatusLine')
-  Derive('StlChanged', 'Changed', 'StatusLine')
-  Derive('StlRemoved', 'Removed', 'StatusLine')
-  Derive('StlError', 'ErrorMsg', 'StatusLine')
-  Derive('StlWarn', 'WarningMsg', 'StatusLine')
-  Derive('StlInfo', 'Directory', 'StatusLine')
-  Derive('StlHint', 'Question', 'StatusLine')
+  # statusline's, so these carry StatusLine's background. Added, Changed
+  # and Removed are new in Vim 9.1; older ones have the Diff* groups.
+  Derive('StlAdded', ['Added', 'DiffAdd', 'DiffAdd:bg'], 'StatusLine')
+  Derive('StlChanged', ['Changed', 'DiffChange', 'DiffChange:bg'], 'StatusLine')
+  Derive('StlRemoved', ['Removed', 'DiffDelete', 'DiffDelete:bg'], 'StatusLine')
+  Derive('StlError', ['ErrorMsg'], 'StatusLine')
+  Derive('StlWarn', ['WarningMsg'], 'StatusLine')
+  Derive('StlInfo', ['Directory'], 'StatusLine')
+  Derive('StlHint', ['Question'], 'StatusLine')
 enddef
 
 # ---------------------------------------------------------------------------
@@ -97,7 +118,8 @@ enddef
 # statusline text, '' when it has nothing to show.
 # ---------------------------------------------------------------------------
 
-# Text from buffers and git: a "%" in it would be read as a statusline item.
+# Text from buffers, git and servers, made safe to put in the statusline:
+# a "%" in it would start a statusline item, so it's doubled.
 def Esc(text: string): string
   return substitute(text, '%', '%%', 'g')
 enddef
@@ -108,17 +130,8 @@ def Mode(): string
   return $'%#StlMode# {label} %*'
 enddef
 
-# A file buffer's absolute path, or '' for special and unnamed buffers.
-def FilePath(bufnr: number): string
-  const name = bufname(bufnr)
-  if empty(name) || !empty(getbufvar(bufnr, '&buftype'))
-    return ''
-  endif
-  return fnamemodify(name, ':p')
-enddef
-
 def Branch(bufnr: number): string
-  const path = FilePath(bufnr)
+  const path = git.Path(bufnr)
   const root = empty(path) ? '' : git.Root(path)
   const branch = empty(root) ? '' : git.Branch(root)
   return empty(branch) ? '' : $'%#StlGit# {Esc(branch)} %*'
@@ -151,21 +164,38 @@ enddef
 
 # The path relative to its repository, else to home; a terminal by its
 # program; other special buffers by Vim's own name for them. Then [+] when
-# modified, [RO] when read-only (not for terminals).
+# modified, [RO] when read-only (not for terminals). A file reached through
+# a symlink into a repository shows its path in the repository.
 #
 # It starts with %<, so a window too narrow for the whole line cuts the
 # start of the path rather than the mode and branch before it.
 def Path(bufnr: number): string
-  const path = FilePath(bufnr)
+  const path = git.Path(bufnr)
   var shown = '%f'
   if !empty(path)
     const root = git.Root(path)
-    shown = Esc(empty(root) ? fnamemodify(path, ':~') : strpart(path, len(root) + 1))
+    shown = Esc(empty(root) ? fnamemodify(bufname(bufnr), ':p:~') : strpart(path, len(root) + 1))
   elseif getbufvar(bufnr, '&buftype') == 'terminal'
     # A running terminal is always "modified"; the flags say nothing.
     return $'%<{Esc(TerminalName(bufnr))}'
   endif
   return $'%<{shown}%( %m%r%)'
+enddef
+
+# An error from the lsp plugin, e.g. after an update renamed a function.
+# Shown once, after the redraw, rather than on every redraw; the part is
+# left out meanwhile.
+var lsp_error_shown = false
+def LspFailed(part: string)
+  if !lsp_error_shown
+    lsp_error_shown = true
+    const msg = $'statusline: {part}: {v:exception}'
+    timer_start(0, (_) => {
+      echohl ErrorMsg
+      echomsg msg
+      echohl None
+    })
+  endif
 enddef
 
 def Diagnostics(bufnr: number): string
@@ -176,6 +206,7 @@ def Diagnostics(bufnr: number): string
   try
     counts = lsp#diag#DiagsGetErrorCount(bufnr)
   catch
+    LspFailed('diagnostics')
     return ''
   endtry
   var out: list<string> = []
@@ -201,6 +232,7 @@ def Lsp(bufnr: number): string
   try
     servers = lsp#buffer#BufLspServersGet(bufnr)
   catch
+    LspFailed('language servers')
     return ''
   endtry
 
@@ -284,8 +316,7 @@ export def Setup()
     autocmd ModeChanged,FocusGained * Redraw()
     autocmd User LspAttached,LspDetached,LspDiagsUpdated,LspProgressUpdate Redraw()
   augroup END
-  git.Setup()
+  git.Setup(Redraw)
 
-  set laststatus=2
   set statusline=%!statusline#Render()
 enddef
