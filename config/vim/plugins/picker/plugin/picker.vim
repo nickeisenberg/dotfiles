@@ -1,4 +1,4 @@
-vim9script noclear
+vim9script
 
 # A fuzzy finder in popups, with a preview of the selected result.
 #
@@ -10,8 +10,3 @@ vim9script noclear
 #
 # In the picker: type to filter, <C-n>/<C-p> or <Down>/<Up> to move, <CR>
 # to open, <Esc> to close; <BS>, <C-w> and <C-u> edit the query.
-
-if exists('g:loaded_picker')
-  finish
-endif
-g:loaded_picker = true

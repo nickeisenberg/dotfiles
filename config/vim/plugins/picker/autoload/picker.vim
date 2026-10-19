@@ -5,33 +5,32 @@ vim9script
 
 import autoload './picker/ui.vim'
 import autoload './picker/lsp.vim' as lsp_source
+import autoload './picker/util.vim'
 
+# Directories skipped at any depth ("**/"), not just at the top.
 const RG_GLOBS = [
-  '--glob', '!.git/*',
-  '--glob', '!node_modules/*',
-  '--glob', '!dist/*',
-  '--glob', '!build/*',
+  '--glob', '!**/.git/**',
+  '--glob', '!**/node_modules/**',
+  '--glob', '!**/dist/**',
+  '--glob', '!**/build/**',
 ]
 
-def Notify(msg: string)
-  echohl ErrorMsg
-  echomsg $'picker: {msg}'
-  echohl None
+const LINES_TIMEOUT_MS = 10000
+
+def Noop()
 enddef
 
-# Run `cmd` (no shell) and wait for its output lines; [] when it fails.
+# Run `cmd` (no shell) and wait for its output lines. The exit code is
+# ignored: rg exits 2 when some directory is unreadable, even though it
+# listed the rest. Gives up after LINES_TIMEOUT_MS; CTRL-C stops it too.
 def Lines(cmd: list<string>): list<string>
-  var state = {lines: [], code: -1, exited: false, closed: false}
+  var state = {lines: [], closed: false}
   const job = job_start(cmd, {
     cwd: getcwd(),
     in_io: 'null',
     err_io: 'null',
     out_cb: (_, line) => {
       state.lines->add(line)
-    },
-    exit_cb: (_, code) => {
-      state.code = code
-      state.exited = true
     },
     close_cb: (_) => {
       state.closed = true
@@ -40,10 +39,22 @@ def Lines(cmd: list<string>): list<string>
   if job_status(job) == 'fail'
     return []
   endif
-  while !(state.exited && state.closed)
-    sleep 5m
-  endwhile
-  return state.code == 0 ? state.lines : []
+  const start = reltime()
+  try
+    while !state.closed
+      if reltime(start)->reltimefloat() * 1000 > LINES_TIMEOUT_MS
+        util.Notify($'{cmd[0]} took over {LINES_TIMEOUT_MS / 1000}s; the list is incomplete', true)
+        break
+      endif
+      sleep 5m
+    endwhile
+  finally
+    # After a timeout or CTRL-C.
+    if job_status(job) == 'run'
+      job_stop(job)
+    endif
+  endtry
+  return state.lines
 enddef
 
 # ---------------------------------------------------------------------------
@@ -52,11 +63,11 @@ enddef
 
 export def FindFiles()
   if !executable('rg')
-    Notify('rg is not installed')
+    util.Notify('rg is not installed', true)
     return
   endif
   const files = Lines(['rg', '--files', '--hidden', '--no-messages']
-    + RG_GLOBS + ['--glob', '!.cache/*', '--glob', '!*.tmp', '--glob', '!*.log'])
+    + RG_GLOBS + ['--glob', '!**/.cache/**', '--glob', '!*.tmp', '--glob', '!*.log'])
 
   ui.Open({
     title: 'Find Files',
@@ -78,23 +89,26 @@ const MAX_RESULTS = 2000
 const PUBLISH_INTERVAL_MS = 40
 
 # Start rg for `query`; OnResults gets the results so far, at most every
-# PUBLISH_INTERVAL_MS and once more at the end. Returns a function that
-# stops the search.
-def GrepAsync(query: string, OnResults: func(list<any>)): func()
-  if empty(query)
-    OnResults([])
-    return () => {
-    }
-  endif
-
-  var s = {active: true, finished: false, timer: -1, results: []}
+# PUBLISH_INTERVAL_MS and once more at the end, with a message when the
+# results were cut off or rg failed. Returns a function that stops the
+# search.
+def GrepAsync(query: string, OnResults: func(list<any>, string)): func()
+  var s = {active: true, finished: false, timer: -1, results: [], errors: []}
 
   const Publish = () => {
-    if s.active
-      # A copy for the picker. Result dicts stay the same objects across
-      # publications, so the preview can tell the selection hasn't changed.
-      OnResults(copy(s.results))
+    if !s.active
+      return
     endif
+    var message = ''
+    if len(s.results) >= MAX_RESULTS
+      message = $'[showing the first {MAX_RESULTS} matches]'
+    elseif s.finished && empty(s.results) && !empty(s.errors)
+      # Such as a regex parse error; its last line says what is wrong.
+      message = $'[rg: {s.errors[-1]->substitute("^error: ", "", "")}]'
+    endif
+    # A copy for the picker. Result dicts stay the same objects across
+    # publications, so the preview can tell the selection hasn't changed.
+    OnResults(copy(s.results), message)
   }
 
   const PublishLater = () => {
@@ -119,12 +133,17 @@ def GrepAsync(query: string, OnResults: func(list<any>)): func()
   }
 
   # "--" ends option parsing, so a query beginning with "-" is not a flag.
-  job = job_start(['rg', '--vimgrep', '--color=never', '--smart-case', '--hidden']
+  # --no-messages hides unreadable-file noise; errors about the query
+  # itself still come on stderr.
+  job = job_start(['rg', '--vimgrep', '--color=never', '--smart-case', '--hidden', '--no-messages']
       + RG_GLOBS + ['--', query, '.'], {
     cwd: getcwd(),
     in_io: 'null',
-    err_io: 'null',
     out_mode: 'nl',
+    err_mode: 'nl',
+    err_cb: (_, line) => {
+      s.errors->add(line)
+    },
     out_cb: (_, line) => {
       if !s.active || s.finished
         return
@@ -152,10 +171,9 @@ def GrepAsync(query: string, OnResults: func(list<any>)): func()
 
   if job_status(job) == 'fail'
     s.active = false
-    Notify('unable to start ripgrep; check that rg is installed')
-    OnResults([])
-    return () => {
-    }
+    util.Notify('unable to start ripgrep; check that rg is installed', true)
+    OnResults([], '')
+    return Noop
   endif
 
   # The picker calls this when the query changes or the picker closes.
@@ -176,22 +194,16 @@ enddef
 
 export def LiveGrep()
   if !executable('rg')
-    Notify('rg is not installed')
+    util.Notify('rg is not installed', true)
     return
   endif
   ui.Open({
     title: 'Live Grep',
     search_async: GrepAsync,
-    format: (r) => printf('%s:%d:%d: %s', r.file, r.lnum, r.col, r.text),
+    format: (r) => util.LocationText(r.file, r.lnum, r.col, r.text),
     preview: (r) => ({file: r.file, lnum: r.lnum, col: r.col}),
-    select: OpenMatch,
+    select: util.OpenLocation,
   })
-enddef
-
-def OpenMatch(r: dict<any>)
-  execute 'edit' fnameescape(r.file)
-  cursor(min([r.lnum, line('$')]), max([r.col, 1]))
-  normal! zz
 enddef
 
 # ---------------------------------------------------------------------------
@@ -206,9 +218,7 @@ export def FindBuffers()
   ui.Open({
     title: 'Find Buffers',
     initial_results: buffers,
-    # Through call(): Vim 9.0 types matchfuzzy() as returning strings even
-    # for a list of dicts, so a direct call fails to compile there.
-    search: (query) => empty(query) ? buffers : call('matchfuzzy', [buffers, query, {key: 'display'}]),
+    search: (query) => empty(query) ? buffers : util.FuzzyByKey(buffers, query, 'display'),
     format: (b) => b.display,
     preview: (b) => ({file: b.path}),
     select: (b) => {
