@@ -5,7 +5,7 @@ vim9script
 # changed show as not committed yet.
 
 import autoload './repo.vim'
-import autoload './actions.vim'
+import autoload './util.vim'
 
 # The fields of `git blame --porcelain` for one line: {commit, author,
 # author-time, summary, ...}.
@@ -51,24 +51,16 @@ export def ForLine(state: dict<any>, lnum: number): list<string>
   const result = repo.Git(state.root, ['blame', '--porcelain', '-L', $'{lnum},{lnum}',
     '--contents', '-', '--', state.relpath], contents)
   if !result.ok
-    actions.Warn($'git blame failed: {trim(result.output)}')
+    util.Warn($'git blame failed: {trim(result.error)}')
     return []
   endif
   return Lines(state.root, ParsePorcelain(split(result.output, "\n")))
 enddef
 
-export def Blame()
-  const state = actions.Tracked()
-  if empty(state)
-    return
-  endif
+export def Blame(state: dict<any>)
   const lines = ForLine(state, line('.'))
   if empty(lines)
     return
   endif
-  popup_atcursor(lines, {
-    border: [],
-    borderchars: ['─', '│', '─', '│', '╭', '╮', '╯', '╰'],
-    padding: [0, 1, 0, 1],
-  })
+  popup_atcursor(lines, util.POPUP)
 enddef

@@ -10,6 +10,7 @@ import autoload './hunks/signs.vim'
 import autoload './hunks/actions.vim'
 import autoload './hunks/stage.vim'
 import autoload './hunks/blame.vim'
+import autoload './hunks/util.vim'
 
 # bufnr -> {
 #   path, root, relpath      the file, its repository, its path in there
@@ -18,11 +19,19 @@ import autoload './hunks/blame.vim'
 #                            with a newline, and whether its lines end with
 #                            CRLF; missing until fetched
 #   hunks                    from the last diff
+#   tick                     the changedtick `hunks` are for; -1 after a
+#                            fetch, until diffed against the new base
+#   diff_tick                the changedtick last diffed, done or not
 #   fetch_seq, fetch_job     the latest fetch; an older one is ignored
 #   fetching                 while a fetch is running, so the commands wait
 #                            for it rather than act on the old base
 # }
 var bufs: dict<dict<any>> = {}
+
+# bufnr -> {path, stamp, base_name} of a fetch that failed (a file that
+# isn't tracked, or not at that base), so it isn't tried again until one of
+# them changes.
+var failed: dict<dict<any>> = {}
 
 var enabled = true
 
@@ -52,13 +61,15 @@ def Detach(bufnr: number)
     endif
     remove(bufs, bufnr)
   endif
+  if has_key(failed, bufnr)
+    remove(failed, bufnr)
+  endif
   signs.Clear(bufnr)
   differ.Forget(bufnr)
 enddef
 
 # Diff the buffer against its base and place the signs. Skipped while the
-# base is still being fetched. state.tick is the changedtick the hunks are
-# for, and state.diff_tick the one last asked for.
+# base is still being fetched.
 export def Update(bufnr: number)
   const state = State(bufnr)
   if empty(state) || !bufloaded(bufnr)
@@ -66,12 +77,7 @@ export def Update(bufnr: number)
   endif
   const tick = getbufvar(bufnr, 'changedtick')
   state.diff_tick = tick
-  var lines = getbufline(bufnr, 1, '$')
-  # An empty buffer still has one empty line.
-  if lines == [''] && empty(state.base)
-    lines = []
-  endif
-  differ.Hunks(bufnr, state.base, lines, (hunks) => {
+  differ.Hunks(bufnr, state.base, util.Lines(bufnr, state.base), (hunks) => {
     # Drop a result that a later edit or fetch has overtaken.
     if State(bufnr) isnot state || getbufvar(bufnr, 'changedtick') != tick
       return
@@ -86,7 +92,8 @@ enddef
 
 # The state with hunks for the buffer as it is now, for the commands: diffs
 # if needed and waits for it (a few ms with the job backend, up to a second
-# while the base is fetched). {} when the buffer isn't tracked.
+# while the base is fetched). {} when the buffer isn't tracked, or the wait
+# runs out.
 export def Current(bufnr: number): dict<any>
   for _ in range(200)
     if !has_key(bufs, bufnr)
@@ -107,6 +114,19 @@ export def Current(bufnr: number): dict<any>
   return {}
 enddef
 
+# The current buffer's state for a command, as Current(), or {} after a
+# warning.
+def Tracked(): dict<any>
+  const bufnr = bufnr()
+  const state = Current(bufnr)
+  if empty(state)
+    util.Warn(has_key(bufs, bufnr)
+      ? "git hasn't answered yet, try again in a moment"
+      : 'this buffer is not tracked by git')
+  endif
+  return state
+enddef
+
 # Fetch the base if it may have changed, else just diff again (unless
 # `diff_anyway` is false: a CursorHold only checks for a new base).
 export def Refresh(bufnr: number, force = false, diff_anyway = true)
@@ -119,16 +139,21 @@ export def Refresh(bufnr: number, force = false, diff_anyway = true)
 
   const stamp = repo.Stamp(root)
   const base_name = BaseName()
+  if !force && failed->get(bufnr, {}) == {path: path, stamp: stamp, base_name: base_name}
+    return
+  endif
   var state = bufs->get(bufnr, {})
-  if !force && !empty(state) && state.path == path && state.stamp == stamp
-      && state.base_name == base_name
+  if !force && !empty(state) && state.path == path && state.root == root
+      && state.stamp == stamp && state.base_name == base_name
     if diff_anyway
       Update(bufnr)
     endif
     return
   endif
 
-  if empty(state) || state.path != path
+  # A new state for another file, or the same one in another repository
+  # (after a `git init` in a directory above it).
+  if empty(state) || state.path != path || state.root != root
     state = {path: path, root: root, relpath: strpart(path, len(root) + 1),
              hunks: [], fetch_seq: 0}
     bufs[bufnr] = state
@@ -162,6 +187,7 @@ export def Refresh(bufnr: number, force = false, diff_anyway = true)
       # Not at the base, e.g. untracked: no signs.
       if bufs->get(bufnr, {}) is state && state.fetch_seq == seq
         Detach(bufnr)
+        failed[bufnr] = {path: path, stamp: state.stamp, base_name: base_name}
       endif
     })
 enddef
@@ -202,81 +228,115 @@ export def Toggle()
 enddef
 
 # Compare every buffer against `name` from now on: 'index', or a revision
-# such as HEAD or main~2. Without a name, show the current one.
+# such as HEAD or main~2. Without a name, show the current one. A revision
+# is looked up in the repositories of the current buffer and the tracked
+# ones: refused when none has it, else a warning names those that don't
+# (their buffers get no signs).
 export def SetBase(name: string)
   if empty(name)
     echo $'hunks: the base is {BaseName()}'
     return
   endif
-  const path = Path(bufnr())
-  const root = empty(path) ? '' : repo.Root(path)
-  if name != 'index' && !empty(root)
-    if !repo.Git(root, ['rev-parse', '--verify', '--quiet', $'{name}^{{commit}}']).ok
-      actions.Warn($'no such revision: {name}')
+  var missing: list<string> = []
+  if name != 'index'
+    const path = Path(bufnr())
+    var roots = values(bufs)->mapnew((_, s) => s.root)
+    roots->add(empty(path) ? '' : repo.Root(path))
+    roots = roots->filter((_, r) => !empty(r))->sort()->uniq()
+    missing = roots->copy()->filter((_, r) =>
+      !repo.Git(r, ['rev-parse', '--verify', '--quiet', $'{name}^{{commit}}']).ok)
+    if !empty(roots) && missing == roots
+      util.Warn($'no such revision: {name}')
       return
     endif
   endif
   g:hunks_base = name
   RefreshAll()
-  echo $'hunks: the base is {name}'
+  if empty(missing)
+    echo $'hunks: the base is {name}'
+  else
+    util.Warn($'the base is {name}, which {join(missing, ", ")} lacks: no signs there')
+  endif
 enddef
 
-# Each subcommand takes the arguments after its name and the command's
-# range: Handler(args, line1, line2, has_range).
+# Each subcommand takes the current buffer's state, the arguments after its
+# name and the command's range: Handler(state, args, line1, line2,
+# has_range). Without a range, line1 and line2 are the cursor line.
 const COMMANDS: dict<func> = {
-  toggle: (_, _, _, _) => {
+  toggle: (_, _, _, _, _) => {
     Toggle()
   },
-  refresh: (_, _, _, _) => {
+  refresh: (_, _, _, _, _) => {
     Refresh(bufnr(), true)
   },
-  next: (args, _, _, _) => {
-    actions.Nav(true, str2nr(get(args, 0, '1')))
+  next: (state, args, _, _, _) => {
+    actions.Nav(state, true, str2nr(get(args, 0, '1')))
   },
-  prev: (args, _, _, _) => {
-    actions.Nav(false, str2nr(get(args, 0, '1')))
+  prev: (state, args, _, _, _) => {
+    actions.Nav(state, false, str2nr(get(args, 0, '1')))
   },
-  preview: (_, _, _, _) => {
-    actions.Preview()
+  preview: (state, _, _, _, _) => {
+    actions.Preview(state)
   },
-  reset: (_, line1, line2, has_range) => {
-    actions.Reset(line1, line2, has_range)
+  reset: (state, _, line1, line2, has_range) => {
+    if actions.Reset(state, line1, line2, has_range)
+      Update(bufnr())
+    endif
   },
-  diffthis: (_, _, _, _) => {
-    actions.DiffThis()
+  diffthis: (state, _, _, _, _) => {
+    actions.DiffThis(state)
   },
-  stage: (_, line1, line2, has_range) => {
-    stage.Stage(line1, line2, has_range)
+  stage: (state, _, line1, line2, has_range) => {
+    if stage.Stage(state, line1, line2, has_range)
+      Refresh(bufnr(), true)
+    endif
   },
-  undo_stage: (_, _, _, _) => {
-    stage.UndoStage()
+  undo_stage: (state, _, _, _, _) => {
+    if stage.UndoStage(state)
+      Refresh(bufnr(), true)
+    endif
   },
-  blame: (_, _, _, _) => {
-    blame.Blame()
+  blame: (state, _, _, _, _) => {
+    blame.Blame(state)
   },
-  base: (args, _, _, _) => {
+  base: (_, args, _, _, _) => {
     SetBase(get(args, 0, ''))
   },
 }
+
+# The subcommands that work on the buffer's hunks: they get its state, and
+# don't run when it isn't tracked. The others get {}.
+const ON_HUNKS = ['next', 'prev', 'preview', 'reset', 'diffthis', 'stage', 'undo_stage', 'blame']
 
 export def Command(args: string, line1: number, line2: number, has_range: bool)
   const words = split(args)
   const name = get(words, 0, '')
   if !has_key(COMMANDS, name)
-    echohl ErrorMsg
-    echomsg $'hunks: unknown command "{name}", try one of: {keys(COMMANDS)->sort()->join(", ")}'
-    echohl None
+    util.Warn($'unknown command "{name}", try one of: {keys(COMMANDS)->sort()->join(", ")}')
     return
   endif
-  COMMANDS[name](words[1 :], line1, line2, has_range)
+  var state: dict<any> = {}
+  if index(ON_HUNKS, name) >= 0
+    state = Tracked()
+    if empty(state)
+      return
+    endif
+  endif
+  COMMANDS[name](state, words[1 :], line1, line2, has_range)
 enddef
 
 export def Complete(arg_lead: string, cmd_line: string, _: number): list<string>
-  var choices = keys(COMMANDS)->sort()
-  if cmd_line =~ '\<Hunks\s\+base\s'
+  # The words before the one being completed, after the command's name,
+  # which may be abbreviated (:Hun) and have a range.
+  var words = cmd_line->substitute('^[[:space:]:]*\S*', '', '')->split()
+  if !empty(arg_lead)
+    words = words[: -2]
+  endif
+  var choices: list<string> = []
+  if empty(words)
+    choices = keys(COMMANDS)->sort()
+  elseif words == ['base']
     choices = ['index', 'HEAD']
-  elseif cmd_line =~ '\<Hunks\s\+\S\+\s'
-    return []
   endif
   return choices->filter((_, c) => stridx(c, arg_lead) == 0)
 enddef
@@ -289,14 +349,15 @@ export def Setup()
   signs.Define()
   augroup hunks
     autocmd!
+    # A `git init` from a shell can put a path in a repository: forget the
+    # roots before the Refresh below, which runs after this.
+    autocmd FocusGained,ShellCmdPost * repo.ForgetRoots()
     autocmd BufReadPost,BufWritePost,BufFilePost * Refresh(str2nr(expand('<abuf>')))
     autocmd BufEnter,FocusGained,ShellCmdPost * Refresh(bufnr())
     # Catches a `git add` or commit made outside Vim.
     autocmd CursorHold * Refresh(bufnr(), false, false)
-    autocmd TextChanged,TextChangedI,InsertLeave * Schedule(bufnr())
+    autocmd TextChanged,TextChangedI,TextChangedP,InsertLeave * Schedule(bufnr())
     autocmd BufWipeout * Detach(str2nr(expand('<abuf>')))
-    # A `git init` from a shell can put a path in a repository.
-    autocmd FocusGained,ShellCmdPost * repo.ForgetRoots()
     autocmd ColorScheme * signs.Highlights()
   augroup END
 enddef

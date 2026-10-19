@@ -1,39 +1,11 @@
 vim9script
 
 # Working with the hunks of the current buffer: jump between them, preview
-# one, reset one to the base, and diff the whole file.
+# one, reset one to the base, and diff the whole file. Each takes the
+# current buffer's state, with its hunks up to date (hunks#Current()).
 
 import autoload './differ.vim'
-
-export def Warn(msg: string)
-  echohl WarningMsg
-  echo $'hunks: {msg}'
-  echohl None
-enddef
-
-# The current buffer's state with hunks up to date, or {} after a warning.
-export def Tracked(): dict<any>
-  const state = hunks#Current(bufnr())
-  if empty(state)
-    Warn('this buffer is not tracked by git')
-  endif
-  return state
-enddef
-
-# The hunks shown on lines line1 to line2.
-export def Within(hunks: list<dict<number>>, line1: number, line2: number): list<dict<number>>
-  return hunks->copy()->filter((_, h) => {
-    const [first, last] = differ.Span(h)
-    return first <= line2 && last >= line1
-  })
-enddef
-
-# The hunks a command acts on: those in its range, else the one on the
-# cursor line.
-export def Chosen(hunks: list<dict<number>>, line1: number, line2: number,
-    has_range: bool): list<dict<number>>
-  return has_range ? Within(hunks, line1, line2) : Within(hunks, line('.'), line('.'))
-enddef
+import autoload './util.vim'
 
 # ---------------------------------------------------------------------------
 # ]c / [c
@@ -41,14 +13,10 @@ enddef
 
 # Jump `count` hunks forward or back from the cursor, wrapping around the
 # file when 'wrapscan' is set.
-export def Nav(forward: bool, count: number)
-  const state = Tracked()
-  if empty(state)
-    return
-  endif
+export def Nav(state: dict<any>, forward: bool, count: number)
   const starts = state.hunks->mapnew((_, h) => differ.Span(h)[0])
   if empty(starts)
-    Warn('no hunks')
+    util.Warn('no hunks')
     return
   endif
   var lnum = line('.')
@@ -68,7 +36,7 @@ export def Nav(forward: bool, count: number)
       index = forward ? 0 : len(starts) - 1
     endif
     if index < 0
-      Warn($'no more hunks {forward ? "below" : "above"}')
+      util.Warn($'no more hunks {forward ? "below" : "above"}')
       return
     endif
     lnum = starts[index]
@@ -102,21 +70,13 @@ export def DiffLines(state: dict<any>, h: dict<number>): list<string>
 enddef
 
 # Show the hunk on the cursor line in a popup, closed when the cursor moves.
-export def Preview()
-  const state = Tracked()
-  if empty(state)
-    return
-  endif
-  const found = Within(state.hunks, line('.'), line('.'))
+export def Preview(state: dict<any>)
+  const found = differ.Within(state.hunks, line('.'), line('.'))
   if empty(found)
-    Warn('no hunk on this line')
+    util.Warn('no hunk on this line')
     return
   endif
-  const winid = popup_atcursor(DiffLines(state, found[0]), {
-    border: [],
-    borderchars: ['─', '│', '─', '│', '╭', '╮', '╯', '╰'],
-    padding: [0, 1, 0, 1],
-  })
+  const winid = popup_atcursor(DiffLines(state, found[0]), util.POPUP)
   win_execute(winid, 'setlocal filetype=diff')
 enddef
 
@@ -125,16 +85,15 @@ enddef
 # ---------------------------------------------------------------------------
 
 # Put the base's lines back for the hunks in the range, or the one on the
-# cursor line: one change, so `u` undoes it.
-export def Reset(line1: number, line2: number, has_range: bool)
-  const state = Tracked()
-  if empty(state)
-    return
-  endif
-  const chosen = Chosen(state.hunks, line1, line2, has_range)
+# cursor line (line1 and line2 without a range): one change, so `u` undoes
+# it. Returns whether anything was reset.
+export def Reset(state: dict<any>, line1: number, line2: number, has_range: bool): bool
+  # Not const: its type is unknown until differ.vim loads, and Vim then
+  # refuses the reverse() below even on a copy.
+  var chosen = differ.Within(state.hunks, line1, line2)
   if empty(chosen)
-    Warn(has_range ? 'no hunks in the range' : 'no hunk on this line')
-    return
+    util.Warn(has_range ? 'no hunks in the range' : 'no hunk on this line')
+    return false
   endif
   const bufnr = bufnr()
   # From the bottom up, so the hunks above keep their line numbers.
@@ -152,7 +111,7 @@ export def Reset(line1: number, line2: number, has_range: bool)
       endif
     endif
   endfor
-  hunks#Update(bufnr)
+  return true
 enddef
 
 # ---------------------------------------------------------------------------
@@ -160,19 +119,20 @@ enddef
 # ---------------------------------------------------------------------------
 
 # The base in a split on the left, read-only, in diff mode with the buffer.
-# Wiping it out (:q) turns diff mode off in the buffer's window.
-export def DiffThis()
-  const state = Tracked()
-  if empty(state)
-    return
-  endif
+# Wiping it out (:q) turns diff mode off in the buffer's window. A base
+# split already open for the file is replaced.
+export def DiffThis(state: dict<any>)
+  const name = $'hunks://{state.base_name}/{state.relpath}'
+  for b in getbufinfo()->filter((_, b) => b.name == name)
+    execute $'bwipeout {b.bufnr}'
+  endfor
   const filetype = &filetype
   const winid = win_getid()
   vertical leftabove new
   setline(1, state.base)
   setlocal buftype=nofile bufhidden=wipe noswapfile nomodifiable
   &l:filetype = filetype
-  silent! execute 'file' fnameescape($'hunks://{state.base_name}/{state.relpath}')
+  silent! execute 'file' fnameescape(name)
   diffthis
   execute $'autocmd BufWipeout <buffer> ++once win_execute({winid}, "diffoff")'
   win_gotoid(winid)
