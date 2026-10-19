@@ -107,22 +107,31 @@ function M.move(from, to)
     if ok then
       ok = vim.fn.delete(from, "rf") == 0
       err = "copied, but could not delete the original"
+    else
+      -- Don't leave half a copy; `to` didn't exist, so it is all ours.
+      vim.fn.delete(to, "rf")
     end
   end
   return ok, err
 end
 
-local function trash_dir()
+function M.trash_dir()
   return vim.fn.stdpath("data") .. "/files.nvim/trash"
 end
 
+-- Whether deleting `path` moves it to the trash. In the trash itself it
+-- deletes for good, which is how the trash is emptied.
+function M.to_trash(path)
+  return config.options.trash and not vim.startswith(path, M.trash_dir() .. "/")
+end
+
 function M.delete(path)
-  if not config.options.trash then
+  if not M.to_trash(path) then
     return vim.fn.delete(path, "rf") == 0, "delete failed"
   end
   -- Unique names, so deleting a.txt twice keeps both.
   local to = ("%s/%s.%d"):format(
-    trash_dir(),
+    M.trash_dir(),
     vim.fs.basename(path),
     uv.hrtime()
   )

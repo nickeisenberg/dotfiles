@@ -1,6 +1,7 @@
 -- Directory buffers, named files:///abs/dir/: one line per entry, "/12
 -- name" with the number hidden, and a trailing / on directories.
 
+local config = require("files.config")
 local fs = require("files.fs")
 local index = require("files.index")
 
@@ -50,13 +51,20 @@ function M.parse(line)
   -- The space after the number may have been deleted; no name starts with
   -- a /, so the number is still the number.
   local id, rest = line:match("^/(%d+) ?(.*)$")
-  local name = vim.trim(rest or line)
+  id = tonumber(id)
+  -- A name as read from disk is kept exactly ("a " stays "a "); one you
+  -- typed is trimmed.
+  local name = rest or line
+  local path = id and index.path(id)
+  if not (path and name:gsub("/+$", "") == vim.fs.basename(path)) then
+    name = vim.trim(name)
+  end
   if name == "" then
     return nil
   end
   local dir = name:sub(-1) == "/"
   name = name:gsub("/+$", "")
-  return { id = tonumber(id), name = name, dir = dir, parent = name == ".." }
+  return { id = id, name = name, dir = dir, parent = name == ".." }
 end
 
 -- The path a line of the current buffer stands for, or nil when it is new
@@ -111,6 +119,18 @@ function M.render(bufnr)
     return false, err
   end
 
+  -- A buffer line can't hold a newline, so a name with one is left out
+  -- (said once, not on every re-read).
+  local shown = vim.tbl_filter(function(e)
+    return not e.name:find("\n")
+  end, entries)
+  if #shown < #entries and not buffers[bufnr] then
+    config.notify(
+      ("%s: not showing names with a newline"):format(dir),
+      vim.log.levels.WARN
+    )
+  end
+
   local win = vim.fn.bufwinid(bufnr)
   local row = win ~= -1 and vim.api.nvim_win_get_cursor(win)[1] or 1
   local line = vim.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
@@ -122,7 +142,7 @@ function M.render(bufnr)
   if dir ~= "/" then
     lines[1] = "../"
   end
-  for _, e in ipairs(entries) do
+  for _, e in ipairs(shown) do
     local id = index.id(dir == "/" and "/" .. e.name or dir .. "/" .. e.name)
     ids[#ids + 1] = id
     lines[#lines + 1] = ("/%d %s%s"):format(id, e.name, e.dir and "/" or "")

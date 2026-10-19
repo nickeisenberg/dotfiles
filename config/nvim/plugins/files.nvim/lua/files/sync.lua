@@ -134,12 +134,28 @@ local function describe(a)
     return ("%-7s %s%s"):format(
       what,
       short(a.from),
-      config.options.trash and "  (to trash)" or ""
+      fs.to_trash(a.from) and "  (to trash)" or ""
     )
   elseif a.action == "create" then
     return ("%-7s %s%s"):format(what, short(a.to), a.dir and "/" or "")
   end
   return ("%-7s %s -> %s"):format(what, short(a.from), short(a.to))
+end
+
+-- Rename a buffer. Like :file, that leaves an unlisted buffer under the
+-- old name behind, which would show up as the alternate file; wipe it.
+local function set_name(bufnr, name)
+  local old = vim.api.nvim_buf_get_name(bufnr)
+  vim.api.nvim_buf_set_name(bufnr, name)
+  -- Compared by name, not with bufnr(), which reads the name as a pattern.
+  for _, left in ipairs(vim.api.nvim_list_bufs()) do
+    if
+      vim.api.nvim_buf_get_name(left) == old
+      and not vim.api.nvim_buf_is_loaded(left)
+    then
+      vim.api.nvim_buf_delete(left, { force = true })
+    end
+  end
 end
 
 -- Point open buffers of a moved file, or files in a moved directory, at
@@ -148,7 +164,7 @@ local function rename_buffers(from, to)
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     local name = vim.api.nvim_buf_get_name(bufnr)
     if vim.bo[bufnr].buftype == "" and (name == from or inside(name, from)) then
-      vim.api.nvim_buf_set_name(bufnr, to .. name:sub(#from + 1))
+      set_name(bufnr, to .. name:sub(#from + 1))
       if vim.bo[bufnr].modified then
         config.notify(
           ("%s has unsaved changes; :w! saves them at its new path"):format(
@@ -233,7 +249,7 @@ local function rerender(actions)
       if dir == a.from or inside(dir, a.from) then
         dir = a.to .. dir:sub(#a.from + 1)
         -- Fails if a buffer already has that name; then this one is gone.
-        if not pcall(vim.api.nvim_buf_set_name, bufnr, view.name(dir)) then
+        if not pcall(set_name, bufnr, view.name(dir)) then
           dir = ""
         end
       end

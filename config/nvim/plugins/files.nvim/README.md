@@ -26,7 +26,9 @@ which is what makes a move across directories work. Save after pasting,
 not between: saving after just the `dd` deletes the file.
 
 Deleted entries go to `stdpath("data")/files.nvim/trash` (with a number
-added to the name), unless `trash = false`. Nothing is ever overwritten:
+added to the name), unless `trash = false`. `:FilesTrash` opens it as a
+directory buffer: move an entry out to restore it, delete one there to
+delete it for good. Nothing is ever overwritten:
 a change whose target exists, two entries with the same name, or a
 rename onto a path that is itself being renamed is refused, and nothing
 happens.
