@@ -144,11 +144,19 @@ function M.diff(bufnr, root, path)
 
   local tick = vim.b[bufnr].changedtick
   if d.tick ~= tick then
+    -- `git show` text has LF endings (vim.system's text mode drops CRs);
+    -- end the buffer's text the way the file was read.
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    d.counts = count(d.base, table.concat(lines, "\n") .. "\n")
+    local eol = vim.bo[bufnr].eol and "\n" or ""
+    d.counts = count(d.base, table.concat(lines, "\n") .. eol)
     d.tick = tick
   end
   return d.counts
+end
+
+---@param ev table the BufWipeout autocmd event
+function M.on_wipeout(ev)
+  diffs[ev.buf] = nil
 end
 
 return M
