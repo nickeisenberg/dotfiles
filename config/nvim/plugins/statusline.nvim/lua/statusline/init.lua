@@ -6,6 +6,7 @@
 -- g:statusline_winid to draw each window from its own buffer.
 
 local config = require("statusline.config")
+local git = require("statusline.git")
 local highlights = require("statusline.highlights")
 local lsp = require("statusline.lsp")
 local parts = require("statusline.parts")
@@ -94,6 +95,7 @@ function M.setup(opts)
   on({ "DiagnosticChanged", "LspAttach", "FocusGained" }, redraw)
   -- Changed-line counts follow edits.
   on({ "TextChanged", "TextChangedI", "BufWritePost" }, redraw)
+  on("BufWipeout", git.on_wipeout)
 
   vim.o.statusline = "%!v:lua.require'statusline'.render()"
 end
