@@ -146,6 +146,20 @@ enddef
 # Writing the result back
 # ---------------------------------------------------------------------------
 
+# exists('*diff') isn't enough: a Vim built without the internal diff
+# (Apple's /usr/bin/vim, no "internal" in 'diffopt') has diff() but it
+# returns 0, so call it once and check for a list.
+def DiffWorks(): bool
+  try
+    return exists('*diff')
+      && type(call('diff', [['a'], ['b'], {output: 'indices'}])) == v:t_list
+  catch
+    return false
+  endtry
+enddef
+
+const HAS_DIFF = DiffWorks()
+
 # Replace the buffer's lines with `new` by applying a line diff, so marks,
 # folds, signs and the cursor on untouched lines stay put. A Vim without
 # diff() (before 9.1.0071) replaces every line instead.
@@ -154,7 +168,7 @@ def Apply(bufnr: number, new: list<string>)
   if old == new
     return
   endif
-  if !exists('*diff')
+  if !HAS_DIFF
     setbufline(bufnr, 1, new)
     if len(old) > len(new)
       deletebufline(bufnr, len(new) + 1, len(old))

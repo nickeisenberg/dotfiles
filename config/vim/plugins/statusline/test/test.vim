@@ -8,6 +8,16 @@ vim9script
 
 const OUT = $STATUSLINE_TEST_OUT
 const PLUGIN = expand('<sfile>:p:h:h')
+# As in the plugin: Apple's /usr/bin/vim has a diff() that returns 0.
+def DiffWorks(): bool
+  try
+    return exists('*diff')
+      && type(call('diff', [['a'], ['b'], {output: 'indices'}])) == v:t_list
+  catch
+    return false
+  endtry
+enddef
+const HAS_DIFF = DiffWorks()
 
 &runtimepath = $'{PLUGIN},{&runtimepath}'
 runtime plugin/statusline.vim
@@ -88,7 +98,7 @@ def Test_untracked()
   execute 'edit' fnameescape($'{REPO}/untracked.txt')
   # `git diff` finds no changes in an untracked file; nothing is shown
   # either way.
-  const untracked = exists('*diff') ? {} : NONE
+  const untracked = HAS_DIFF ? {} : NONE
   Expect(untracked, 'untracked')
   # A second past the index's last change, so the failure is remembered.
   sleep 1100m
@@ -140,7 +150,7 @@ def Test_eol()
   Open('noeol.txt', ['1', '2'], 'b')
   assert_false(&eol)
   # 'fixeol' adds the newline when written.
-  Expect(exists('*diff') ? {added: 0, changed: 1, removed: 0} : NONE, 'before the write')
+  Expect(HAS_DIFF ? {added: 0, changed: 1, removed: 0} : NONE, 'before the write')
   silent write
   assert_false(&eol, "'eol' stays unset after the write")
   Expect({added: 0, changed: 1, removed: 0}, 'newline added')
@@ -151,7 +161,7 @@ def Test_eol()
 enddef
 
 def Test_no_fetch_on_write()
-  if !exists('*diff')
+  if !HAS_DIFF
     return
   endif
   Open('write.txt', ['1'])

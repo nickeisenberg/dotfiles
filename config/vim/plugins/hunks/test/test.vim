@@ -8,9 +8,19 @@ vim9script
 
 const OUT = $HUNKS_TEST_OUT
 const PLUGIN = expand('<sfile>:p:h:h')
+# As in the plugin: Apple's /usr/bin/vim has a diff() that returns 0.
+def DiffWorks(): bool
+  try
+    return exists('*diff')
+      && type(call('diff', [['a'], ['b'], {output: 'indices'}])) == v:t_list
+  catch
+    return false
+  endtry
+enddef
+const HAS_DIFF = DiffWorks()
 
 g:hunks_diff = $HUNKS_TEST_DIFF
-if g:hunks_diff == 'builtin' && !exists('*diff')
+if g:hunks_diff == 'builtin' && !HAS_DIFF
   writefile(['SKIP no diff() in this Vim'], OUT)
   qall!
 endif
@@ -242,7 +252,7 @@ enddef
 
 # Both backends give the same hunks: the check that keeps the swap honest.
 def Test_backends_agree()
-  if !exists('*diff')
+  if !HAS_DIFF
     return
   endif
   const base = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']

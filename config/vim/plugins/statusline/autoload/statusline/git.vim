@@ -13,7 +13,19 @@ vim9script
 # without diff() (before 9.1.0071) counts from `git diff` instead, so the
 # counts follow the saved file rather than the buffer.
 
-const HAS_DIFF = exists('*diff')
+# exists('*diff') isn't enough: a Vim built without the internal diff
+# (Apple's /usr/bin/vim, no "internal" in 'diffopt') has diff() but it
+# returns 0, so call it once and check for a list.
+def DiffWorks(): bool
+  try
+    return exists('*diff')
+      && type(call('diff', [['a'], ['b'], {output: 'indices'}])) == v:t_list
+  catch
+    return false
+  endtry
+enddef
+
+const HAS_DIFF = DiffWorks()
 
 # Called when a buffer's counts change, to redraw; set by Setup().
 def Nothing()

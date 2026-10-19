@@ -92,6 +92,28 @@ def LspReady(): bool
   endtry
 enddef
 
+# Wait for the server's reply to the request in flight, if any, for up to
+# a second (about what Vim allows function sources; see
+# 'autocompletetimeout'). False when a key is typed first: Vim asks again
+# on the next key. (The omnifunc's own wait gives up as soon as
+# complete_check() is true, which during autocompletion is almost at once.)
+def WaitForReply(): bool
+  const started = reltime()
+  while g:LspOmniCompletePending()
+    if getchar(1) != 0
+      return false
+    endif
+    if reltimefloat(reltime(started)) >= 1.0
+      # No reply coming; don't wait on it again.
+      var server = lsp#buffer#CurbufGetServer('completion')
+      server.omniCompletePending = false
+      return true
+    endif
+    sleep 2m
+  endwhile
+  return true
+enddef
+
 # yegappan/lsp's omnifunc, as a 'complete' source. It skips buffers whose
 # server is missing or still starting (the omnifunc would print an error on
 # every key), and shortens long items: one long name, like an auto-import
@@ -101,24 +123,31 @@ export def Lsp(findstart: number, base: string): any
     return findstart ? -3 : []
   endif
 
-  if findstart
-    const start = g:LspOmniFunc(findstart, base)
-    # Vim leaves the source out on both -2 and -3, but after -2 a source
-    # that returned {refresh: 'always'} is still asked again as you type.
-    return start == -2 ? -3 : start
-  endif
-
-  # The omnifunc gives up as soon as complete_check() is true, which during
-  # autocompletion is almost at once. Wait for the reply here instead, for
-  # up to a second (about what Vim allows function sources; see
-  # 'autocompletetimeout'), stopping early when a key is typed.
-  const started = reltime()
-  while g:LspOmniCompletePending() && reltimefloat(reltime(started)) < 1.0
-    if getchar(1) != 0
+  if !findstart
+    # The reply came in during the first call (see below); if it didn't,
+    # leave the source out.
+    if g:LspOmniCompletePending()
       return v:none
     endif
-    sleep 2m
-  endwhile
+  else
+    # yegappan/lsp takes any completion reply as the answer to the latest
+    # request, so a request still out from an earlier key (say, globals for
+    # "o" when "os." is typed) would fill the menu. Let it land first.
+    if !WaitForReply()
+      return -3
+    endif
+    const start = g:LspOmniFunc(findstart, base)
+    if start < 0
+      # Vim leaves the source out on both -2 and -3, but after -2 a source
+      # that returned {refresh: 'always'} is still asked again as you type.
+      return -3
+    endif
+    # Wait for the reply here, not in the second call: by then Vim has
+    # taken the typed word out of the buffer ("import o" is "import "), and
+    # yegappan/lsp sends that to the server, which may answer for it.
+    return WaitForReply() ? start : -3
+  endif
+
   var result = g:LspOmniFunc(findstart, base)
   if type(result) != v:t_list
     return result
