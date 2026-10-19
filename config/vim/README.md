@@ -76,8 +76,8 @@ The options for each plugin are listed at the top of its
 
 | Vim | What you get |
 |---|---|
-| 9.2, and 9.1.1590+ | everything |
-| 9.1.0071 to 9.1.1589 | completion uses the lsp engine: no path completion as you type (`<C-x><C-f>` still works), and the menu shows names and kinds with details in the docs popup |
+| 9.2, and 9.1.1638+ | everything |
+| 9.1.0071 to 9.1.1637 | completion uses the lsp engine: no path completion as you type (`<C-x><C-f>` still works), and the menu shows names and kinds with details in the docs popup |
 | 9.0 to 9.1.0070 | as above, and without `diff()`: the statusline counts follow the saved file instead of the buffer, formatting replaces every line instead of only the changed ones, and hunks diffs with `git diff` on temp files instead of in memory (same signs, a few ms later) |
 | older than 9.0 | one warning, nothing loaded |
 

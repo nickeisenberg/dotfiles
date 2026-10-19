@@ -1,63 +1,44 @@
 vim9script
 
-# Picks a completion engine and sets it up.
-#
-# Each engine is a script in autoload/completion/ that exports two
-# functions: Available(), true when it can run in this Vim, and Setup().
-#   builtin  Vim's 'autocomplete' with path, LSP and buffer sources
-#   lsp      yegappan/lsp's own completion, for Vims without 'autocomplete'
-#
-# g:completion_engine is 'auto' (the default: builtin when available, else
-# lsp), 'builtin' or 'lsp'.
+# Picks the engine named by g:completion_engine (see plugin/completion.vim)
+# and sets it up. Each engine is a script in autoload/completion/ that
+# exports Available(), true when it can run in this Vim, and Setup().
 
 import autoload './completion/builtin.vim'
 import autoload './completion/lsp.vim' as lsp_engine
 
-def Notify(msg: string)
+export def Notify(msg: string)
   echohl WarningMsg
   echomsg $'completion: {msg}'
   echohl None
 enddef
 
-# Options for yegappan/lsp that wait for it to load.
-var pending: dict<any> = {}
-
-def SetPending()
-  if exists('*g:LspOptionsSet')
-    g:LspOptionsSet(pending)
-  endif
-enddef
-
-# Hand options to yegappan/lsp, now or, when it isn't loaded yet, once Vim
-# has started. Option sets are merged, so the vimrc's own stay.
+# Hand options to yegappan/lsp. Option sets are merged, so the vimrc's own
+# stay. When it isn't loaded yet they go in g:lsp_options, which it reads
+# when it loads.
 export def LspOptions(opts: dict<any>)
   if exists('*g:LspOptionsSet')
     g:LspOptionsSet(opts)
-    return
+  else
+    g:lsp_options = get(g:, 'lsp_options', {})->extend(opts)
   endif
-  pending->extend(opts)
-  augroup completion_lsp_options
-    autocmd!
-    autocmd VimEnter * ++once SetPending()
-  augroup END
 enddef
 
 export def Setup()
-  const wanted = get(g:, 'completion_engine', 'auto')
+  var wanted = get(g:, 'completion_engine', 'auto')
+  if index(['auto', 'builtin', 'lsp'], wanted) < 0
+    Notify($'unknown engine "{wanted}"; using auto')
+    wanted = 'auto'
+  endif
 
-  if wanted == 'builtin' || wanted == 'auto'
+  if wanted != 'lsp'
     if builtin.Available()
       builtin.Setup()
       return
     endif
     if wanted == 'builtin'
-      Notify("this Vim has no 'autocomplete'; using the lsp engine")
+      Notify("this Vim's 'autocomplete' is missing or too old; using the lsp engine")
     endif
-  elseif wanted != 'lsp'
-    Notify($'unknown engine "{wanted}"; using auto')
-    g:completion_engine = 'auto'
-    Setup()
-    return
   endif
 
   if lsp_engine.Available()
