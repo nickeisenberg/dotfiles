@@ -38,6 +38,11 @@ class Timer:
     # -- lifecycle ---------------------------------------------------------
 
     def start(self) -> None:
+        if self.settings.confirm:
+            self._dialog = self.notifier.prompt(*self._prompt_text(WORK))
+            if self._dialog is not None:
+                self.pending = WORK
+                return
         self._enter(WORK, announce=True)
 
     def tick(self) -> None:
@@ -161,6 +166,8 @@ class Timer:
 
     def _prompt_text(self, phase: str) -> tuple[str, str, str]:
         d = format_duration(self.duration(phase))
+        if phase == WORK and self.phase == WORK:  # very first session
+            return "Take a break", f"Ready for {d} of work?", "Start Work"
         if phase == WORK:
             return "Break's over", f"Ready for {d} of work?", "Start Work"
         return "Work session done", f"Time for a {d} break.", "Start Break"

@@ -108,8 +108,20 @@ class TimerTests(unittest.TestCase):
         timer.update(rest=99)  # other phase: no effect on current countdown
         self.assertEqual(timer.remaining(), 100)
 
+    def test_confirm_waits_for_click_before_first_work(self):
+        timer, clock, notes = make(confirm=True)
+        self.assertEqual(timer.pending, WORK)
+        advance(timer, clock, 500)  # nothing happens until the click
+        self.assertEqual(timer.pending, WORK)
+        notes.dialog.clicked = True
+        timer.tick()
+        self.assertEqual((timer.phase, timer.pending, timer.cycle, timer.remaining()), (WORK, None, 1, 60))
+        self.assertEqual(notes.prompts, ["Start Work"])
+
     def test_confirm_waits_for_click(self):
         timer, clock, notes = make(confirm=True)
+        notes.dialog.clicked = True
+        timer.tick()
         advance(timer, clock, 60)
         self.assertEqual((timer.phase, timer.pending), (WORK, BREAK))
         advance(timer, clock, 500)  # nothing happens until the click
@@ -117,10 +129,11 @@ class TimerTests(unittest.TestCase):
         notes.dialog.clicked = True
         timer.tick()
         self.assertEqual((timer.phase, timer.pending, timer.remaining()), (BREAK, None, 10))
-        self.assertEqual(notes.prompts, ["Start Break"])
+        self.assertEqual(notes.prompts, ["Start Work", "Start Break"])
 
     def test_confirm_without_dialog_tool_falls_back_to_auto(self):
         timer, clock, _ = make(FakeNotifier(has_dialogs=False), confirm=True)
+        self.assertEqual((timer.phase, timer.pending), (WORK, None))
         advance(timer, clock, 60)
         self.assertEqual((timer.phase, timer.pending), (BREAK, None))
 
