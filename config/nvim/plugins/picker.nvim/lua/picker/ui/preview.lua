@@ -3,11 +3,26 @@ local M = {}
 -- Bound preview reads so large files do not get loaded in full.
 local MAX_BYTES = 256 * 1024
 
+-- Find the loaded buffer for a path. vim.fn.bufnr() would also accept
+-- a partial match, such as sub/init.lua for init.lua.
+function M.loaded_buf(path)
+  local name = vim.fn.fnamemodify(path, ":p")
+
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if
+      vim.api.nvim_buf_is_loaded(bufnr)
+      and vim.api.nvim_buf_get_name(bufnr) == name
+    then
+      return bufnr
+    end
+  end
+end
+
 function M.read_file(path)
-  local bufnr = vim.fn.bufnr(path)
+  local bufnr = M.loaded_buf(path)
 
   -- Prefer the loaded buffer so unsaved edits appear in the preview.
-  if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+  if bufnr then
     local line_count = vim.api.nvim_buf_line_count(bufnr)
 
     -- The offset just past the final line gives the buffer's byte size

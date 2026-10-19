@@ -1,12 +1,13 @@
 local ui = require("picker.ui")
+local previewer = require("picker.ui.preview")
 
 local M = {}
 
-local function get_line(file, line)
-  local bufnr = vim.fn.bufnr(file)
+local function get_line(file, line, cache)
+  local bufnr = previewer.loaded_buf(file)
 
   -- If the file is currently loaded, read from the live buffer.
-  if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+  if bufnr then
     local lines = vim.api.nvim_buf_get_lines(bufnr, line - 1, line, false)
 
     if lines[1] then
@@ -14,17 +15,18 @@ local function get_line(file, line)
     end
   end
 
-  -- Otherwise read from disk.
-  local ok, lines = pcall(vim.fn.readfile, file, "", line)
-
-  if ok and lines[line] then
-    return lines[line]
+  -- Otherwise read from disk, once per file for each request.
+  if not cache[file] then
+    local ok, lines = pcall(vim.fn.readfile, file)
+    cache[file] = ok and lines or {}
   end
 
-  return ""
+  -- readfile() turns NUL bytes into newlines, which buffer lines
+  -- cannot contain.
+  return (cache[file][line] or ""):gsub("\n", "\0")
 end
 
-local function location_to_item(location, encoding)
+local function location_to_item(location, encoding, cache)
   local uri = location.uri or location.targetUri
   local range = location.range or location.targetSelectionRange
 
@@ -34,7 +36,7 @@ local function location_to_item(location, encoding)
 
   local file = vim.uri_to_fname(uri)
   local line = range.start.line + 1
-  local raw = get_line(file, line)
+  local raw = get_line(file, line, cache)
   -- The server counts columns in its offset encoding (often UTF-16);
   -- Neovim counts bytes.
   local col = vim.str_byteindex(raw, encoding, range.start.character, false) + 1
@@ -53,6 +55,13 @@ local function location_to_item(location, encoding)
     col = col,
     text = text,
   }
+end
+
+-- The user may have moved on, for example to another picker, while
+-- the server was answering.
+local function moved_on(win, bufnr)
+  return vim.api.nvim_get_current_win() ~= win
+    or vim.api.nvim_get_current_buf() ~= bufnr
 end
 
 local function open_locations(title, items)
@@ -135,6 +144,7 @@ local function open_locations(title, items)
 end
 
 function M.references()
+  local win = vim.api.nvim_get_current_win()
   local bufnr = vim.api.nvim_get_current_buf()
 
   local clients = vim.lsp.get_clients({
@@ -158,6 +168,10 @@ function M.references()
   -- Only the client whose offset encoding built `params`; buf_request()
   -- would ask every attached server and open a picker for each answer.
   client:request("textDocument/references", params, function(err, result)
+    if moved_on(win, bufnr) then
+      return
+    end
+
     if err then
       vim.notify(
         "LSP references failed: " .. (err.message or tostring(err)),
@@ -172,9 +186,10 @@ function M.references()
     end
 
     local items = {}
+    local cache = {}
 
     for _, location in ipairs(result) do
-      local item = location_to_item(location, client.offset_encoding)
+      local item = location_to_item(location, client.offset_encoding, cache)
 
       if item then
         items[#items + 1] = item
@@ -191,6 +206,7 @@ function M.references()
 end
 
 function M.definitions()
+  local win = vim.api.nvim_get_current_win()
   local bufnr = vim.api.nvim_get_current_buf()
 
   local clients = vim.lsp.get_clients({
@@ -210,6 +226,10 @@ function M.definitions()
   -- Only the client whose offset encoding built `params`; buf_request()
   -- would ask every attached server and open a picker for each answer.
   client:request("textDocument/definition", params, function(err, result)
+    if moved_on(win, bufnr) then
+      return
+    end
+
     if err then
       vim.notify(
         "LSP definition failed: " .. (err.message or tostring(err)),
@@ -230,9 +250,10 @@ function M.definitions()
     end
 
     local items = {}
+    local cache = {}
 
     for _, location in ipairs(result) do
-      local item = location_to_item(location, client.offset_encoding)
+      local item = location_to_item(location, client.offset_encoding, cache)
 
       if item then
         items[#items + 1] = item
