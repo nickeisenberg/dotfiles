@@ -8,13 +8,15 @@ vim9script
 #   initial_results  results before anything is typed (optional)
 #   search           func(query): list, for sources that filter in Vim
 #   search_async     func(query, OnResults): func, for sources that stream
-#                    results; it calls OnResults(list) as they arrive and
-#                    returns a function that cancels the search
+#                    results; it calls OnResults(list, message) as they
+#                    arrive and returns a function that cancels the search.
+#                    A non-empty message is shown under the prompt.
 #   format           func(item): string, the text shown for a result
 #   preview          func(item): dict, {file, lnum, col} (lnum/col optional)
 #   select           func(item), run on <CR> after the picker closes
 
 import autoload './preview.vim'
+import autoload './util.vim'
 
 const SEARCH_DEBOUNCE_MS = 80
 const PREVIEW_DEBOUNCE_MS = 60
@@ -26,13 +28,30 @@ if empty(prop_type_get('PickerSelected'))
   prop_type_add('PickerSelected', {highlight: 'PmenuSel'})
 endif
 # The prompt's cursor: the real one stays in the window behind the popup.
-hlset([{name: 'PickerCursor', default: true, cterm: {reverse: true}, gui: {reverse: true}}])
+# Defined again after :colorscheme, which clears it.
+def DefineCursorHighlight()
+  hlset([{name: 'PickerCursor', default: true, cterm: {reverse: true}, gui: {reverse: true}}])
+enddef
+DefineCursorHighlight()
 if empty(prop_type_get('PickerCursor'))
   prop_type_add('PickerCursor', {highlight: 'PickerCursor'})
 endif
 
+augroup picker_ui
+  autocmd!
+  autocmd ColorScheme * DefineCursorHighlight()
+  autocmd VimResized * Reopen()
+augroup END
+
 # Everything about the open picker; {} when none is open.
 var p: dict<any> = {}
+
+# Counts queries across all pickers, so a late result of a closed picker's
+# search can't be taken for one of the open picker's.
+var generation = 0
+
+# Counts opened pickers; see OpenCount().
+var open_count = 0
 
 def Layout(): string
   if &columns >= SIDE_PREVIEW_MIN_COLUMNS
@@ -75,21 +94,28 @@ def UpdatePreview()
     # A message replaces the cached file contents.
     p.preview_file = ''
     p.preview_tick = -1
-    popup_settext(win, [result == null ? 'No selection' : 'No preview available'])
-    win_execute(win, 'setlocal syntax=OFF')
+    popup_settext(win, [result == null ? '[No selection]' : '[No preview available]'])
+    win_execute(win, 'setlocal syntax=OFF nonumber')
     popup_setoptions(win, {firstline: 1})
     return
   endif
 
   const file = target.file
-  const bufnr = bufnr(file)
+  const bufnr = util.LoadedBuffer(file)
   # A loaded buffer can hold unsaved changes; its changedtick says whether
   # the cached preview is stale.
-  const tick = bufnr > 0 && bufloaded(bufnr) ? getbufvar(bufnr, 'changedtick') : -1
+  const tick = bufnr > 0 ? getbufvar(bufnr, 'changedtick') : -1
 
   if p.preview_file != file || p.preview_tick != tick
-    popup_settext(win, preview.ReadFile(file))
-    preview.Highlight(win, file)
+    const [lines, is_text] = preview.ReadFile(file)
+    popup_settext(win, lines)
+    # Line numbers and highlighting for file contents, not for a message.
+    if is_text
+      win_execute(win, 'setlocal number')
+      preview.Highlight(win, file)
+    else
+      win_execute(win, 'setlocal nonumber syntax=OFF')
+    endif
     p.preview_file = file
     p.preview_tick = tick
   endif
@@ -112,11 +138,10 @@ def SchedulePreview()
   const result = get(p.results, p.selected, null)
   # Streaming sources keep result objects stable between batches; a new
   # batch need not refresh an unchanged selection.
-  if result is p.requested_preview && p.preview_requested
+  if !empty(p.previewed) && result is p.previewed[0]
     return
   endif
-  p.requested_preview = result
-  p.preview_requested = true
+  p.previewed = [result]
   timer_stop(p.preview_timer)
   p.preview_timer = timer_start(PREVIEW_DEBOUNCE_MS, (_) => UpdatePreview())
 enddef
@@ -150,7 +175,7 @@ def Render()
   const prompt = $'> {p.query}'
   var lines: list<dict<any>> = [
     {text: $'{prompt} ', props: [{col: len(prompt) + 1, length: 1, type: 'PickerCursor'}]},
-    {text: ''},
+    {text: p.message},
   ]
   # Only format the visible part of the result list.
   const last = min([len(p.results), p.offset + VisibleCount()]) - 1
@@ -176,22 +201,30 @@ def CancelSearch()
   endif
 enddef
 
+# Search the current query at once: an in-Vim search, or the empty query
+# of a streaming source.
+def SearchNow()
+  p.results = p.opts->has_key('search') ? p.opts.search(p.query) : []
+  p.results_query = p.query
+  p.selected = 0
+  p.offset = 0
+enddef
+
 def Search()
   if !IsOpen()
     return
   endif
-  p.generation += 1
-  const generation = p.generation
+  generation += 1
+  const this_search = generation
   const query = p.query
 
   # Stop obsolete work at once, before the debounce delay.
   CancelSearch()
   timer_stop(p.search_timer)
+  p.message = ''
 
   if empty(query)
-    p.results = p.opts->has_key('search') ? p.opts.search('') : []
-    p.selected = 0
-    p.offset = 0
+    SearchNow()
     Render()
     return
   endif
@@ -205,23 +238,22 @@ def Search()
   endif
 
   p.search_timer = timer_start(SEARCH_DEBOUNCE_MS, (_) => {
-    if !IsOpen() || generation != p.generation
+    if !IsOpen() || this_search != generation
       return
     endif
     if p.opts->has_key('search_async')
-      p.Cancel = p.opts.search_async(query, (results) => {
+      p.Cancel = p.opts.search_async(query, (results, message) => {
         # A stopped job can still have callbacks queued; only the
         # current query may update the picker.
-        if !IsOpen() || generation != p.generation
+        if !IsOpen() || this_search != generation
           return
         endif
         p.results = results
+        p.message = message
         Render()
       })
     else
-      p.results = p.opts.search(query)
-      p.selected = 0
-      p.offset = 0
+      SearchNow()
       Render()
     endif
   })
@@ -231,30 +263,57 @@ enddef
 # Closing
 # ---------------------------------------------------------------------------
 
-def StopWork()
-  if empty(p) || p.closed
+def Close()
+  if IsOpen()
+    # Its callback, OnClose(), does the rest.
+    popup_close(p.list_win)
+  endif
+enddef
+
+# The list popup's callback, however it closed: Close(), or Vim closing it
+# on CTRL-C or an error in Filter().
+def OnClose(id: number)
+  if empty(p) || p.list_win != id
     return
   endif
   p.closed = true
-  p.generation += 1
+  generation += 1
   timer_stop(p.search_timer)
   timer_stop(p.preview_timer)
   CancelSearch()
+  if p.preview_win != 0
+    popup_close(p.preview_win)
+  endif
+  # Let go of the results.
+  p = {}
 enddef
 
-def Close()
-  StopWork()
-  if empty(p)
+# Open the picker again with the same source and query, so it fits the
+# new size of the Vim window.
+def Reopen()
+  if !IsOpen()
     return
   endif
-  const [list_win, preview_win] = [p.list_win, p.preview_win]
-  if preview_win != 0
-    popup_close(preview_win)
+  const [opts, query] = [p.opts, p.query]
+  Open(opts)
+  if !empty(query)
+    p.query = query
+    Search()
   endif
-  popup_close(list_win)
+enddef
+
+# Opened pickers so far. A slow source checks it to see whether another
+# picker was opened while it waited.
+export def OpenCount(): number
+  return open_count
 enddef
 
 def OpenSelected()
+  # An in-Vim search waits for typing to pause; don't open the top result
+  # of an older query.
+  if p.opts->has_key('search') && p.results_query != p.query
+    SearchNow()
+  endif
   const result = get(p.results, p.selected, null)
   if result == null
     return
@@ -303,7 +362,8 @@ def Filter(_: number, key: string): bool
     endif
   elseif key == "\<C-w>"
     if !empty(p.query)
-      p.query = p.query->substitute('\s*\S*$', '', '')
+      # Like CTRL-W in Insert mode: "foo bar " becomes "foo ".
+      p.query = p.query->substitute('\S*\s*$', '', '')
       Search()
     endif
   elseif strchars(key) == 1 && key[0] != "\x80" && key =~ '^[^[:cntrl:]]$'
@@ -320,6 +380,7 @@ export def Open(opts: dict<any>)
   if IsOpen()
     Close()
   endif
+  open_count += 1
 
   const layout = Layout()
   const total_width = &columns * 85 / 100
@@ -357,7 +418,7 @@ export def Open(opts: dict<any>)
     scrollbar: false,
     mapping: false,
     filter: Filter,
-    callback: (_, _) => StopWork(),
+    callback: (id, _) => OnClose(id),
     zindex: 200,
   })
 
@@ -378,7 +439,7 @@ export def Open(opts: dict<any>)
       cursorline: true,
       zindex: 200,
     })
-    win_execute(preview_win, 'setlocal number norelativenumber')
+    win_execute(preview_win, 'setlocal norelativenumber')
   endif
 
   p = {
@@ -386,20 +447,21 @@ export def Open(opts: dict<any>)
     closed: false,
     query: '',
     results: opts->get('initial_results', []),
+    results_query: '',
+    message: '',
     selected: 0,
     offset: 0,
     list_win: list_win,
     preview_win: preview_win,
     list_height: list_height,
     preview_height: preview_height,
-    generation: 0,
     Cancel: null,
     search_timer: -1,
     preview_timer: -1,
     preview_file: '',
     preview_tick: -1,
-    requested_preview: null,
-    preview_requested: false,
+    # [the result the preview was last asked for]; empty before that.
+    previewed: [],
   }
   Render()
 enddef

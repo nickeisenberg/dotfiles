@@ -2,22 +2,15 @@ vim9script
 
 # LSP references and definitions in the picker.
 #
-# Requests go through yegappan/lsp's documented server API
-# (|lsp-custom-requests|): lsp.Server() for the buffer's server, and its
-# rpc_a() to ask asynchronously.
+# Requests go through yegappan/lsp's server API (|lsp-custom-requests|):
+# the buffer's server that supports the request, and its rpc_a() to ask
+# asynchronously. lsp.Server() would give the buffer's first server even
+# when another one is the one that supports the request, so the server
+# comes from lsp/buffer.vim, which lsp.Server() itself uses.
 
-import autoload 'lsp/lsp.vim' as yegappan
+import autoload 'lsp/buffer.vim' as yegappan_buffer
 import autoload './ui.vim'
-
-def Notify(msg: string, error = false)
-  if error
-    echohl ErrorMsg
-  endif
-  echomsg $'picker: {msg}'
-  if error
-    echohl None
-  endif
-enddef
+import autoload './util.vim'
 
 # "file:///a/b%20c" -> "/a/b c". Percent-escapes are bytes ("%C3%A4" is
 # "ä"): each becomes a "\x.." escape in a double-quoted string, which
@@ -35,18 +28,36 @@ def UriToFile(uri: string): string
 enddef
 
 # The text of line `lnum` of `file`, from the buffer when it is loaded.
-def LineText(file: string, lnum: number): string
-  const bufnr = bufnr(file)
-  if bufnr > 0 && bufloaded(bufnr)
-    return get(getbufline(bufnr, lnum), 0, '')
+# `cache` keeps each file's lines, so a file is read once for all its
+# results.
+def LineText(file: string, lnum: number, cache: dict<list<string>>): string
+  if !cache->has_key(file)
+    const bufnr = util.LoadedBuffer(file)
+    cache[file] = bufnr > 0 ? getbufline(bufnr, 1, '$')
+      : filereadable(file) ? readfile(file) : []
   endif
-  if !filereadable(file)
-    return ''
-  endif
-  return get(readfile(file, '', lnum), lnum - 1, '')
+  return get(cache[file], lnum - 1, '')
 enddef
 
-def ToItem(location: dict<any>): dict<any>
+# The byte index in `line` of LSP position `character`, which counts in
+# the server's negotiated encoding: bytes (8), UTF-16 units (16) or
+# characters (32).
+def ByteIndex(line: string, character: number, encoding: number): number
+  if encoding == 8
+    return character
+  endif
+  var byte = -1
+  # Vim 9.0 has no UTF-16 byteidx(); counting characters is right for
+  # most text.
+  if has('patch-9.0.1629')
+    byte = byteidx(line, character, encoding == 16)
+  else
+    byte = byteidx(line, character)
+  endif
+  return byte < 0 ? character : byte
+enddef
+
+def ToItem(location: dict<any>, encoding: number, cache: dict<list<string>>): dict<any>
   const uri = location->get('uri', location->get('targetUri', ''))
   const range = location->get('range', location->get('targetSelectionRange', {}))
   if empty(uri) || empty(range)
@@ -55,24 +66,15 @@ def ToItem(location: dict<any>): dict<any>
 
   const file = UriToFile(uri)
   const lnum = range.start.line + 1
-  const line = LineText(file, lnum)
-  # LSP columns count characters; Vim's count bytes.
-  const byte = byteidx(line, range.start.character)
-  const col = (byte < 0 ? range.start.character : byte) + 1
-  const text = trim(line)
+  const line = LineText(file, lnum, cache)
+  const col = ByteIndex(line, range.start.character, encoding) + 1
 
   return {
-    display: printf('%s:%d:%d: %s', fnamemodify(file, ':.'), lnum, col, text),
+    display: util.LocationText(fnamemodify(file, ':.'), lnum, col, trim(line)),
     file: file,
     lnum: lnum,
     col: col,
   }
-enddef
-
-def OpenItem(item: dict<any>)
-  execute 'edit' fnameescape(item.file)
-  cursor(min([item.lnum, line('$')]), item.col)
-  normal! zz
 enddef
 
 def OpenLocations(title: string, items: list<dict<any>>)
@@ -83,51 +85,57 @@ def OpenLocations(title: string, items: list<dict<any>>)
   ui.Open({
     title: title,
     initial_results: items,
-    # Through call(): Vim 9.0 types matchfuzzy() as returning strings even
-    # for a list of dicts, so a direct call fails to compile there.
-    search: (query) => empty(query) ? items : call('matchfuzzy', [items, query, {key: 'display'}]),
+    search: (query) => empty(query) ? items : util.FuzzyByKey(items, query, 'display'),
     format: (item) => item.display,
     preview: (item) => ({file: item.file, lnum: item.lnum, col: item.col}),
-    select: OpenItem,
+    select: util.OpenLocation,
   })
 enddef
 
 # Ask the buffer's server for `method` at the cursor and show the locations
 # in a picker titled `title`.
 def Request(method: string, feature: string, title: string, extra: dict<any> = {})
+  const what = title->tolower()
   if !exists('g:loaded_lsp')
-    Notify('yegappan/lsp is not loaded', true)
+    util.Notify('yegappan/lsp is not loaded', true)
     return
   endif
-  const server = yegappan.Server()
+  # The buffer's ready server that supports `feature`.
+  const server = yegappan_buffer.CurbufGetServer(feature)
   if empty(server) || !server.featureEnabled(feature)
-    Notify($'no language server for {title->tolower()} here')
+    util.Notify($'no language server for {what} here')
     return
   endif
 
   # Send pending edits first, so positions match the buffer.
   listener_flush()
   const params = server.getTextDocPosition(true)->extend(extra)
-  const what = title->tolower()
+  # A reply that comes after another picker was opened is dropped, rather
+  # than replacing that picker.
+  const open_count = ui.OpenCount()
 
   # The callback gets (server, result) or (server, result, error)
   # depending on the yegappan/lsp version.
-  server.rpc_a(method, params, (_, result, ...rest) => {
+  const id = server.rpc_a(method, params, (srv, result, ...rest) => {
+    # yegappan/lsp has reported the error already (and stays quiet about
+    # a cancelled request).
+    if !empty(get(rest, 0, {})) || ui.OpenCount() != open_count
+      return
+    endif
     try
-      Show(title, result, get(rest, 0, {}))
+      Show(title, result, srv->get('posEncoding', 32))
     catch
       # yegappan/lsp swallows errors raised in callbacks; report them.
-      Notify($'{what}: {v:exception}', true)
+      util.Notify($'{what}: {v:exception}', true)
     endtry
   })
+  if id < 0
+    util.Notify($'the language server for {what} is not running', true)
+  endif
 enddef
 
-def Show(title: string, result: any, error: dict<any>)
+def Show(title: string, result: any, encoding: number)
   const what = title->tolower()
-  if !empty(error)
-    Notify($'{what} failed: {error->get("message", string(error))}', true)
-    return
-  endif
 
   var locations: list<any> = []
   if type(result) == v:t_list
@@ -137,9 +145,10 @@ def Show(title: string, result: any, error: dict<any>)
     locations = [result]
   endif
 
-  var items = locations->mapnew((_, l) => ToItem(l))->filter((_, i) => !empty(i))
+  var cache: dict<list<string>> = {}
+  var items = locations->mapnew((_, l) => ToItem(l, encoding, cache))->filter((_, i) => !empty(i))
   if empty(items)
-    Notify($'no {what} found')
+    util.Notify($'no {what} found')
     return
   endif
   OpenLocations(title, items)

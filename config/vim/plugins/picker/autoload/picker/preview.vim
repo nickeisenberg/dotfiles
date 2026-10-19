@@ -2,44 +2,48 @@ vim9script
 
 # Reading files for the preview, and highlighting them.
 
+import autoload './util.vim'
+
 # Bound preview reads so large files are not loaded in full.
 const MAX_BYTES = 256 * 1024
+const TOO_BIG = $'[Preview disabled: larger than {MAX_BYTES / 1024} KiB]'
 
-export def ReadFile(path: string): list<string>
-  const bufnr = bufnr(path)
+# The lines to show for `path`, and whether they are its text (false for a
+# message such as "[binary file]").
+export def ReadFile(path: string): list<any>
+  const bufnr = util.LoadedBuffer(path)
 
   # Prefer the loaded buffer so unsaved edits appear in the preview.
-  if bufnr > 0 && bufloaded(bufnr)
+  if bufnr > 0
     const lines = getbufline(bufnr, 1, '$')
     if lines->reduce((acc, l) => acc + len(l) + 1, 0) > MAX_BYTES
-      return ['[Preview disabled: buffer exceeds 256 KiB]']
+      return [[TOO_BIG], false]
     endif
     if lines == ['']
-      return ['[empty file]']
+      return [['[Empty file]'], false]
     endif
-    return lines
+    return [lines, true]
   endif
 
   const size = getfsize(path)
   if size < 0 || !filereadable(path)
-    return ['Unable to preview file']
+    return [['[Unable to read file]'], false]
   endif
   if size > MAX_BYTES
-    return ['[Preview disabled: file exceeds 256 KiB]']
+    return [[TOO_BIG], false]
   endif
   if size == 0
-    return ['[empty file]']
+    return [['[Empty file]'], false]
   endif
 
-  # Avoid displaying binary data in the text preview. The file is at most
-  # MAX_BYTES, so reading all of it is fine (and works in Vim 9.0, whose
-  # readblob() takes no offset).
-  if readblob(path)->index(0) >= 0
-    return ['[Preview disabled: binary file]']
+  # readfile() turns NUL bytes into "\n" within a line, so one read tells a
+  # binary file apart.
+  var lines = readfile(path)
+  if match(lines, "\n") >= 0
+    return [['[Preview disabled: binary file]'], false]
   endif
-
   # readfile() splits on "\n"; drop the "\r" of Windows line endings.
-  return readfile(path)->map((_, l) => l->substitute('\r$', '', ''))
+  return [lines->map((_, l) => l->substitute('\r$', '', '')), true]
 enddef
 
 # Syntax-highlight the preview popup `win` as `file`'s filetype.
