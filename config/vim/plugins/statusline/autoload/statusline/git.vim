@@ -15,14 +15,37 @@ vim9script
 
 const HAS_DIFF = exists('*diff')
 
+# Called when a buffer's counts change, to redraw; set by Setup().
+def Nothing()
+enddef
+var OnChange: func() = Nothing
+
 # file path -> repository root, or '' outside a repository.
 var roots: dict<string> = {}
+
+# repository root -> its git directory.
+var git_dirs: dict<string> = {}
 
 # HEAD path -> {stamp: [mtime, size], branch: string}.
 var heads: dict<dict<any>> = {}
 
-# bufnr -> {base: list<string>, index_time: number, counts: dict, job: job}
+# bufnr -> {path, stamp, base, eol, counts, job}: the resolved file path;
+# the index's [mtime, size] when fetched, or [] to fetch again; the file's
+# lines in the index and whether they end with a newline (base is null
+# until fetched, and for a file not in the index); the last counts; the
+# fetch.
 var bufs: dict<dict<any>> = {}
+
+# A file buffer's absolute path with symlinks resolved, so a file reached
+# through a link to a repository is found in it; '' for special and
+# unnamed buffers.
+export def Path(bufnr: number): string
+  const name = bufname(bufnr)
+  if empty(name) || !empty(getbufvar(bufnr, '&buftype'))
+    return ''
+  endif
+  return resolve(fnamemodify(name, ':p'))
+enddef
 
 export def Root(path: string): string
   if !has_key(roots, path)
@@ -41,15 +64,15 @@ enddef
 # The git directory for a root: .git itself, or where a .git file
 # ("gitdir: <path>") points.
 def GitDir(root: string): string
-  const dot_git = $'{root}/.git'
-  if isdirectory(dot_git) || !filereadable(dot_git)
-    return dot_git
+  if !has_key(git_dirs, root)
+    const dot_git = $'{root}/.git'
+    var dir = ''
+    if !isdirectory(dot_git) && filereadable(dot_git)
+      dir = get(readfile(dot_git, '', 1), 0, '')->matchstr('^gitdir:\s*\zs.\{-}\ze\s*$')
+    endif
+    git_dirs[root] = empty(dir) ? dot_git : simplify(dir[0] == '/' ? dir : $'{root}/{dir}')
   endif
-  const dir = get(readfile(dot_git, '', 1), 0, '')->matchstr('^gitdir:\s*\zs.\{-}\ze\s*$')
-  if empty(dir)
-    return dot_git
-  endif
-  return simplify(dir[0] == '/' ? dir : $'{root}/{dir}')
+  return git_dirs[root]
 enddef
 
 # The branch name, a short hash when detached, or ''.
@@ -73,7 +96,9 @@ export def Branch(root: string): string
   if empty(branch)
     branch = line[: 6]
   endif
-  heads[head] = {stamp: stamp, branch: branch}
+  # File times are in whole seconds: a HEAD written this second may be
+  # written again this second, so read it again next time.
+  heads[head] = {stamp: localtime() <= stamp[0] ? [] : stamp, branch: branch}
   return branch
 enddef
 
@@ -85,14 +110,6 @@ enddef
 export def Counts(bufnr: number): dict<number>
   const state = bufs->get(bufnr, {})
   return state->get('counts', {})
-enddef
-
-def Path(bufnr: number): string
-  const name = bufname(bufnr)
-  if empty(name) || !empty(getbufvar(bufnr, '&buftype'))
-    return ''
-  endif
-  return fnamemodify(name, ':p')
 enddef
 
 # Count like gitsigns: a hunk that only adds or only removes lines counts
@@ -125,7 +142,7 @@ def SetCounts(bufnr: number, counts: dict<number>)
   const state = bufs->get(bufnr, {})
   if !empty(state) && counts != state->get('counts', {})
     state.counts = counts
-    statusline#Redraw()
+    OnChange()
   endif
 enddef
 
@@ -134,13 +151,33 @@ def Recount(bufnr: number)
   if !HAS_DIFF || empty(state) || type(state.base) != v:t_list || !bufloaded(bufnr)
     return
   endif
+  var base = state.base
+  var lines = getbufline(bufnr, 1, '$')
+  # An empty buffer still has one empty line.
+  if lines == [''] && empty(base)
+    lines = []
+  endif
+  # A missing newline at the end changes the last line, as git sees it. The
+  # buffer is written with one when 'eol' is set, or 'fixeol' is (which
+  # leaves 'eol' unset until the file is read again). A marker on the side
+  # without one makes the last lines differ.
+  const eol = getbufvar(bufnr, '&eol') || getbufvar(bufnr, '&fixeol') && !getbufvar(bufnr, '&binary')
+  if eol != state.eol && !empty(base) && !empty(lines)
+    if eol
+      base = base[: -2] + [base[-1] .. "\x01"]
+    else
+      lines[-1] ..= "\x01"
+    endif
+  endif
   # Through call(), so a Vim without diff() can still compile this.
-  const hunks = call('diff', [state.base, getbufline(bufnr, 1, '$'), {output: 'indices'}])
+  const hunks = call('diff', [base, lines, {output: 'indices'}])
   SetCounts(bufnr, Tally(hunks->mapnew((_, h) => [h.from_count, h.to_count])))
 enddef
 
-def IndexTime(root: string): number
-  return getftime($'{GitDir(root)}/index')
+# Changes when the index is written: by add, commit, checkout, reset.
+def Stamp(root: string): list<number>
+  const index = $'{GitDir(root)}/index'
+  return [getftime(index), getfsize(index)]
 enddef
 
 # Fetch the file's version in the index, unless the index hasn't changed
@@ -151,14 +188,14 @@ def Refresh(bufnr: number, force = false, recount = true)
   if empty(root)
     if has_key(bufs, bufnr)
       remove(bufs, bufnr)
-      statusline#Redraw()
+      OnChange()
     endif
     return
   endif
 
-  const index_time = IndexTime(root)
+  const stamp = Stamp(root)
   var state = bufs->get(bufnr, {})
-  if !force && !empty(state) && state.index_time == index_time && state.path == path
+  if !force && !empty(state) && state.stamp == stamp && state.path == path
     if recount
       Recount(bufnr)
     endif
@@ -168,42 +205,60 @@ def Refresh(bufnr: number, force = false, recount = true)
     job_stop(state.job)
   endif
 
-  state = {path: path, index_time: index_time, base: null, counts: state->get('counts', {})}
+  # File times are in whole seconds: an index written this second may be
+  # written again this second without changing the stamp, so leave it
+  # unset and fetch again on the next check.
+  state = {path: path, stamp: localtime() <= stamp[0] ? [] : stamp, base: null, eol: true,
+           counts: state->get('counts', {})}
   bufs[bufnr] = state
 
   const relpath = $':./{strpart(path, len(root) + 1)}'
   const cmd = HAS_DIFF
     ? ['git', '--no-pager', 'show', relpath]
     : ['git', '--no-pager', 'diff', '--no-color', '--no-ext-diff', '-U0', '--', relpath]
-  var lines: list<string> = []
+  # Done when both the output has been read and the exit status is in;
+  # either can come first.
+  var chunks: list<string> = []
+  var exitval = -1
+  var closed = false
+  const Done = () => {
+    if closed && exitval >= 0
+      Fetched(bufnr, state, join(chunks, ''), exitval)
+    endif
+  }
   state.job = job_start(cmd, {
     cwd: root,
     in_io: 'null',
     err_io: 'null',
-    out_mode: 'nl',
-    out_cb: (_, line) => {
-      lines->add(line)
+    out_mode: 'raw',
+    out_cb: (_, chunk) => {
+      chunks->add(chunk)
     },
     close_cb: (_) => {
-      # Wait for the exit status: not in the index means untracked.
-      timer_start(0, (_) => Fetched(bufnr, state, lines))
+      closed = true
+      Done()
+    },
+    exit_cb: (_, status) => {
+      exitval = status
+      Done()
     },
   })
 enddef
 
-def Fetched(bufnr: number, state: dict<any>, lines: list<string>)
+def Fetched(bufnr: number, state: dict<any>, text: string, exitval: number)
   if bufs->get(bufnr, {}) isnot state
     return
   endif
-  var tries = 0
-  while job_status(state.job) == 'run' && tries < 100
-    sleep 5m
-    tries += 1
-  endwhile
-  if job_info(state.job).exitval != 0
-    remove(bufs, bufnr)
-    statusline#Redraw()
+  # Not in the index, e.g. untracked: no counts, and no new fetch until
+  # the index changes.
+  if exitval != 0
+    SetCounts(bufnr, {})
     return
+  endif
+  var lines = empty(text) ? [] : split(text, "\n", true)
+  state.eol = text =~ '\n$'
+  if state.eol
+    remove(lines, -1)
   endif
   if HAS_DIFF
     state.base = lines
@@ -233,18 +288,26 @@ enddef
 
 def ForgetRoots()
   roots = {}
+  git_dirs = {}
 enddef
 
-export def Setup()
+# Start following buffers; Changed() is called when counts change.
+export def Setup(Changed: func())
+  OnChange = Changed
   augroup statusline_git
     autocmd!
-    autocmd BufReadPost,BufWritePost,BufFilePost * Refresh(str2nr(expand('<abuf>')), true)
+    # A `git init` from a shell can put a path in a repository. Before the
+    # Refresh below, so it sees the change.
+    autocmd FocusGained,ShellCmdPost * ForgetRoots()
+    # Counted from `git diff`, the counts follow the saved file: count
+    # again. With diff(), the index's version is all that's needed.
+    autocmd BufReadPost,BufWritePost,BufFilePost * Refresh(str2nr(expand('<abuf>')), !HAS_DIFF)
     autocmd BufEnter,FocusGained,ShellCmdPost * Refresh(bufnr())
     # Catches a `git add` or commit made outside Vim.
     autocmd CursorHold * Refresh(bufnr(), false, false)
-    autocmd TextChanged,TextChangedI,InsertLeave * Schedule(bufnr())
+    if HAS_DIFF
+      autocmd TextChanged,TextChangedI,InsertLeave * Schedule(bufnr())
+    endif
     autocmd BufWipeout * Forget(str2nr(expand('<abuf>')))
-    # A `git init` from a shell can put a path in a repository.
-    autocmd FocusGained,ShellCmdPost * ForgetRoots()
   augroup END
 enddef
