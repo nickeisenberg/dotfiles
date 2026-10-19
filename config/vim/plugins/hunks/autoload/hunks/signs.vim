@@ -125,17 +125,3 @@ export def Clear(bufnr: number)
     sign_unplace(GROUP, {buffer: bufnr})
   endif
 enddef
-
-# The kinds of the signs placed in a buffer, by line: {lnum: kind}. For the
-# tests.
-export def Placed(bufnr: number): dict<string>
-  var by_name: dict<string> = {}
-  for [kind, name] in items(NAMES)
-    by_name[name] = kind
-  endfor
-  var placed: dict<string> = {}
-  for s in sign_getplaced(bufnr, {group: GROUP})[0].signs
-    placed[string(s.lnum)] = by_name[s.name]
-  endfor
-  return placed
-enddef

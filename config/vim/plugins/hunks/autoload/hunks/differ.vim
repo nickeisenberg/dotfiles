@@ -13,15 +13,17 @@ vim9script
 #
 #   func(bufnr, base: list<string>, lines: list<string>, Done)
 #
-# and calls Done(hunks), right away or later. `Differ` below is declared
-# with that type, so a backend with another signature fails when this
-# script loads. Which one runs is picked once,
-# from g:hunks_diff:
+# and calls Done(hunks), right away or later. The `Differ` constant below
+# has that type, so a backend whose signature doesn't match is an error as
+# soon as this script loads. Which backend runs is picked once, from
+# g:hunks_diff:
 #
 #   builtin  Vim's diff() (9.1.0071 and later), in memory
 #   job      the base and the buffer written to temp files, and
 #            `git diff --no-index` run on them in the background
 #   auto     builtin where diff() exists, else job (the default)
+
+import autoload './util.vim'
 
 const HAS_DIFF = exists('*diff')
 
@@ -87,25 +89,15 @@ export def JobDiffer(bufnr: number, base: list<string>, lines: list<string>,
 
   f.seq += 1
   const seq = f.seq
-  var output: list<string> = []
-  var failed = false
-  f.job = job_start(['git', '--no-pager', 'diff', '--no-index', '--no-color',
-      '--no-ext-diff', '-U0', '--', f.base_file, f.buf_file], {
-    in_io: 'null',
-    out_cb: (_, line) => {
-      output->add(line)
-    },
-    err_cb: (_, _) => {
-      failed = true
-    },
-    close_cb: (_) => {
-      # Skip a job that was stopped for a newer one, and errors. Exit
-      # status 1 just means the files differ, so the status isn't used.
-      if !failed && files->get(bufnr, {})->get('seq', -1) == seq
-        Done(ParseHunks(output))
+  f.job = util.Run(['git', '--no-pager', 'diff', '--no-index', '--no-color',
+      '--no-ext-diff', '-U0', '--', f.base_file, f.buf_file], '',
+    (status, output) => {
+      # Exit status 0: the same, 1: they differ, anything else an error.
+      # Skip errors, and a job that was stopped for a newer one.
+      if (status == 0 || status == 1) && files->get(bufnr, {})->get('seq', -1) == seq
+        Done(ParseHunks(split(output, "\n")))
       endif
-    },
-  })
+    })
 enddef
 
 # Drop a buffer's temp files.
@@ -124,9 +116,7 @@ enddef
 def Pick(): func(number, list<string>, list<string>, func(list<dict<number>>))
   var name = get(g:, 'hunks_diff', 'auto')
   if name == 'builtin' && !HAS_DIFF
-    echohl WarningMsg
-    echomsg "hunks: this Vim has no diff(), using g:hunks_diff = 'job'"
-    echohl None
+    util.Warn("this Vim has no diff(), using g:hunks_diff = 'job'")
     name = 'job'
   elseif name != 'builtin' && name != 'job'
     name = HAS_DIFF ? 'builtin' : 'job'
@@ -149,4 +139,12 @@ export def Span(h: dict<number>): list<number>
     return [lnum, lnum]
   endif
   return [h.new_start + 1, h.new_start + h.new_count]
+enddef
+
+# The hunks shown on lines line1 to line2.
+export def Within(hunks: list<dict<number>>, line1: number, line2: number): list<dict<number>>
+  return hunks->copy()->filter((_, h) => {
+    const [first, last] = Span(h)
+    return first <= line2 && last >= line1
+  })
 enddef

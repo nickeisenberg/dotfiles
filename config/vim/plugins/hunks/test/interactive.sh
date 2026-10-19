@@ -6,7 +6,8 @@
 #   plugins/hunks/test/interactive.sh
 #   VIMS="/usr/bin/vim" plugins/hunks/test/interactive.sh
 #
-# Needs tmux. Prints the screen when a check fails.
+# Needs tmux, run on its own server (tmux -L, $HUNKS_TMUX_SERVER), never
+# the default one. Prints the screen when a check fails.
 
 here=$(cd "$(dirname "$0")" && pwd)
 vimrc=$(cd "$here/../../.." && pwd)/vimrc
@@ -20,20 +21,24 @@ git -C "$repo" add file.txt
 git -C "$repo" -c user.name=Test -c user.email=test@example.com commit -qm init
 
 session=hunks-test-$$
+server=${HUNKS_TMUX_SERVER:-hunks-test-$$}
+t() {
+  tmux -L "$server" "$@"
+}
 out=$repo/out.txt
 status=0
 failed=0
 
 keys() {
-  tmux send-keys -t "$session" "$@"
+  t send-keys -t "$session" "$@"
   sleep 0.6
 }
 
 # check WHAT EXPR WANT: the legacy-syntax EXPR, evaluated in Vim, is WANT.
 check() {
   rm -f "$out"
-  screen=$(tmux capture-pane -p -t "$session")
-  tmux send-keys -t "$session" Escape ":call writefile([$2], 'out.txt')" Enter
+  screen=$(t capture-pane -p -t "$session")
+  t send-keys -t "$session" Escape ":call writefile([$2], 'out.txt')" Enter
   sleep 0.4
   got=$(cat "$out" 2>/dev/null)
   if [ "$got" != "$3" ]; then
@@ -45,9 +50,9 @@ check() {
 
 # check_screen WHAT PATTERN: the screen shows PATTERN.
 check_screen() {
-  if ! tmux capture-pane -p -t "$session" | grep -q -- "$2"; then
+  if ! t capture-pane -p -t "$session" | grep -q -- "$2"; then
     echo "  FAIL $1: '$2' not on screen"
-    tmux capture-pane -p -t "$session" | grep -v '^~ *$' | sed 's/^/    | /'
+    t capture-pane -p -t "$session" | grep -v '^~ *$' | sed 's/^/    | /'
     failed=1
   fi
 }
@@ -58,7 +63,7 @@ for vim in $VIMS; do
   version=$("$vim" --version | head -1 | sed 's/ (.*//')
   failed=0
   git -C "$repo" checkout -q -- file.txt
-  tmux new-session -d -s "$session" -x 100 -y 20 "cd '$repo' && '$vim' -Nu '$vimrc' -n file.txt"
+  t new-session -d -s "$session" -x 100 -y 20 "cd '$repo' && '$vim' -Nu '$vimrc' -n file.txt"
   sleep 1.5
 
   # Change line 2; add a line after 4 and remove line 5, together a change
@@ -96,9 +101,9 @@ for vim in $VIMS; do
   keys Escape 'j hb'
   check_screen '<leader>hb on a changed line' 'Not committed yet'
 
-  tmux send-keys -t "$session" Escape ':qa!' Enter
+  t send-keys -t "$session" Escape ':qa!' Enter
   sleep 0.3
-  tmux kill-session -t "$session" 2>/dev/null
+  t kill-session -t "$session" 2>/dev/null
   if [ $failed = 0 ]; then
     echo "ok   $version"
   else

@@ -18,10 +18,10 @@ endif
 &runtimepath = $'{PLUGIN},{&runtimepath}'
 runtime plugin/hunks.vim
 
-import autoload 'hunks/signs.vim'
 import autoload 'hunks/differ.vim'
 import autoload 'hunks/actions.vim'
 import autoload 'hunks/blame.vim'
+import autoload 'hunks/repo.vim'
 
 const REPO = tempname()
 mkdir(REPO, 'p')
@@ -34,6 +34,17 @@ def Git(...args: list<string>): string
 enddef
 
 Git('init', '-q')
+
+# git, through a wrapper that can log its arguments ($HUNKS_TEST_GIT_LOG)
+# and be slow ($HUNKS_TEST_GIT_SLEEP seconds) for the plugin's jobs.
+const BIN = tempname()
+mkdir(BIN, 'p')
+writefile(['#!/bin/sh',
+  '[ -n "$HUNKS_TEST_GIT_LOG" ] && echo "$*" >> "$HUNKS_TEST_GIT_LOG"',
+  '[ -n "$HUNKS_TEST_GIT_SLEEP" ] && sleep "$HUNKS_TEST_GIT_SLEEP"',
+  $'exec {shellescape(exepath("git"))} "$@"'], $'{BIN}/git')
+setfperm($'{BIN}/git', 'rwx------')
+$PATH = $'{BIN}:{$PATH}'
 
 # Wait until Cond() is true, up to 3 seconds; jobs and timers run meanwhile.
 def WaitFor(Cond: func(): bool): bool
@@ -55,11 +66,21 @@ def Open(name: string, lines: list<string>)
   assert_true(WaitFor(() => !empty(hunks#State(bufnr()))), $'{name} is tracked')
 enddef
 
+# The kinds of the signs placed in a buffer, by line: {lnum: kind}, the
+# kind from the sign's name (HunksTopDelete: topdelete).
+def Placed(bufnr: number): dict<string>
+  var placed: dict<string> = {}
+  for s in sign_getplaced(bufnr, {group: 'hunks'})[0].signs
+    placed[string(s.lnum)] = tolower(s.name[5 :])
+  endfor
+  return placed
+enddef
+
 # After an edit: diff, and wait for the signs to match.
 def Expect(expected: dict<string>, what: string)
   hunks#Update(bufnr())
-  WaitFor(() => signs.Placed(bufnr()) == expected)
-  assert_equal(expected, signs.Placed(bufnr()), what)
+  WaitFor(() => Placed(bufnr()) == expected)
+  assert_equal(expected, Placed(bufnr()), what)
 enddef
 
 # ---------------------------------------------------------------------------
@@ -77,6 +98,60 @@ def Test_untracked_and_outside()
   execute 'edit' fnameescape(outside)
   sleep 100m
   assert_equal({}, hunks#State(bufnr()), 'file outside a repository')
+enddef
+
+# A file that isn't tracked: git isn't asked again on every BufEnter.
+def Test_untracked_not_retried()
+  writefile(['x'], $'{REPO}/untracked2.txt')
+  execute 'edit' fnameescape($'{REPO}/untracked2.txt')
+  # Past the second of the last index change, so the stamp is kept.
+  sleep 1100m
+  hunks#Refresh(bufnr())
+  sleep 300m
+  const log = tempname()
+  $HUNKS_TEST_GIT_LOG = log
+  doautocmd BufEnter
+  doautocmd CursorHold
+  hunks#Refresh(bufnr())
+  sleep 300m
+  $HUNKS_TEST_GIT_LOG = ''
+  assert_equal([], filereadable(log) ? readfile(log) : [], 'no git run for an untracked file')
+  Git('add', 'untracked2.txt')
+  hunks#Refresh(bufnr())
+  assert_true(WaitFor(() => !empty(hunks#State(bufnr()))), 'tried again after git add')
+  Git('rm', '-q', '--cached', 'untracked2.txt')
+enddef
+
+# A `git init` and `git add` from :! show signs right away.
+def Test_git_init_from_shell()
+  const dir = tempname()
+  mkdir(dir, 'p')
+  writefile(['1', '2'], $'{dir}/f.txt')
+  execute 'edit' fnameescape($'{dir}/f.txt')
+  sleep 100m
+  assert_equal({}, hunks#State(bufnr()), 'outside a repository')
+  system($'git -C {shellescape(dir)} init -q && git -C {shellescape(dir)} add f.txt')
+  doautocmd ShellCmdPost
+  assert_true(WaitFor(() => !empty(hunks#State(bufnr()))), 'tracked after git init')
+  setline(1, 'one')
+  Expect({'1': 'change'}, 'signs after git init')
+  delete(dir, 'rf')
+enddef
+
+# A `git init` in a directory between the file and its repository: the
+# file now belongs to the nearer one.
+def Test_nested_git_init()
+  mkdir($'{REPO}/nested', 'p')
+  Open('nested/n.txt', ['1', '2'])
+  assert_equal(resolve(REPO), hunks#State(bufnr()).root, 'in the outer repository')
+  const nested = $'{REPO}/nested'
+  system($'git -C {shellescape(nested)} init -q && git -C {shellescape(nested)} add n.txt')
+  doautocmd ShellCmdPost
+  assert_true(WaitFor(() => hunks#State(bufnr())->get('root', '') == resolve(nested)),
+    'in the nested repository')
+  assert_equal('n.txt', hunks#State(bufnr()).relpath, 'the path in the nested repository')
+  delete($'{nested}/.git', 'rf')
+  repo.ForgetRoots()
 enddef
 
 def Test_signs()
@@ -121,8 +196,8 @@ def Test_index_changes()
   Git('add', 'b.txt')
   # What a BufEnter or CursorHold does after a `git add` in a shell.
   hunks#Refresh(bufnr())
-  WaitFor(() => signs.Placed(bufnr()) == {})
-  assert_equal({}, signs.Placed(bufnr()), 'after git add')
+  WaitFor(() => Placed(bufnr()) == {})
+  assert_equal({}, Placed(bufnr()), 'after git add')
 enddef
 
 def Test_odd_names()
@@ -136,14 +211,18 @@ def Test_odd_names()
   Expect({'1': 'add'}, 'first line of an empty file')
 enddef
 
+def Test_text_changed_in_popup()
+  assert_true(exists('#hunks#TextChangedP'), 'signs follow while the completion menu is open')
+enddef
+
 def Test_toggle()
   Open('c.txt', ['1'])
   setline(1, 'x')
   Expect({'1': 'change'}, 'before toggle')
   Hunks toggle
-  assert_equal({}, signs.Placed(bufnr()), 'toggled off')
+  assert_equal({}, Placed(bufnr()), 'toggled off')
   Hunks toggle
-  assert_equal({'1': 'change'}, signs.Placed(bufnr()), 'toggled on')
+  assert_equal({'1': 'change'}, Placed(bufnr()), 'toggled on')
 enddef
 
 def Test_parse_hunks()
@@ -290,6 +369,13 @@ def Test_diffthis()
   quit
   assert_equal(1, winnr('$'), 'split closed')
   assert_false(&diff, 'diff mode off after closing the base')
+
+  Hunks diffthis
+  Hunks diffthis
+  assert_equal(2, winnr('$'), 'a second diffthis replaces the split')
+  wincmd h
+  assert_equal('hunks://index/diffthis.txt', bufname(), 'the base is named')
+  quit
 enddef
 
 # ---------------------------------------------------------------------------
@@ -303,8 +389,8 @@ enddef
 
 # After staging, wait for the base to be fetched again.
 def ExpectAfterStage(expected: dict<string>, what: string)
-  WaitFor(() => signs.Placed(bufnr()) == expected)
-  assert_equal(expected, signs.Placed(bufnr()), what)
+  WaitFor(() => Placed(bufnr()) == expected)
+  assert_equal(expected, Placed(bufnr()), what)
 enddef
 
 def Test_stage()
@@ -351,6 +437,52 @@ def Test_stage()
   assert_equal("x\n", Indexed('[0-9].txt'), 'a glob name unstaged')
 enddef
 
+def Test_stage_errors()
+  Open('lock.txt', ['1', '2'])
+  setline(1, 'one')
+  cursor(1, 1)
+  # update-index fails while the index is locked: its error is shown.
+  const lock = $'{REPO}/.git/index.lock'
+  writefile([], lock)
+  var msg = execute('Hunks stage')
+  assert_match('update-index failed: .*index.lock', msg, "update-index's error")
+  delete(lock)
+  Hunks stage
+  assert_equal("one\n2\n", Indexed('lock.txt'), 'staged')
+
+  # A failed undo_stage can be tried again.
+  writefile([], lock)
+  msg = execute('Hunks undo_stage')
+  assert_match('update-index failed', msg, 'undo_stage fails while locked')
+  delete(lock)
+  Hunks undo_stage
+  assert_equal("1\n2\n", Indexed('lock.txt'), 'undo_stage after a failed one')
+
+  # After a `git add` of the file, undo_stage doesn't undo it.
+  Hunks stage
+  setline(2, 'two')
+  write
+  Git('add', 'lock.txt')
+  hunks#Refresh(bufnr())
+  msg = execute('Hunks undo_stage')
+  assert_match('has changed since', msg, 'undo_stage refused after git add')
+  assert_equal("one\ntwo\n", Indexed('lock.txt'), 'git add kept')
+
+  # Nor after a commit.
+  setline(2, 'TWO')
+  cursor(2, 1)
+  Hunks stage
+  Git('commit', '-q', '-m', 'lock')
+  hunks#Refresh(bufnr())
+  msg = execute('Hunks undo_stage')
+  assert_match('has changed since', msg, 'undo_stage refused after a commit')
+  assert_equal("one\nTWO\n", Indexed('lock.txt'), 'commit kept')
+
+  const result = repo.Git(REPO, ['rev-parse', '--verify', 'no-such-rev'])
+  assert_equal([false, ''], [result.ok, result.output], 'a failed git, no stdout')
+  assert_notequal('', result.error, 'its stderr apart')
+enddef
+
 def Test_stage_line_endings()
   # No newline at the end: staging a hunk elsewhere keeps it that way.
   writefile(['1', '2'], $'{REPO}/noeol.txt', 'b')
@@ -388,8 +520,8 @@ def Test_base()
   Expect({'3': 'change'}, 'against the index')
 
   Hunks base HEAD
-  WaitFor(() => signs.Placed(bufnr()) == {'1': 'change', '3': 'change'})
-  assert_equal({'1': 'change', '3': 'change'}, signs.Placed(bufnr()), 'against HEAD')
+  WaitFor(() => Placed(bufnr()) == {'1': 'change', '3': 'change'})
+  assert_equal({'1': 'change', '3': 'change'}, Placed(bufnr()), 'against HEAD')
   Hunks stage
   assert_equal("one\n2\n3\n", Indexed('base.txt'), 'no staging against HEAD')
 
@@ -397,8 +529,8 @@ def Test_base()
   assert_equal('HEAD', g:hunks_base, 'a bad revision is refused')
 
   Hunks base index
-  WaitFor(() => signs.Placed(bufnr()) == {'3': 'change'})
-  assert_equal({'3': 'change'}, signs.Placed(bufnr()), 'back to the index')
+  WaitFor(() => Placed(bufnr()) == {'3': 'change'})
+  assert_equal({'3': 'change'}, Placed(bufnr()), 'back to the index')
 
   # Switching to the index and staging at once: the hunks are the index's,
   # whose lines are one down from HEAD's.
@@ -415,6 +547,50 @@ def Test_base()
   Hunks stage
   assert_equal("0\n1\n2\nthree\n", Indexed('switch.txt'), 'staged right after :Hunks base index')
   assert_equal(['index', 'HEAD'], hunks#Complete('', 'Hunks base ', 0), 'completion')
+  assert_equal(['index', 'HEAD'], hunks#Complete('', 'Hun base ', 0), 'completion, abbreviated')
+  assert_equal(['stage'], hunks#Complete('st', "'<,'>Hunks st", 0), 'completion with a range')
+  assert_equal([], hunks#Complete('', 'Hunks stage ', 0), 'no arguments to complete')
+
+  # A revision that is also a tag: git warns, and the base is still read.
+  Git('tag', 'twice')
+  Git('branch', 'twice')
+  Hunks base twice
+  assert_true(WaitFor(() => hunks#State(bufnr())->get('base_name', '') == 'twice'), 'an ambiguous name')
+  Hunks base index
+enddef
+
+# :Hunks base from a buffer outside any repository checks the tracked
+# buffers' repositories.
+def Test_base_elsewhere()
+  Open('elsewhere.txt', ['1'])
+  const tracked = bufnr()
+  const other = tempname()
+  mkdir(other, 'p')
+  system($'git -C {shellescape(other)} init -q && cd {shellescape(other)} && echo x > o.txt && git add o.txt')
+  execute 'edit' fnameescape($'{other}/o.txt')
+  assert_true(WaitFor(() => !empty(hunks#State(bufnr()))), 'a buffer in another repository')
+  enew
+  Hunks base no-such-rev
+  assert_equal('index', hunks#BaseName(), 'refused from a buffer outside a repository')
+  # HEAD is in REPO, not in the other repository, which has no commits.
+  const msg = execute('Hunks base HEAD')
+  assert_equal('HEAD', hunks#BaseName(), 'taken when a repository has it')
+  assert_match('lacks', msg, 'a warning for the one that lacks it')
+  execute $'buffer {tracked}'
+  assert_true(WaitFor(() => hunks#State(tracked)->get('base_name', '') == 'HEAD'), 'tracked against HEAD')
+  Hunks base index
+  delete(other, 'rf')
+enddef
+
+# A command while git is slow says so, not that the file isn't tracked.
+def Test_slow_git()
+  Open('slow.txt', ['1'])
+  $HUNKS_TEST_GIT_SLEEP = '2'
+  Hunks refresh
+  $HUNKS_TEST_GIT_SLEEP = ''
+  const msg = execute('Hunks next')
+  assert_match("hasn't answered yet", msg, 'while the base is fetched')
+  assert_true(WaitFor(() => !hunks#State(bufnr()).fetching), 'fetched in the end')
 enddef
 
 def Test_blame()
@@ -447,9 +623,13 @@ enddef
 
 const TESTS = [
   Test_untracked_and_outside,
+  Test_untracked_not_retried,
+  Test_git_init_from_shell,
+  Test_nested_git_init,
   Test_signs,
   Test_index_changes,
   Test_odd_names,
+  Test_text_changed_in_popup,
   Test_toggle,
   Test_parse_hunks,
   Test_backends_agree,
@@ -458,8 +638,11 @@ const TESTS = [
   Test_reset,
   Test_diffthis,
   Test_stage,
+  Test_stage_errors,
   Test_stage_line_endings,
   Test_base,
+  Test_base_elsewhere,
+  Test_slow_git,
   Test_blame,
 ]
 var failed: list<string> = []
@@ -477,5 +660,6 @@ for T in TESTS
 endfor
 
 delete(REPO, 'rf')
+delete(BIN, 'rf')
 writefile(empty(failed) ? [$'OK {len(TESTS)} tests'] : failed, OUT)
 qall!

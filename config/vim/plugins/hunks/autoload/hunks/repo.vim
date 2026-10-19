@@ -3,6 +3,8 @@ vim9script
 # The repository a file belongs to, and the file's text at the base the
 # buffer is compared against: the git index, or a revision such as HEAD.
 
+import autoload './util.vim'
+
 # file path -> repository root, or '' outside a repository.
 var roots: dict<string> = {}
 
@@ -58,67 +60,61 @@ enddef
 # the job, so a newer fetch can stop it.
 export def FetchBase(root: string, relpath: string, base: string,
     Done: func(list<string>, bool), Failed: func()): job
-  var chunks: list<string> = []
-  var failed = false
-  return job_start(['git', '--no-pager', 'show', Object(base, relpath)], {
-    cwd: root,
-    in_io: 'null',
-    out_mode: 'raw',
-    out_cb: (_, chunk) => {
-      chunks->add(chunk)
-    },
-    err_cb: (_, _) => {
-      failed = true
-    },
-    close_cb: (_) => {
-      if failed
+  # Failure is told by the exit status: git can warn on stderr and still
+  # succeed (e.g. "refname 'main' is ambiguous").
+  return util.Run(['git', '--no-pager', 'show', Object(base, relpath)], root,
+    (status, text) => {
+      if status != 0
         Failed()
         return
       endif
-      const text = join(chunks, '')
       const eol = text =~ '\n$'
       var lines = empty(text) ? [] : split(text, "\n", true)
       if eol
         remove(lines, -1)
       endif
       Done(lines, eol)
-    },
-  })
+    })
 enddef
 
 # Run git in `root` and wait for it, feeding `input` on stdin. For commands
 # you run by hand (stage, blame), where waiting a moment is fine. Git runs
 # as a job rather than with system(), which would start 'shell' each time
-# (a login shell in this config takes ~0.3s). Returns {output, ok}, with
-# stderr in the output.
+# (a login shell in this config takes ~0.3s). Returns {output, error, ok}:
+# stdout, stderr, and whether git exited with 0 within 10 seconds.
 export def Git(root: string, args: list<string>, input = ''): dict<any>
-  var chunks: list<string> = []
+  var out: list<string> = []
+  var err: list<string> = []
   var closed = false
   const job = job_start(['git', '-C', root, '--no-pager'] + args, {
     in_io: 'pipe',
-    out_mode: 'raw',
-    err_io: 'out',
+    mode: 'raw',
     out_cb: (_, chunk) => {
-      chunks->add(chunk)
+      out->add(chunk)
+    },
+    err_cb: (_, chunk) => {
+      err->add(chunk)
     },
     close_cb: (_) => {
       closed = true
     },
   })
   if job_status(job) == 'fail'
-    return {output: 'git could not be started', ok: false}
+    return {output: '', error: 'git could not be started', ok: false}
   endif
   const channel = job_getchannel(job)
   if !empty(input)
     ch_sendraw(channel, input)
   endif
   ch_close_in(channel)
-  # Up to 10 seconds; callbacks run while sleeping.
+  # Callbacks run while sleeping.
   for _ in range(10000)
     if closed && job_status(job) != 'run'
-      break
+      return {output: join(out, ''), error: join(err, ''),
+              ok: job_info(job).exitval == 0}
     endif
     sleep 1m
   endfor
-  return {output: join(chunks, ''), ok: job_status(job) == 'dead' && job_info(job).exitval == 0}
+  job_stop(job, 'kill')
+  return {output: join(out, ''), error: $'git {args[0]} timed out', ok: false}
 enddef
