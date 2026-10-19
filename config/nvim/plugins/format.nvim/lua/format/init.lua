@@ -14,19 +14,20 @@ local function formattable(bufnr)
     and vim.bo[bufnr].modifiable
 end
 
+-- Returns false when nothing can format the buffer.
 ---@param bufnr? integer defaults to the current buffer
+---@return boolean
 function M.format(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   if not formattable(bufnr) then
-    return
+    return false
   end
 
   local filetype = vim.bo[bufnr].filetype
   local steps = config.options.formatters[filetype]
 
   if not steps then
-    lsp.format(bufnr)
-    return
+    return lsp.format(bufnr)
   end
 
   -- Give tools a plausible filename for unnamed buffers; ruff and others
@@ -40,6 +41,7 @@ function M.format(bufnr)
   if output then
     apply.apply(bufnr, output)
   end
+  return true
 end
 
 ---@param opts? table see format.config.defaults
@@ -60,7 +62,9 @@ function M.setup(opts)
   end
 
   vim.api.nvim_create_user_command("Format", function()
-    M.format()
+    if not M.format() then
+      config.notify("no formatter for this buffer", vim.log.levels.WARN)
+    end
   end, { desc = "Format the current buffer" })
 end
 

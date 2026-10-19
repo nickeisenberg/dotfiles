@@ -39,12 +39,16 @@ local function add_commit_messages(bufnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local jobs = start_lookups(lines)
   local out = {}
+  -- The lookups run at once, so they share one deadline; a hung git
+  -- leaves its line without a message instead of freezing the editor.
+  local deadline = vim.uv.hrtime() + 3e9
 
   for i, line in ipairs(lines) do
     out[#out + 1] = line
 
     local job = jobs[i]
-    local res = job and job.proc:wait()
+    local left = math.max(0, math.floor((deadline - vim.uv.hrtime()) / 1e6))
+    local res = job and job.proc:wait(left)
     if res and res.code == 0 then
       local suffix = job.label:match("^Revision([^:]*):")
       local width = "%-" .. #job.label .. "s"
