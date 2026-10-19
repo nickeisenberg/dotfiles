@@ -68,7 +68,12 @@ class Viewport:
         else:
             self.top = self.pinned = self._clamp(self.pinned)
         rows = self.doc.lines[self.top : self.top + self.height]
-        sys.stdout.write("\x1b[H" + "\x1b[K\r\n".join(rows) + "\x1b[K\x1b[J")
+        # Each row is cleared before it is drawn: after a full-width row
+        # the cursor waits to wrap, and clearing there erases its last cell.
+        out = "\x1b[H" + "\r\n".join("\x1b[K" + row for row in rows)
+        if len(rows) < self.height:
+            out += f"\x1b[{len(rows) + 1}H\x1b[J"
+        sys.stdout.write(out)
         sys.stdout.flush()
 
     def _clamp(self, row: int) -> int:
@@ -81,7 +86,7 @@ def main() -> None:
 
     images = None
     if "--images" in sys.argv[2:]:
-        # Imported only here, so Pillow stays optional.
+        # Imported only here, so Pillow is only loaded when images are on.
         from richmdviewnvim.images import Images
 
         def send_image(
@@ -89,7 +94,10 @@ def main() -> None:
         ) -> None:
             sock.sendall(encode("I", image_id, cols, rows, payload=png))
 
-        images = Images(send_image)
+        def free_image(image_id: int) -> None:
+            sock.sendall(encode("D", image_id))
+
+        images = Images(send_image, free_image)
 
     console = Console(force_terminal=True, theme=THEME)
     doc = Document(console, images)
@@ -107,7 +115,7 @@ def main() -> None:
     sel.register(wake_r, selectors.EVENT_READ)
 
     sys.stdout.write("\x1b[?1049h\x1b[?25l")
-    buf = b""
+    buf = bytearray()  # grows in place, unlike bytes, for big messages
     try:
         while True:
             dirty = scrolled = False

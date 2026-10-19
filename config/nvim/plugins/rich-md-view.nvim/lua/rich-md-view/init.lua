@@ -151,6 +151,9 @@ local handlers = {
     local id, cols, rows = unpack(vim.tbl_map(tonumber, msg.args))
     state.images:upload(id, msg.payload, rows, cols)
   end,
+  D = function(msg)
+    state.images:delete(tonumber(msg.args[1]))
+  end,
 }
 
 local function read_replies(client)

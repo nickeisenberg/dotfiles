@@ -1,8 +1,8 @@
 """The rendered document and how its rows map back to source lines.
 
 The text is split into top-level markdown blocks. Each block is rendered
-with rich on its own and cached by its source text, so a keystroke only
-re-renders the block being edited.
+with rich on its own and cached by its source text (and the mtimes of the
+images it shows), so a keystroke only re-renders the block being edited.
 """
 
 import os
@@ -60,7 +60,8 @@ class Document:
         self.base = os.getcwd()  # relative image paths resolve against this
         self.lines: list[str] = []  # one ANSI string per row
         self.spans: list[Span] = []
-        self._cache: dict[str, list[str]] = {}  # block source -> rows
+        # (block source, image mtimes) -> rows
+        self._cache: dict[tuple[str, tuple], list[str]] = {}
 
     def update(self, text: str, base: str) -> None:
         """Show new buffer text, from a file in the directory base."""
@@ -103,17 +104,20 @@ class Document:
         lines: list[str] = []
         spans: list[Span] = []
         for start, end, src in split_blocks(self.text):
-            if src in old:
-                self._cache[src] = old[src]
+            # An image saved since the block was cached draws it again.
+            stamp = self.images.stamp(src, self.base) if self.images else ()
+            key = (src, stamp)
+            if key in old:
+                self._cache[key] = old[key]
             if lines:
                 lines.append("")
-            block = self._render_block(src)
+            block = self._render_block(src, key)
             spans.append(Span(start, end, len(lines), len(block)))
             lines.extend(block)
         self.lines, self.spans = lines, spans
 
-    def _render_block(self, src: str) -> list[str]:
-        rendered = self._cache.get(src)
+    def _render_block(self, src: str, key: tuple[str, tuple]) -> list[str]:
+        rendered = self._cache.get(key)
         if rendered is None and self.images:
             rendered = self.images.render(src, self.console.width, self.base)
         if rendered is None:
@@ -126,5 +130,5 @@ class Document:
                 rendered.pop(0)
             while len(rendered) > 1 and is_blank(rendered[-1]):
                 rendered.pop()
-        self._cache[src] = rendered
+        self._cache[key] = rendered
         return rendered
