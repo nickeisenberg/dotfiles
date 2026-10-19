@@ -1,8 +1,7 @@
 vim9script
 
-# The builtin engine: Vim's own 'autocomplete' (9.1.1590 and later), with
-# sources picked from g:completion_sources. yegappan/lsp's own completion is
-# switched off; its omnifunc feeds the LSP source instead.
+# The builtin engine (see plugin/completion.vim). yegappan/lsp's own
+# completion is switched off; its omnifunc feeds the LSP source instead.
 
 # source name -> its 'complete' flags.
 #   lsp     wraps yegappan/lsp's omnifunc (see Lsp() below)
@@ -15,24 +14,20 @@ const FLAGS = {
   buffer: ['.', 'w', 'b'],
 }
 
-def Opt(name: string, default: any): any
+# g:completion_{name}, or `default`.
+def Setting(name: string, default: any): any
   return get(g:, $'completion_{name}', default)
-enddef
-
-def Notify(msg: string)
-  echohl WarningMsg
-  echomsg $'completion: {msg}'
-  echohl None
 enddef
 
 def CompleteOption(): string
   var flags: list<string> = []
-  const max_items = Opt('max_items', {})
-  for name in Opt('sources', ['path', 'lsp', 'buffer'])
+  const max_items = Setting('max_items', {})
+  for name in Setting('sources', ['path', 'lsp', 'buffer'])
     if !has_key(FLAGS, name)
-      Notify($'unknown source: {name}')
+      completion#Notify($'unknown source: {name}')
       continue
     endif
+    # The limit is per flag: buffer's three flags may add that many each.
     const max = max_items->get(name, 0)
     for flag in FLAGS[name]
       flags->add(max > 0 ? $'{flag}^{max}' : flag)
@@ -43,10 +38,10 @@ enddef
 
 def CompleteOpt(): string
   var opts = ['menuone', 'noselect']
-  if Opt('fuzzy', true)
+  if Setting('fuzzy', true)
     opts->add('fuzzy')
   endif
-  if Opt('docs', true)
+  if Setting('docs', true)
     opts->add('popup')
   endif
   return join(opts, ',')
@@ -108,13 +103,15 @@ export def Lsp(findstart: number, base: string): any
 
   if findstart
     const start = g:LspOmniFunc(findstart, base)
-    # -2 would keep Vim waiting on this source; -3 leaves it out.
+    # Vim leaves the source out on both -2 and -3, but after -2 a source
+    # that returned {refresh: 'always'} is still asked again as you type.
     return start == -2 ? -3 : start
   endif
 
   # The omnifunc gives up as soon as complete_check() is true, which during
-  # autocompletion is almost at once. Wait for the reply here instead,
-  # stopping early only when a key is typed.
+  # autocompletion is almost at once. Wait for the reply here instead, for
+  # up to a second (about what Vim allows function sources; see
+  # 'autocompletetimeout'), stopping early when a key is typed.
   const started = reltime()
   while g:LspOmniCompletePending() && reltimefloat(reltime(started)) < 1.0
     if getchar(1) != 0
@@ -127,7 +124,7 @@ export def Lsp(findstart: number, base: string): any
     return result
   endif
 
-  const width = Opt('max_width', {abbr: 40, menu: 30})
+  const width = {abbr: 40, menu: 30}->extend(Setting('max_width', {}))
   return result->map((_, item) => item->extend({
     abbr: Truncate(item->get('abbr', item.word), width->get('abbr', 0)),
     menu: Truncate(Dedupe(item->get('menu', '')), width->get('menu', 0)),
@@ -135,14 +132,18 @@ export def Lsp(findstart: number, base: string): any
 enddef
 
 # ---------------------------------------------------------------------------
+# Setup
+# ---------------------------------------------------------------------------
 
+# 'autocompletedelay' came last (9.1.1638), after 'autocomplete' (9.1.1590)
+# and autoloaded F{func} sources (9.1.1603).
 export def Available(): bool
-  return exists('+autocomplete') == 1
+  return exists('+autocompletedelay') == 1
 enddef
 
 export def Setup()
   # Through :execute, so a Vim without these options can still compile it.
-  execute $'set autocomplete autocompletedelay={Opt("delay_ms", 0)}'
+  execute $'set autocomplete autocompletedelay={Setting("delay_ms", 0)}'
   &complete = CompleteOption()
   &completeopt = CompleteOpt()
   completion#LspOptions({autoComplete: false, omniComplete: true})

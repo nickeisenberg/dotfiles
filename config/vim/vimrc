@@ -250,7 +250,7 @@ nnoremap ]<Space> <Cmd>call append(line('.'), repeat([''], v:count1))<CR>
 # ---------------------------------------------------------------------------
 
 # Read when the completion plugin loads, so it is set before pack#End():
-# 'auto' uses Vim's 'autocomplete' when this Vim has it (9.1.1590 and
+# 'auto' uses Vim's 'autocomplete' when this Vim has it (9.1.1638 and
 # later), else yegappan/lsp's own completion.
 g:completion_engine = 'auto'
 
