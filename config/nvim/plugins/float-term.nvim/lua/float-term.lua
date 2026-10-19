@@ -20,8 +20,15 @@ local function prune()
   current_buf_idx = idx > 0 and idx or math.min(current_buf_idx, #buf_ids)
 end
 
-local function window_is_open()
+local function window_is_valid()
   return win_id ~= nil and vim.api.nvim_win_is_valid(win_id)
+end
+
+-- Open in the current tab. A float left in another tab counts as hidden.
+local function window_is_open()
+  return window_is_valid()
+    and vim.api.nvim_win_get_tabpage(win_id)
+      == vim.api.nvim_get_current_tabpage()
 end
 
 local function window_config()
@@ -41,6 +48,14 @@ local function window_config()
   }
 end
 
+local function close_terminal()
+  if window_is_valid() then
+    vim.api.nvim_win_close(win_id, true)
+  end
+
+  win_id = nil
+end
+
 local function open_terminal()
   local bufnr = buf_ids[current_buf_idx]
 
@@ -48,19 +63,14 @@ local function open_terminal()
     return
   end
 
+  -- Close the float if it was left open in another tab.
+  close_terminal()
+
   win_id = vim.api.nvim_open_win(bufnr, true, window_config())
 
   vim.wo[win_id].wrap = false
 
   vim.cmd("startinsert")
-end
-
-local function close_terminal()
-  if window_is_open() then
-    vim.api.nvim_win_close(win_id, true)
-  end
-
-  win_id = nil
 end
 
 function M.new()
@@ -70,11 +80,39 @@ function M.new()
 
   local shell = vim.split(vim.o.shell, "%s+")
 
+  -- jobstart throws if the shell isn't executable.
+  local ok, job_id
   vim.api.nvim_buf_call(bufnr, function()
-    vim.fn.jobstart(shell, {
+    ok, job_id = pcall(vim.fn.jobstart, shell, {
       term = true,
     })
   end)
+
+  if not ok or job_id <= 0 then
+    vim.api.nvim_buf_delete(bufnr, {
+      force = true,
+    })
+    vim.notify("Could not start shell: " .. vim.o.shell, vim.log.levels.ERROR)
+    return
+  end
+
+  -- Neovim only closes a terminal itself when the shell exits with 0;
+  -- close it on any exit so dead terminals leave the rotation.
+  vim.api.nvim_create_autocmd("TermClose", {
+    buffer = bufnr,
+    nested = true,
+    callback = function()
+      -- Scheduled: the buffer may already be mid-delete (kill, :bd!).
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          vim.api.nvim_buf_delete(bufnr, {
+            force = true,
+          })
+        end
+      end)
+    end,
+  })
+
   buf_ids[#buf_ids + 1] = bufnr
   current_buf_idx = #buf_ids
 
@@ -111,11 +149,13 @@ function M.next()
     vim.api.nvim_win_set_buf(win_id, buf_ids[current_buf_idx])
 
     vim.api.nvim_win_set_config(win_id, window_config())
+
+    vim.api.nvim_set_current_win(win_id)
+
+    vim.cmd("startinsert")
   else
     open_terminal()
   end
-
-  vim.cmd("startinsert")
 end
 
 function M.prev()
@@ -132,11 +172,13 @@ function M.prev()
     vim.api.nvim_win_set_buf(win_id, buf_ids[current_buf_idx])
 
     vim.api.nvim_win_set_config(win_id, window_config())
+
+    vim.api.nvim_set_current_win(win_id)
+
+    vim.cmd("startinsert")
   else
     open_terminal()
   end
-
-  vim.cmd("startinsert")
 end
 
 function M.kill()
@@ -145,6 +187,8 @@ function M.kill()
   if #buf_ids == 0 then
     return
   end
+
+  local was_open = window_is_open()
 
   close_terminal()
 
@@ -165,7 +209,9 @@ function M.kill()
     current_buf_idx = #buf_ids
   end
 
-  open_terminal()
+  if was_open then
+    open_terminal()
+  end
 end
 
 function M.kill_all()
@@ -182,5 +228,15 @@ function M.kill_all()
   buf_ids = {}
   current_buf_idx = nil
 end
+
+-- Keep the float centred when the editor is resized.
+vim.api.nvim_create_autocmd("VimResized", {
+  group = vim.api.nvim_create_augroup("FloatTerm", {}),
+  callback = function()
+    if window_is_valid() then
+      vim.api.nvim_win_set_config(win_id, window_config())
+    end
+  end,
+})
 
 return M
