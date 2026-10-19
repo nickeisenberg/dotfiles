@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "take-a-break"
+version = "0.1.0"
+description = "A background work/break timer with desktop notifications, controlled from the CLI."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+tab = "take_a_break.cli:main"
+
+[tool.setuptools]
+packages = ["take_a_break"]

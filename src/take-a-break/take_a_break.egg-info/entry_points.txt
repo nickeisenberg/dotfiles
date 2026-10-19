@@ -1,0 +1,2 @@
+[console_scripts]
+tab = take_a_break.cli:main
