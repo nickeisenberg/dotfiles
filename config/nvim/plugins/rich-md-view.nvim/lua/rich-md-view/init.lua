@@ -22,12 +22,36 @@ local root = vim.fs.dirname(
 -- Run from here, so `-m` finds the package without it being installed.
 local python_dir = vim.fs.joinpath(root, "python")
 
+-- The interpreter, and a hint for errors when it is the python3 fallback,
+-- which likely lacks the dependencies.
+---@return string, string?
 local function python()
   if M.config.python then
     return M.config.python
   end
   local venv_python = require("rich-md-view.build").venv_python(M.config.venv)
-  return vim.uv.fs_stat(venv_python) and venv_python or "python3"
+  if vim.uv.fs_stat(venv_python) then
+    return venv_python
+  end
+  local hint = "python3 was used, as there is no venv at "
+    .. venv_python
+    .. '; build it with `:lua require("rich-md-view.build").run()`'
+  return "python3", hint
+end
+
+local function notify_error(msg, hint)
+  if hint then
+    msg = msg .. "\n" .. hint
+  end
+  vim.notify("rich-md-view: " .. msg, vim.log.levels.ERROR)
+end
+
+-- The last non-empty lines a terminal buffer shows, such as a traceback.
+local function last_lines(buf, n)
+  local lines = vim.tbl_filter(function(line)
+    return vim.trim(line) ~= ""
+  end, vim.api.nvim_buf_get_lines(buf, 0, -1, false))
+  return table.concat(vim.list_slice(lines, math.max(1, #lines - n + 1)), "\n")
 end
 
 ---@class RichMdView.State
@@ -204,6 +228,13 @@ local function create_autocmds()
     end,
   })
 
+  -- Closing the preview window (:q, <C-w>c) closes the preview.
+  vim.api.nvim_create_autocmd("BufWinLeave", {
+    group = group,
+    buffer = state.buf,
+    callback = vim.schedule_wrap(M.close),
+  })
+
   vim.api.nvim_create_autocmd("VimLeavePre", {
     group = group,
     callback = M.close,
@@ -271,6 +302,12 @@ function M.open()
     return
   end
 
+  local py, hint = python()
+  if vim.fn.executable(py) == 0 then
+    notify_error(("python `%s` is not executable"):format(py), hint)
+    return
+  end
+
   local src_buf = vim.api.nvim_get_current_buf()
   local src_win = vim.api.nvim_get_current_win()
   local sock_path = vim.fn.tempname() .. ".sock"
@@ -296,7 +333,7 @@ function M.open()
     vim.wo[win][opt] = val
   end
 
-  local cmd = { python(), "-m", "richmdviewnvim", sock_path }
+  local cmd = { py, "-m", "richmdviewnvim", sock_path }
   if M.config.images and images.available() then
     table.insert(cmd, "--images")
   end
@@ -311,9 +348,13 @@ function M.open()
             return
           end
           if code ~= 0 then
-            vim.notify(
-              "rich-md-view: viewer exited with code " .. code,
-              vim.log.levels.ERROR
+            -- The preview, and the error in it, is about to go away.
+            notify_error(
+              ("viewer exited with code %d:\n%s"):format(
+                code,
+                last_lines(buf, 10)
+              ),
+              hint
             )
           end
           M.close()
