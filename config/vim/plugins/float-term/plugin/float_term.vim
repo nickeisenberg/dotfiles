@@ -9,6 +9,9 @@ vim9script noclear
 #   float_term#Kill()    close the current terminal
 #   float_term#KillAll() close every terminal
 #
+# g:float_term_size (default 0.75) is the popup's width and height as a
+# fraction of the screen.
+#
 # Hiding the popup keeps the shells running. From the terminal, <C-\><C-n>
 # (or <C-w>N) goes to Normal mode, where the mappings work.
 
