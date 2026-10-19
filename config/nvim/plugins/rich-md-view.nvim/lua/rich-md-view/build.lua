@@ -62,11 +62,12 @@ local function run_sync(cmd)
 end
 
 -- The installation behind an interpreter: a venv's python and the python
--- that made it give the same path, so only a real switch differs.
+-- that made it give the same prefix and version, so only a real switch
+-- differs.
 local function base_of(run, cmd)
   local probe = vim.list_extend(vim.deepcopy(cmd), {
     "-c",
-    "import os, sys; print(os.path.realpath(sys._base_executable))",
+    "import os, sys; print(os.path.realpath(sys.base_prefix), sys.version)",
   })
   return vim.trim(run(probe).stdout)
 end

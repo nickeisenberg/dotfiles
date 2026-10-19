@@ -12,10 +12,16 @@ import io
 import math
 import os
 import re
+import stat
 import urllib.parse
+import warnings
 from collections.abc import Callable
 
 from PIL import Image
+
+# Huge images are skipped like unreadable ones, instead of printing a
+# warning over the preview.
+warnings.simplefilter("error", Image.DecompressionBombWarning)
 
 PLACEHOLDER = "\U0010eeee"
 # The first 60 row/column diacritics from kitty's rowcolumn-diacritics.txt.
@@ -33,7 +39,8 @@ MAX_ROWS = 30
 # Assumed cell size in pixels; only the 1:2 ratio matters for the box, and
 # kitty keeps the aspect ratio inside it anyway.
 CELL_W, CELL_H = 10, 20
-# High byte of the image ids; iron.nvim uses 128-255.
+# High byte of the image ids is NAMESPACE plus the PID mod 64, so viewers
+# in one terminal mostly don't share ids; iron.nvim uses 128-255.
 NAMESPACE = 64
 
 IMAGE_LINE = re.compile(
@@ -41,28 +48,56 @@ IMAGE_LINE = re.compile(
 )
 
 
+def image_paths(src: str, base: str) -> list[str] | None:
+    """The local files an image-only block shows, else None.
+
+    Relative paths resolve against the directory base.
+    """
+    paths = []
+    for line in src.split("\n"):
+        match = IMAGE_LINE.match(line)
+        if not match or "://" in match.group(1):
+            return None
+        ref = os.path.expanduser(urllib.parse.unquote(match.group(1)))
+        paths.append(os.path.join(base, ref))
+    return paths
+
+
+def mtime(path: str) -> int | None:
+    try:
+        return os.stat(path).st_mtime_ns
+    except OSError:
+        return None
+
+
 class Images:
-    def __init__(self, send: Callable[[int, int, int, bytes], None]) -> None:
-        # send(id, cols, rows, png) hands an image to Neovim to upload.
+    def __init__(
+        self,
+        send: Callable[[int, int, int, bytes], None],
+        free: Callable[[int], None],
+    ) -> None:
+        # send(id, cols, rows, png) hands an image to Neovim to upload;
+        # free(id) has it delete one.
         self.send = send
-        # (path, mtime, cols, rows) -> uploaded image id
-        self.ids: dict[tuple[str, int, int, int], int] = {}
+        self.free = free
+        # path -> ((mtime, cols, rows), id) of its latest upload
+        self.ids: dict[str, tuple[tuple[int, int, int], int]] = {}
+        self.id_base = (NAMESPACE + os.getpid() % 64) << 16
         self.serial = 0
 
-    def render(self, src: str, width: int, base: str) -> list[str] | None:
-        """Placeholder rows for an image-only block, else None.
+    def stamp(self, src: str, base: str) -> tuple[int | None, ...]:
+        """Modification times of the files an image-only block shows, so
+        the block is drawn again when one changes."""
+        return tuple(map(mtime, image_paths(src, base) or []))
 
-        Relative paths resolve against the directory base.
-        """
-        refs = []
-        for line in src.split("\n"):
-            match = IMAGE_LINE.match(line)
-            if not match:
-                return None
-            refs.append(match.group(1))
+    def render(self, src: str, width: int, base: str) -> list[str] | None:
+        """Placeholder rows for an image-only block, else None."""
+        paths = image_paths(src, base)
+        if paths is None:
+            return None
         rows = []
-        for ref in refs:
-            block = self._image(ref, width, base)
+        for path in paths:
+            block = self._image(path, width)
             if block is None:
                 return None
             if rows:
@@ -70,21 +105,22 @@ class Images:
             rows.extend(block)
         return rows
 
-    def _image(self, ref: str, width: int, base: str) -> list[str] | None:
-        if "://" in ref:
-            return None
-        path = os.path.join(
-            base, os.path.expanduser(urllib.parse.unquote(ref))
-        )
+    def _image(self, path: str, width: int) -> list[str] | None:
         try:
-            mtime = os.stat(path).st_mtime_ns
+            st = os.stat(path)
+            # Anything else (a FIFO, /dev/stdin) could block forever.
+            if not stat.S_ISREG(st.st_mode):
+                return None
             with Image.open(path) as im:
                 cols, rows = self._box(im.size, width)
-                key = (path, mtime, cols, rows)
-                image_id = self.ids.get(key)
-                if image_id is None:
+                key = (st.st_mtime_ns, cols, rows)
+                old_key, image_id = self.ids.get(path, (None, 0))
+                if key != old_key:
+                    if old_key:
+                        # Resized or changed: never shown again.
+                        self.free(image_id)
                     image_id = self._upload(im, cols, rows)
-                    self.ids[key] = image_id
+                    self.ids[path] = key, image_id
         except Exception:
             # Missing or unreadable: rich shows the alt text instead.
             return None
@@ -108,7 +144,7 @@ class Images:
         out = io.BytesIO()
         im.save(out, "PNG")
         self.serial = self.serial % 65535 + 1
-        image_id = (NAMESPACE << 16) + self.serial
+        image_id = self.id_base + self.serial
         self.send(image_id, cols, rows, out.getvalue())
         return image_id
 

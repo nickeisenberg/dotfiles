@@ -1,5 +1,6 @@
 -- Images the viewer sends, uploaded to the host terminal with the kitty
--- graphics protocol and freed together when the preview closes.
+-- graphics protocol. Freed when the viewer stops showing them, and the
+-- rest together when the preview closes.
 
 local kitty = require("rich-md-view.kitty")
 
@@ -37,6 +38,12 @@ end
 function Images:upload(id, png, rows, cols)
   kitty.render(id, png, rows, cols)
   self.ids[id] = true
+end
+
+---@param id integer
+function Images:delete(id)
+  pcall(kitty.delete, id)
+  self.ids[id] = nil
 end
 
 ---Frees every uploaded image.

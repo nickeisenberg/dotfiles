@@ -20,6 +20,7 @@ Viewer to Neovim:
   L <topline> <cursor>          after a scroll: source lines to show, so
                                 Neovim can match
   I <id> <cols> <rows>          payload: PNG to upload to the terminal
+  D <id>                        an upload that is no longer shown, to free
 
 lua/rich-md-view/protocol.lua is the Neovim side of this.
 """
@@ -38,7 +39,7 @@ def encode(kind: str, *args: object, payload: bytes = b"") -> bytes:
     return header.encode() + b"\n" + payload
 
 
-def decode(buf: bytes) -> tuple[list[Message], bytes]:
+def decode(buf: bytearray) -> tuple[list[Message], bytearray]:
     """Complete messages at the start of buf, and the bytes left over."""
     messages = []
     while (nl := buf.find(b"\n")) >= 0:
@@ -46,6 +47,6 @@ def decode(buf: bytes) -> tuple[list[Message], bytes]:
         end = nl + 1 + int(size)
         if len(buf) < end:
             break
-        messages.append(Message(kind, args, buf[nl + 1 : end]))
+        messages.append(Message(kind, args, bytes(buf[nl + 1 : end])))
         buf = buf[end:]
     return messages, buf
