@@ -1,0 +1,21 @@
+{
+  "plugins": {
+    "claudecode.nvim": {
+      "rev": "2390c6e45c4789072c293ac69de051d169668b29",
+      "src": "https://github.com/coder/claudecode.nvim"
+    },
+    "iron.nvim": {
+      "rev": "93fdf401cc18b543677ec14f5676cd2bf78b4cca",
+      "src": "https://github.com/Vigemus/iron.nvim",
+      "version": "'dev-image'"
+    },
+    "vim-fugitive": {
+      "rev": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0",
+      "src": "https://github.com/tpope/vim-fugitive"
+    },
+    "vimtex": {
+      "rev": "bd0788f13c23337dae815e21f1f283cb79753ac7",
+      "src": "https://github.com/lervag/vimtex"
+    }
+  }
+}
