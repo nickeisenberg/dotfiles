@@ -7,7 +7,8 @@ return {
         paths = {
           -- Your own: <filetype>.json and all.json.
           vim.fn.stdpath("config") .. "/snippets",
-          -- friendly-snippets, installed by pack.nvim.
+          -- A VSCode snippet extension such as friendly-snippets, if you
+          -- add it to a spec; a missing directory is skipped.
           vim.fn.stdpath("data") .. "/site/pack/core/opt/friendly-snippets",
         },
       },
