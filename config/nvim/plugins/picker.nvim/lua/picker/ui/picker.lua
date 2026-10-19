@@ -9,33 +9,58 @@ function M.open(opts)
 
   local layout_type = layout.get()
 
-  local total_width = math.floor(vim.o.columns * 0.85)
-  local total_height = math.floor(vim.o.lines * 0.75)
-
   local list_width
   local list_height
   local preview_width
   local preview_height
 
-  if layout_type == "side" then
-    list_width = math.floor(total_width * 0.45)
-    preview_width = total_width - list_width - 2
-    list_height = total_height
-    preview_height = total_height
-  elseif layout_type == "bottom" then
-    list_width = total_width
-    preview_width = total_width
-    list_height = math.floor(total_height * 0.45)
-    preview_height = total_height - list_height - 2
-  else
-    list_width = total_width
-    list_height = total_height
-    preview_width = 0
-    preview_height = 0
+  local row
+  local col
+  local preview_row
+  local preview_col
+
+  -- Sizes follow the editor size, so VimResized can recompute them.
+  -- The layout type stays as it was when the picker opened.
+  local function update_sizes()
+    local total_width = math.floor(vim.o.columns * 0.85)
+    local total_height = math.floor(vim.o.lines * 0.75)
+
+    if layout_type == "side" then
+      list_width = math.floor(total_width * 0.45)
+      preview_width = total_width - list_width - 2
+      list_height = total_height
+      preview_height = total_height
+    elseif layout_type == "bottom" then
+      list_width = total_width
+      preview_width = total_width
+      list_height = math.floor(total_height * 0.45)
+      preview_height = total_height - list_height - 2
+    else
+      list_width = total_width
+      list_height = total_height
+      preview_width = 0
+      preview_height = 0
+    end
+
+    -- A small editor must not produce an invalid window size.
+    list_width = math.max(list_width, 1)
+    list_height = math.max(list_height, 1)
+    preview_width = math.max(preview_width, 1)
+    preview_height = math.max(preview_height, 1)
+
+    row = math.floor((vim.o.lines - total_height) / 2)
+    col = math.floor((vim.o.columns - total_width) / 2)
+
+    if layout_type == "side" then
+      preview_row = row
+      preview_col = col + list_width + 2
+    else
+      preview_row = row + list_height + 2
+      preview_col = col
+    end
   end
 
-  local row = math.floor((vim.o.lines - total_height) / 2)
-  local col = math.floor((vim.o.columns - total_width) / 2)
+  update_sizes()
 
   --
   -- Results window
@@ -72,17 +97,6 @@ function M.open(opts)
   if layout_type ~= "none" then
     preview_buf = vim.api.nvim_create_buf(false, true)
 
-    local preview_row
-    local preview_col
-
-    if layout_type == "side" then
-      preview_row = row
-      preview_col = col + list_width + 2
-    else
-      preview_row = row + list_height + 2
-      preview_col = col
-    end
-
     preview_win = vim.api.nvim_open_win(preview_buf, false, {
       relative = "editor",
       width = preview_width,
@@ -117,6 +131,9 @@ function M.open(opts)
   local closed = false
   local search_generation = 0
   local cancel_search
+
+  -- Old matches stay on screen until the new query's results arrive.
+  local stale = false
 
   local preview_file
   local preview_tick
@@ -165,12 +182,12 @@ function M.open(opts)
       return
     end
 
-    local bufnr = vim.fn.bufnr(preview.file)
+    local bufnr = previewer.loaded_buf(preview.file)
     local tick
 
     -- Loaded buffers can contain unsaved changes. Their changedtick
     -- tells us whether cached preview contents need to be refreshed.
-    if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+    if bufnr then
       tick = vim.api.nvim_buf_get_changedtick(bufnr)
     end
 
@@ -338,15 +355,34 @@ function M.open(opts)
     -- Stop obsolete work immediately, before the debounce delay.
     cancel_current_search()
 
-    -- Clear stale matches so Enter cannot open a previous query's result.
-    -- An empty query shows the starting list again.
-    results = search_query == "" and (opts.initial_results or {}) or {}
-    selected = 1
-    scroll_offset = 1
+    -- An empty query shows the starting list again. Asynchronous
+    -- sources provide that list themselves.
+    if search_query == "" and not opts.search_async then
+      results = opts.initial_results or {}
+      selected = 1
+      scroll_offset = 1
+      stale = false
+      render()
+      return
+    end
+
+    -- Keep the previous matches, and so the preview, on screen until
+    -- new results arrive; clearing them makes both flicker. Enter
+    -- ignores them meanwhile.
+    stale = true
     render()
 
-    if search_query == "" then
-      return
+    local function show(new_results)
+      -- The first results for a query start at the top. Later batches
+      -- preserve navigation.
+      if stale then
+        stale = false
+        selected = 1
+        scroll_offset = 1
+      end
+
+      results = new_results or {}
+      render()
     end
 
     vim.defer_fn(function()
@@ -362,22 +398,39 @@ function M.open(opts)
             return
           end
 
-          results = new_results or {}
-
-          -- Preserve navigation when another result batch arrives.
-          render()
+          show(new_results)
         end)
       elseif opts.search then
         -- Compatibility only: a synchronous source still blocks.
-        results = opts.search(search_query) or {}
-        render()
+        show(opts.search(search_query))
       end
     end, SEARCH_DEBOUNCE_MS)
   end
 
   --
+  -- Paste
+  --
+
+  -- Pasted text goes into the query rather than the read-only list.
+  local paste = vim.paste
+
+  local function paste_into_query(lines, phase)
+    if vim.api.nvim_get_current_buf() ~= list_buf then
+      return paste(lines, phase)
+    end
+
+    query = query .. table.concat(lines, " ")
+    search()
+    return true
+  end
+
+  vim.paste = paste_into_query
+
+  --
   -- Close and cleanup
   --
+
+  local group = vim.api.nvim_create_augroup("picker." .. list_buf, {})
 
   local function stop_work()
     if closed then
@@ -390,6 +443,17 @@ function M.open(opts)
     search_generation = search_generation + 1
     preview_generation = preview_generation + 1
     cancel_current_search()
+
+    pcall(vim.api.nvim_del_augroup_by_id, group)
+
+    -- Restore the paste handler, unless something replaced it since.
+    if vim.paste == paste_into_query then
+      vim.paste = paste
+    end
+
+    if opts.on_close then
+      opts.on_close()
+    end
   end
 
   local function close()
@@ -403,6 +467,53 @@ function M.open(opts)
       vim.api.nvim_win_close(list_win, true)
     end
   end
+
+  vim.api.nvim_create_autocmd("WinEnter", {
+    group = group,
+    callback = function()
+      -- Close when focus leaves the picker, for example after <C-w>w or
+      -- a mouse click. Check once the switch has settled; moving between
+      -- the picker's own windows keeps it open.
+      vim.schedule(function()
+        local win = vim.api.nvim_get_current_win()
+
+        if picker_is_valid() and win ~= list_win and win ~= preview_win then
+          close()
+        end
+      end)
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("VimResized", {
+    group = group,
+    callback = function()
+      if not picker_is_valid() then
+        return
+      end
+
+      update_sizes()
+
+      vim.api.nvim_win_set_config(list_win, {
+        relative = "editor",
+        width = list_width,
+        height = list_height,
+        row = row,
+        col = col,
+      })
+
+      if preview_win and vim.api.nvim_win_is_valid(preview_win) then
+        vim.api.nvim_win_set_config(preview_win, {
+          relative = "editor",
+          width = preview_width,
+          height = preview_height,
+          row = preview_row,
+          col = preview_col,
+        })
+      end
+
+      render()
+    end,
+  })
 
   vim.api.nvim_create_autocmd("BufWipeout", {
     buffer = list_buf,
@@ -426,7 +537,7 @@ function M.open(opts)
 
     local result = results[selected]
 
-    if not result then
+    if not result or stale then
       return
     end
 
@@ -489,6 +600,13 @@ function M.open(opts)
   map("<Up>", move_up)
   map("<Esc>", close)
 
+  -- These would jump to another buffer inside the picker's window.
+  local jump_keys = { "<C-^>", "<C-o>", "<C-i>", "<Tab>", "<C-]>", "<C-t>" }
+
+  for _, key in ipairs(jump_keys) do
+    map(key, function() end)
+  end
+
   map("<BS>", function()
     if #query == 0 then
       return
@@ -511,7 +629,11 @@ function M.open(opts)
     end)
   end
 
-  render()
+  if opts.search_async then
+    search()
+  else
+    render()
+  end
 end
 
 return M

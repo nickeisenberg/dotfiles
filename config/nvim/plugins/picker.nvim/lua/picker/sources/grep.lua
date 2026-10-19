@@ -17,6 +17,7 @@ local function grep_async(query, on_results)
   local publish_pending = false
   local tail = ""
   local results = {}
+  local errors = {}
 
   local function publish()
     if not active then
@@ -81,12 +82,19 @@ local function grep_async(query, on_results)
     end
   end
 
-  job = vim.fn.jobstart({
+  -- jobstart() raises an error, rather than returning -1, when rg is
+  -- not installed.
+  local ok
+  ok, job = pcall(vim.fn.jobstart, {
     "rg",
     "--vimgrep",
     "--color=never",
     "--smart-case",
     "--hidden",
+
+    -- Shorten very long lines, such as minified files.
+    "--max-columns=500",
+    "--max-columns-preview",
     "--glob",
     "!.git/*",
     "--glob",
@@ -129,7 +137,13 @@ local function grep_async(query, on_results)
       publish_later()
     end,
 
-    on_exit = function()
+    stderr_buffered = true,
+
+    on_stderr = function(_, data)
+      errors = data or {}
+    end,
+
+    on_exit = function(_, code)
       if not active or finished then
         return
       end
@@ -140,6 +154,16 @@ local function grep_async(query, on_results)
         tail = ""
       end
 
+      -- Show rg's error, such as an invalid regex, instead of an
+      -- empty list.
+      if code == 2 and #results == 0 then
+        for _, line in ipairs(errors) do
+          if line ~= "" then
+            results[#results + 1] = { error = line }
+          end
+        end
+      end
+
       if not finished then
         finished = true
         publish()
@@ -147,7 +171,7 @@ local function grep_async(query, on_results)
     end,
   })
 
-  if job <= 0 then
+  if not ok or job <= 0 then
     active = false
 
     vim.notify(
@@ -181,6 +205,10 @@ function M.live_grep()
     search_async = grep_async,
 
     format = function(result)
+      if result.error then
+        return result.error
+      end
+
       return string.format(
         "%s:%d:%d: %s",
         result.file,
@@ -191,6 +219,10 @@ function M.live_grep()
     end,
 
     preview = function(result)
+      if result.error then
+        return nil
+      end
+
       return {
         file = result.file,
         lnum = result.lnum,
@@ -199,6 +231,10 @@ function M.live_grep()
     end,
 
     select = function(result)
+      if result.error then
+        return
+      end
+
       vim.cmd.edit(vim.fn.fnameescape(result.file))
 
       local line_count = vim.api.nvim_buf_line_count(0)
