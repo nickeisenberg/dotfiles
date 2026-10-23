@@ -37,7 +37,13 @@ local function parse(output, root, dir)
       local full = root .. "/" .. path
       if vim.startswith(full, dir .. "/") then
         local child = full:sub(#dir + 2):match("^[^/]+")
-        status[child] = status[child] or xy
+        if child then
+          status[child] = status[child] or xy
+        else
+          -- `dir` itself is reported, as when it is untracked: the status
+          -- holds for every entry.
+          setmetatable(status, { __index = function() return xy end })
+        end
       end
     end
     i = i + 1

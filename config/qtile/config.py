@@ -35,12 +35,12 @@ from utils import (
 mod0 = "mod1"  # alt
 mod1 = "mod4"  # super
 
-if which("ghostty"):
-    terminal = "ghostty"
-elif which("alacritty"):
+if which("alacritty"):
     terminal = "alacritty"
+elif which("ghostty"):
+    terminal = "ghostty"
 elif which("gnome-terminal"):
-    terminal = "gnome-terminal"
+    terminal = "gnome-terminal --no-environment"
 else:
     terminal = ""
     logger.exception("WARNING: A terminal was not set.")
