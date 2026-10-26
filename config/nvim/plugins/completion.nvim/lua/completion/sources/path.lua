@@ -74,6 +74,13 @@ local function matches(entries, prefix)
   end, entries)
 end
 
+-- Directory typed before the name being completed, saved by the
+-- findstart call. Completion starts after the last "/" and only the name
+-- is inserted: that is the column the other sources in the merged menu
+-- start at too, and Neovim otherwise replaces "ni" in "/home/ni" with
+-- the whole path.
+local typed_dir
+
 ---@param findstart integer
 ---@param base string
 ---@return integer|table
@@ -81,11 +88,15 @@ function M.complete(findstart, base)
   if findstart == 1 then
     local line = line_before_cursor()
     local token = line:match(PATH_TOKEN)
-    -- -3: not a path here; leave this source out.
-    return token and #line - #token or -3
+    if not token then
+      -- -3: not a path here; leave this source out.
+      return -3
+    end
+    typed_dir = token:match("^(.*/)")
+    return #line - #token + #typed_dir
   end
 
-  local dir, prefix = base:match("^(.*/)([^/]*)$")
+  local dir, prefix = typed_dir, base
   if not dir then
     return {}
   end
@@ -93,7 +104,7 @@ function M.complete(findstart, base)
   local items = {}
   for _, e in ipairs(matches(scan(dir, prefix), prefix)) do
     items[#items + 1] = {
-      word = dir .. e.name,
+      word = e.name,
       abbr = e.name .. (e.is_dir and "/" or ""),
       kind = e.is_dir and "Folder" or "File",
       menu = "[path]",
